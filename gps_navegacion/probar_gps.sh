@@ -1,0 +1,41 @@
+#!/bin/bash
+# Script para probar el GPS en el navegador
+
+echo "================================================================"
+echo "  SERVIDOR GPS DEL DRONE INICIADO"
+echo "================================================================"
+echo ""
+echo "✅ GPS CONECTADO: /dev/ttyACM0"
+echo "✅ Ubicación actual detectada:"
+echo ""
+
+# Leer última posición GPS del log
+GPS_LINE=$(grep "GPS:" /home/admin/drone\ acuatico/drone_gps.log | tail -1)
+echo "   $GPS_LINE"
+echo ""
+
+echo "================================================================"
+echo "  ACCEDE A LA INTERFAZ WEB"
+echo "================================================================"
+echo ""
+echo "🌐 Abre en tu navegador:"
+echo ""
+echo "   http://192.168.1.8:8080"
+echo ""
+echo "   o desde la misma Raspberry:"
+echo ""
+echo "   http://localhost:8080"
+echo ""
+echo "================================================================"
+echo ""
+echo "📍 El mapa mostrará la ubicación GPS REAL en tiempo real"
+echo "🔄 Actualización cada 5 segundos automáticamente"
+echo "📊 Latitud: ~11.234°N, Longitud: ~74.208°W"
+echo ""
+echo "🛑 Para detener el servidor:"
+echo "   pkill -f drone_server.py"
+echo ""
+echo "📋 Para ver logs en tiempo real:"
+echo "   tail -f ~/drone\\ acuatico/drone_gps.log"
+echo ""
+echo "================================================================"

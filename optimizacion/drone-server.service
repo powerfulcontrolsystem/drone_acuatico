@@ -1,0 +1,22 @@
+[Unit]
+Description=Servidor del Drone Acuático
+After=network.target
+
+[Service]
+Type=simple
+User=admin
+WorkingDirectory=/home/admin/drone acuatico
+ExecStartPre=/bin/bash /home/admin/drone acuatico/optimizacion/optimizar_inicio.sh
+ExecStart=/home/admin/drone acuatico/venv_pi/bin/python3 /home/admin/drone acuatico/servidores/drone_server.py
+Restart=on-failure
+RestartSec=10
+StandardOutput=append:/home/admin/drone acuatico/optimizacion/servidor.log
+StandardError=append:/home/admin/drone acuatico/optimizacion/servidor_error.log
+
+# Optimizaciones de memoria
+Environment="PYTHONUNBUFFERED=1"
+Environment="MALLOC_TRIM_THRESHOLD_=100000"
+Nice=-5
+
+[Install]
+WantedBy=multi-user.target

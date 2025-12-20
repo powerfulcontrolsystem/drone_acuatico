@@ -109,6 +109,9 @@ La página web simula un control remoto físico del dron, usando solo html y jav
 ## nombre de la pagina
 "control remoto digital"
 
+## Formato de la pagina
+La pagina esta hecha principalmente para verla en un celular o movil en formato Horizontal.est debe esta debe trener tres solumnas asi: camara 1, camara 2, mapa. debajo de estas tres fulas estan los botones que controlan el dron, la pagina debe tener un menu en donde se pueda acceder a la pagina "configuracion"
+
 ### FUNCIONES
 1. Activar relé 1  
 2. Activar relé 2  
@@ -123,7 +126,12 @@ La página web simula un control remoto físico del dron, usando solo html y jav
 11. Atrás  
 12. Derecha  
 13. Izquierda  
-14. Guardar ubicación GPS  
+14. Guardar ubicación GPS
+15. Ir a destino
+16. Tomar foto en camara 1
+17. grabar video en camara 1
+18. Tomar foto en camara 2
+19. grabar video en camara 2
 
 La página muestra **dos vistas de cámara en vivo** mediante las URLs de las cámaras IP.
 
@@ -158,6 +166,7 @@ se usara web socket para comunicar la web con el servidor.py
 Todo lo relacionado con la pagina, es decir el archivo html, java etc, debe estar en una carpeta llamada "control remoto digital", es decir en: drone acuatico/control remoto digital/
 - todas las imagenes en la carpeta imagenes
 - En python todo bien organizado
+- La pagina cargara la configuracion o el ultimo estado de todos los botones, esta informacion obtenida de la base de datos
 
 ## Nota
 - Todo el codigo debe tener su respectivo comentario explicando en cada linea.
@@ -168,3 +177,47 @@ Todo lo relacionado con la pagina, es decir el archivo html, java etc, debe esta
 usuario: admin
 clave: admin
 ip: 192.168.1.8
+
+## Base de datos drone-acuatico
+la base de datos se llamara: drone-acuatico
+se usara SQLite corriendo en la raspberry, en el se guardaran las configuraciones basicas, se guardaran posiciones gps entre otros que tu creas necesario
+se guardara el estado de todos los rele (on/off)
+
+- La rasberry se conecta a internet por wifi.
+- El codigo de este proyecto lo corro desde el vsc de mi portatil, pero se ejecuta en la raspberry para que funcionen bien los puertos GPIO.
+- Se registrara el tamaño del mapa , para cuando se abra la pagina, el mapa quede del ultimo taaño que lo dejo el usuario.
+
+## pagina configuracion
+la pagina "configuracion" debe tener varias configuraciones que se almacenan en la base de datos,  configuraciones como:
+- direccion ip publica del raspberry
+- tamaño del mapa del gps
+- Guardar recorrido via gps
+- Solicitar contraseña de usuario en raspberry al iniciar la pagina control remoto digital.
+- Cambiar contraseña
+- Correo electronico
+- Direccion ip Camara 1
+- Direccion ip Camara 2
+- Desactivar camara 1
+- desactivar camara 2
+- Nombre rele 1
+- Nombre rele 2
+- Nombre rele 3
+- Nombre rele 4
+- Nombre rele 5
+- Nombre rele 6
+- Nombre rele 7
+- Nombre rele 8
+- Nombre rele 9
+
+## Compilacion de vsc
+Protege Copilot Chat contra SSH:
+notepad $env:APPDATA\Code\User\settings.json
+
+{
+  "remote.extensionKind": {
+    "GitHub.copilot": ["ui"],
+    "GitHub.copilot-chat": ["ui"]
+  }
+}
+
+- tener en cuenta que la ram de la raspberry pi3 es limitada, y hay que cuidar que vsc no llene demasiado la memoria de la raspberry pi 3.

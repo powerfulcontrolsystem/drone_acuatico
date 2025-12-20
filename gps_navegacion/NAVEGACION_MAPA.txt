@@ -1,0 +1,92 @@
+════════════════════════════════════════════════════════════════════════════
+         ✅ NAVEGACIÓN POR CLIC EN EL MAPA IMPLEMENTADA
+════════════════════════════════════════════════════════════════════════════
+
+🗺️ NUEVA FUNCIONALIDAD:
+
+Ahora puedes hacer clic en cualquier punto del mapa para:
+  1. Colocar un marcador azul en ese punto
+  2. Ver un popup con la pregunta "¿Navegar a ubicación?"
+  3. Confirmar o cancelar la navegación
+
+════════════════════════════════════════════════════════════════════════════
+
+📍 CÓMO USAR:
+
+1. Abre la interfaz web:
+   http://192.168.1.8:8080
+
+2. Haz clic en cualquier punto del MAPA
+
+3. Aparecerá un MARCADOR AZUL con un popup:
+   
+   ┌────────────────────────────────────┐
+   │  ¿Navegar a ubicación?             │
+   │  Lat: XX.XXXXXX                    │
+   │  Lng: XX.XXXXXX                    │
+   │  ┌──────────┐  ┌──────────┐       │
+   │  │SÍ,NAVEGAR│  │ CANCELAR │       │
+   │  └──────────┘  └──────────┘       │
+   └────────────────────────────────────┘
+
+4. Opciones:
+   • SÍ, NAVEGAR → Envía comando al drone
+   • CANCELAR    → Elimina el marcador
+
+════════════════════════════════════════════════════════════════════════════
+
+🎨 INDICADORES EN EL MAPA:
+
+  🔴 Marcador ROJO  → Posición actual del drone (GPS real)
+  🔵 Marcador AZUL  → Punto de destino seleccionado
+  📈 Línea AZUL     → Ruta recorrida por el drone
+
+════════════════════════════════════════════════════════════════════════════
+
+⚙️ FUNCIONALIDADES:
+
+✅ Click en cualquier punto del mapa
+✅ Marcador azul con coordenadas exactas
+✅ Popup flotante con pregunta
+✅ Botones de confirmación/cancelación
+✅ Envío de comando al servidor
+✅ Solo un marcador de destino a la vez
+✅ Funciona en PC y móvil (táctil)
+
+════════════════════════════════════════════════════════════════════════════
+
+📡 COMUNICACIÓN CON EL DRONE:
+
+Cuando confirmas la navegación:
+  1. Se envía mensaje WebSocket al servidor
+  2. El servidor registra el destino en logs
+  3. Todos los clientes reciben notificación
+  4. (TODO: Navegación autónoma GPS)
+
+Log del servidor:
+  "Comando de navegación recibido: Lat XX.XXX, Lng XX.XXX"
+
+════════════════════════════════════════════════════════════════════════════
+
+💡 TIPS:
+
+• Puedes hacer clic en varios puntos, solo se mostrará el último
+• El marcador se elimina automáticamente al cancelar
+• Funciona con zoom y desplazamiento del mapa
+• Las coordenadas son precisas con 6 decimales
+
+════════════════════════════════════════════════════════════════════════════
+
+🚀 PRÓXIMOS PASOS (TODO):
+
+Para implementar navegación autónoma completa:
+  1. Calcular dirección hacia destino
+  2. Activar motores según rumbo GPS
+  3. Monitorear distancia restante
+  4. Detener al llegar al destino
+
+════════════════════════════════════════════════════════════════════════════
+
+✅ ¡LISTO! Abre http://192.168.1.8:8080 y prueba haciendo clic en el mapa
+
+════════════════════════════════════════════════════════════════════════════
