@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+
+# Entorno virtual
+venv_pi/
+venv/
+env/
+ENV/
+
+# VSCode
+.vscode/
+.vscode-server/
+
+# Logs
+*.log
+server.log
+
+# Sistema
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# Archivos temporales
+*.tmp
+*.bak
