@@ -221,3 +221,7 @@ notepad $env:APPDATA\Code\User\settings.json
 }
 
 - tener en cuenta que la ram de la raspberry pi3 es limitada, y hay que cuidar que vsc no llene demasiado la memoria de la raspberry pi 3.
+
+
+## repositorio del proyecto 
+https://github.com/powerfulcontrolsystem/drone-acuatico.git
