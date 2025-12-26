@@ -459,6 +459,17 @@ async def api_config_handler(request):
         try:
             datos = await request.json()
             if guardar_configuracion(datos):
+                # Notificar a todos los clientes conectados que la configuración fue actualizada
+                mensaje = {
+                    'tipo': 'config_actualizada',
+                    'mensaje': 'Nombres de relés actualizados'
+                }
+                for cliente in CLIENTES_WS:
+                    try:
+                        await cliente.send_json(mensaje)
+                    except Exception as e:
+                        logger.warning(f"Error notificando cliente: {e}")
+                
                 return web.json_response({
                     'exito': True,
                     'mensaje': 'Configuración guardada correctamente'
