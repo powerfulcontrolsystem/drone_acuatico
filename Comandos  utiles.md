@@ -1,18 +1,7 @@
 ## iniciar servidor
-bash "/home/admin/drone acuatico/iniciar_servidor.sh"
+pkill -f "servidor.py" 2>/dev/null || true; bash "/home/admin/drone acuatico/iniciar_servidor.sh"
 
-## subir repositorio
-bash "/home/admin/drone acuatico/subir_a_repositorio.sh"
 
-ls -la "/home/admin/drone acuatico" && git -C "/home/admin/drone acuatico" status && git -C "/home/admin/drone acuatico" remote -v && git -C "/home/admin/drone acuatico" branch -vv
-
-## SOLUCIONES WIFI INESTABLE - NUEVOS COMANDOS
-
-### Diagnóstico rápido del sistema (sin scripts)
-uname -r && uptime -p && free -h && ps aux --sort=-%mem | head -11 && iwconfig wlan0 || echo "wlan0 no encontrado"
-
-### Desactivar PowerSave WiFi (TEMPORAL - inmediato)
-sudo iw wlan0 set power_save off
 
 ### Desactivar PowerSave WiFi (PERMANENTE - después de reiniciar)
 echo "options brcmfmac power_save=0" | sudo tee /etc/modprobe.d/brcmfmac.conf

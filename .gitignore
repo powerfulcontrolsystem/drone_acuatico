@@ -1,9 +1,3 @@
-# Archivos compilados de Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-
 # Entornos virtuales
 venv_pi/
 venv/
