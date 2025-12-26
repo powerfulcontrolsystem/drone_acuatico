@@ -26,3 +26,10 @@ iw wlan0 link
 
 ### Monitorear conexión en tiempo real
 watch -n 1 "iw wlan0 link"
+
+## actualizacion del repositorio
+# Opción 1: Sin mensaje (usa timestamp automático)
+./subir_cambios_a_repositorio.sh
+
+# Opción 2: Con mensaje personalizado
+./subir_cambios_a_repositorio.sh "Arreglo de bugs en control de motores"
