@@ -1,0 +1,532 @@
+#!/usr/bin/env python3
+"""
+SERVIDOR WEB DEL DRONE ACUÁTICO
+Servidor HTTP/WebSocket para control remoto del drone
+"""
+
+import asyncio
+import json
+import logging
+from pathlib import Path
+from aiohttp import WSMsgType, web
+
+# Importar todas las funciones del módulo funciones
+from funciones import (
+    matar_procesos_servidor_previos,
+    inicializar_gpio,
+    controlar_rele,
+    controlar_motor,
+    liberar_gpio,
+    obtener_ram,
+    obtener_temperatura,
+    obtener_bateria,
+    obtener_peso,
+    obtener_solar,
+    iniciar_gps,
+    detener_gps,
+    obtener_posicion_gps,
+    guardar_posicion_gps,
+    apagar_sistema,
+    reiniciar_sistema,
+    ESTADO_RELES
+)
+
+# Importar funciones de base de datos
+from base_datos import (
+    inicializar_bd,
+    obtener_configuracion,
+    guardar_configuracion,
+    obtener_estado_reles,
+    guardar_estado_rele,
+    iniciar_recorrido,
+    guardar_posicion_gps as guardar_posicion_bd,
+    obtener_todos_recorridos
+)
+from camera_stream import (
+    asegurar_carpetas as hls_asegurar,
+    construir_rtsp_url,
+    iniciar_hls,
+    detener_todos as hls_detener_todos,
+    detener_hls
+)
+
+# Configuración de logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+# ==================== CONFIGURACIÓN DEL SERVIDOR ====================
+
+HOST = '0.0.0.0'
+PUERTO = 8080
+VELOCIDAD_ACTUAL = 50
+CLIENTES_WS = set()
+RECORRIDO_ACTIVO = None  # ID del recorrido GPS actual
+
+# ==================== FUNCIONES WEBSOCKET ====================
+
+async def enviar_datos_periodicos():
+    """
+    Envía datos del sistema (RAM, temperatura, batería, GPS) 
+    a todos los clientes conectados cada 5 segundos.
+    """
+    # Esperar 3 segundos antes de empezar
+    await asyncio.sleep(3)
+    
+    while True:
+        await asyncio.sleep(5)
+        
+        if not CLIENTES_WS:
+            continue
+        
+        # Obtener datos del sistema
+        ram = obtener_ram()
+        temp = obtener_temperatura()
+        bat = obtener_bateria()
+        peso = obtener_peso()
+        solar = obtener_solar()
+        gps = obtener_posicion_gps()
+        
+        # Crear mensajes
+        mensaje_ram = {'tipo': 'ram', 'datos': ram}
+        mensaje_temp = {'tipo': 'temperatura', 'datos': temp}
+        mensaje_bat = {'tipo': 'bateria', 'datos': bat}
+        mensaje_peso = {'tipo': 'peso', 'datos': peso}
+        mensaje_solar = {'tipo': 'solar', 'datos': solar}
+        
+        # Enviar a todos los clientes
+        for cliente in list(CLIENTES_WS):
+            try:
+                await cliente.send_json(mensaje_ram)
+                await cliente.send_json(mensaje_temp)
+                await cliente.send_json(mensaje_bat)
+                await cliente.send_json(mensaje_peso)
+                await cliente.send_json(mensaje_solar)
+                
+                # Enviar GPS si hay señal válida
+                if gps:
+                    await cliente.send_json({'tipo': 'gps', 'datos': gps})
+            
+            except Exception as e:
+                logger.error(f"Error enviando datos a cliente: {e}")
+                CLIENTES_WS.discard(cliente)
+
+
+async def websocket_handler(request):
+    """
+    Manejador de conexiones WebSocket.
+    Recibe comandos y envía respuestas en tiempo real.
+    """
+    global VELOCIDAD_ACTUAL
+    
+    # Crear conexión WebSocket
+    ws = web.WebSocketResponse(heartbeat=30)
+    await ws.prepare(request)
+    CLIENTES_WS.add(ws)
+    
+    # Enviar mensaje inicial con estado completo
+    await ws.send_json({
+        'tipo': 'conexion',
+        'mensaje': 'WebSocket conectado',
+        'reles': ESTADO_RELES,
+        'velocidad': VELOCIDAD_ACTUAL,
+        'ram': obtener_ram(),
+        'temperatura': obtener_temperatura(),
+        'bateria': obtener_bateria(),
+        'peso': obtener_peso(),
+        'solar': obtener_solar(),
+        'gps': obtener_posicion_gps()
+    })
+    
+    logger.info(f"Cliente WebSocket conectado: {request.remote}")
+    
+    try:
+        # Escuchar mensajes del cliente
+        async for msg in ws:
+            if msg.type == WSMsgType.TEXT:
+                try:
+                    datos = json.loads(msg.data)
+                    await procesar_mensaje_ws(ws, datos)
+                
+                except json.JSONDecodeError:
+                    await ws.send_json({
+                        'tipo': 'error',
+                        'mensaje': 'JSON inválido'
+                    })
+                
+                except Exception as e:
+                    logger.error(f"Error procesando mensaje: {e}")
+                    await ws.send_json({
+                        'tipo': 'error',
+                        'mensaje': str(e)
+                    })
+            
+            elif msg.type == WSMsgType.ERROR:
+                logger.error(f"Error en WebSocket: {ws.exception()}")
+    
+    finally:
+        CLIENTES_WS.discard(ws)
+        await ws.close()
+        logger.info("Cliente WebSocket desconectado")
+    
+    return ws
+
+
+async def procesar_mensaje_ws(ws, datos):
+    """
+    Procesa los mensajes recibidos por WebSocket.
+    
+    Args:
+        ws: Conexión WebSocket
+        datos: Datos JSON recibidos
+    """
+    global VELOCIDAD_ACTUAL, RECORRIDO_ACTIVO
+    
+    tipo = datos.get('tipo')
+    
+    # Control de relés
+    if tipo == 'rele':
+        numero = int(datos.get('numero', 0))
+        estado = bool(datos.get('estado', False))
+        exito, error = controlar_rele(numero, estado)
+        
+        await ws.send_json({
+            'tipo': 'respuesta_rele',
+            'numero': numero,
+            'estado': 'on' if estado else 'off',
+            'exito': exito,
+            'error': error
+        })
+    
+    # Control de motores
+    elif tipo == 'motor':
+        direccion = datos.get('direccion', 'parar')
+        exito, error = controlar_motor(direccion, VELOCIDAD_ACTUAL)
+        
+        await ws.send_json({
+            'tipo': 'respuesta_motor',
+            'direccion': direccion,
+            'exito': exito,
+            'error': error
+        })
+    
+    # Cambio de velocidad
+    elif tipo == 'velocidad':
+        VELOCIDAD_ACTUAL = int(datos.get('nivel', 50))
+        
+        await ws.send_json({
+            'tipo': 'respuesta_velocidad',
+            'velocidad': VELOCIDAD_ACTUAL
+        })
+    
+    # Comandos de sistema
+    elif tipo == 'sistema':
+        comando = datos.get('comando')
+        
+        if comando == 'apagar':
+            exito, mensaje = apagar_sistema()
+            await ws.send_json({
+                'tipo': 'sistema',
+                'comando': 'apagar',
+                'mensaje': mensaje
+            })
+        
+        elif comando == 'reiniciar':
+            exito, mensaje = reiniciar_sistema()
+            await ws.send_json({
+                'tipo': 'sistema',
+                'comando': 'reiniciar',
+                'mensaje': mensaje
+            })
+    
+    # Comandos GPS
+    elif tipo == 'gps_guardar':
+        exito, mensaje = guardar_posicion_gps(RECORRIDO_ACTIVO)
+        await ws.send_json({
+            'tipo': 'respuesta_gps',
+            'accion': 'guardar',
+            'exito': exito,
+            'mensaje': mensaje
+        })
+
+    # Control de cámaras (RTSP→HLS)
+    elif tipo == 'camara':
+        indice = int(datos.get('indice', 1))
+        accion = datos.get('accion', 'iniciar')
+        calidad = datos.get('calidad', 'sd')  # sd o hd
+        cam_id = 'cam1' if indice == 1 else 'cam2'
+        config = obtener_configuracion() or {}
+        if accion == 'iniciar':
+            rtsp = construir_rtsp_url(config, indice, calidad)
+            exito = iniciar_hls(cam_id, rtsp)
+            await ws.send_json({
+                'tipo': 'camara',
+                'indice': indice,
+                'accion': 'iniciar',
+                'calidad': calidad,
+                'exito': exito,
+                'rtsp': rtsp
+            })
+        elif accion == 'detener':
+            detener_hls(cam_id)
+            await ws.send_json({
+                'tipo': 'camara',
+                'indice': indice,
+                'accion': 'detener',
+                'exito': True
+            })
+    
+    # Solicitar datos actuales
+    elif tipo == 'obtener_datos':
+        await ws.send_json({'tipo': 'ram', 'datos': obtener_ram()})
+        await ws.send_json({'tipo': 'temperatura', 'datos': obtener_temperatura()})
+        await ws.send_json({'tipo': 'bateria', 'datos': obtener_bateria()})
+        await ws.send_json({'tipo': 'peso', 'datos': obtener_peso()})
+        await ws.send_json({'tipo': 'solar', 'datos': obtener_solar()})
+        
+        gps = obtener_posicion_gps()
+        if gps:
+            await ws.send_json({'tipo': 'gps', 'datos': gps})
+    
+    # Guardar configuración
+    elif tipo == 'guardar_config':
+        config = datos.get('config', {})
+        if guardar_configuracion(config):
+            await ws.send_json({
+                'tipo': 'config_guardada',
+                'exito': True,
+                'mensaje': 'Configuración guardada en la base de datos'
+            })
+        else:
+            await ws.send_json({
+                'tipo': 'config_guardada',
+                'exito': False,
+                'mensaje': 'Error al guardar configuración'
+            })
+    
+    # Obtener configuración
+    elif tipo == 'obtener_config':
+        config = obtener_configuracion()
+        await ws.send_json({
+            'tipo': 'config_actual',
+            'datos': config if config else {}
+        })
+    
+    # Iniciar grabación de recorrido GPS
+    elif tipo == 'iniciar_recorrido':
+        nombre = datos.get('nombre', 'Recorrido sin título')
+        RECORRIDO_ACTIVO = iniciar_recorrido(nombre)
+        
+        await ws.send_json({
+            'tipo': 'recorrido_iniciado',
+            'recorrido_id': RECORRIDO_ACTIVO,
+            'nombre': nombre
+        })
+    
+    # Finalizar grabación de recorrido GPS
+    elif tipo == 'finalizar_recorrido':
+        if RECORRIDO_ACTIVO:
+            from base_datos import finalizar_recorrido
+            finalizar_recorrido(RECORRIDO_ACTIVO)
+            RECORRIDO_ACTIVO = None
+            
+            await ws.send_json({
+                'tipo': 'recorrido_finalizado',
+                'exito': True
+            })
+        else:
+            await ws.send_json({
+                'tipo': 'recorrido_finalizado',
+                'exito': False,
+                'mensaje': 'No hay recorrido activo'
+            })
+    
+    # Obtener lista de recorridos
+    elif tipo == 'obtener_recorridos':
+        recorridos = obtener_todos_recorridos()
+        await ws.send_json({
+            'tipo': 'lista_recorridos',
+            'recorridos': recorridos
+        })
+    
+    # Comando desconocido
+    else:
+        await ws.send_json({
+            'tipo': 'error',
+            'mensaje': f'Comando "{tipo}" no reconocido'
+        })
+
+
+# ==================== MANEJADORES HTTP ====================
+
+async def index_handler(request):
+    """
+    Manejador para la página principal.
+    Sirve únicamente 'control remoto digital.html'.
+    """
+    archivo = Path(__file__).parent / 'paginas' / 'control remoto digital.html'
+    if not archivo.exists():
+        return web.json_response({'error': 'Página no encontrada'}, status=404)
+    return web.FileResponse(archivo)
+
+async def configuracion_handler(request):
+    """Manejador de la página de configuración."""
+    archivo = Path(__file__).parent / 'paginas' / 'configuracion.html'
+    if not archivo.exists():
+        return web.json_response({'error': 'Página de configuración no encontrada'}, status=404)
+    return web.FileResponse(archivo)
+
+
+async def api_config_handler(request):
+    """
+    API REST para obtener y guardar configuración.
+    GET: Obtiene la configuración actual
+    POST: Guarda la configuración
+    """
+    if request.method == 'GET':
+        config = obtener_configuracion()
+        if config:
+            return web.json_response(config)
+        else:
+            return web.json_response({'error': 'No hay configuración'}, status=404)
+    
+    elif request.method == 'POST':
+        try:
+            datos = await request.json()
+            if guardar_configuracion(datos):
+                return web.json_response({
+                    'exito': True,
+                    'mensaje': 'Configuración guardada correctamente'
+                })
+            else:
+                return web.json_response({
+                    'exito': False,
+                    'mensaje': 'Error al guardar configuración'
+                }, status=500)
+        except Exception as e:
+            logger.error(f"Error en API de configuración: {e}")
+            return web.json_response({
+                'exito': False,
+                'error': str(e)
+            }, status=400)
+
+
+# ==================== EVENTOS DEL SERVIDOR ====================
+
+async def on_startup(app):
+    """Se ejecuta al iniciar el servidor."""
+    # Inicializar base de datos
+    inicializar_bd()
+    logger.info("Base de datos inicializada")
+    
+    # Cargar configuración desde BD
+    config = obtener_configuracion()
+    if config:
+        logger.info(f"Configuración cargada: IP={config['ip_publica']}, Tamaño mapa={config['tamano_mapa']}px")
+        # Preparar carpeta HLS y arrancar cámaras si están configuradas
+        hls_asegurar()
+        rtsp1_hd = construir_rtsp_url(config, 1, 'hd')
+        rtsp2_hd = construir_rtsp_url(config, 2, 'hd')
+        iniciar_hls('cam1', rtsp1_hd)
+        iniciar_hls('cam2', rtsp2_hd)
+    
+    # Cargar estado de relés desde BD
+    estados_bd = obtener_estado_reles()
+    if estados_bd:
+        ESTADO_RELES.update({k: v for k, v in estados_bd.items()})
+        logger.info("Estado de relés cargado desde BD")
+    
+    # Iniciar tarea de envío periódico de datos
+    app['datos_task'] = asyncio.create_task(enviar_datos_periodicos())
+    logger.info("Tarea de envío periódico iniciada")
+
+
+async def on_shutdown(app):
+    """Se ejecuta al cerrar el servidor."""
+    global RECORRIDO_ACTIVO
+    
+    # Finalizar recorrido GPS activo si existe
+    if RECORRIDO_ACTIVO:
+        from base_datos import finalizar_recorrido
+        finalizar_recorrido(RECORRIDO_ACTIVO)
+        logger.info(f"Recorrido GPS finalizado: ID={RECORRIDO_ACTIVO}")
+    
+    # Detener GPS
+    detener_gps()
+    
+    # Liberar GPIO
+    liberar_gpio()
+    
+    # Detener pipelines de cámaras
+    hls_detener_todos()
+    
+    logger.info("Servidor detenido correctamente")
+
+
+# ==================== APLICACIÓN ====================
+
+def crear_app():
+    """
+    Crea y configura la aplicación web.
+    
+    Returns:
+        web.Application: Aplicación aiohttp configurada
+    """
+    app = web.Application()
+    
+    # Rutas HTTP
+    app.router.add_get('/', index_handler)
+    app.router.add_get('/configuracion.html', configuracion_handler)
+    app.router.add_get('/api/config', api_config_handler)
+    app.router.add_post('/api/config', api_config_handler)
+    app.router.add_get('/ws', websocket_handler)
+    
+    # Archivos estáticos (CSS, JS, imágenes)
+    app.router.add_static(
+        '/static',
+        Path(__file__).parent / 'paginas',
+        name='static'
+    )
+
+    # Carpeta HLS para reproducir cámaras (RTSP → HLS)
+    hls_dir = Path(__file__).parent / 'hls'
+    hls_dir.mkdir(parents=True, exist_ok=True)
+    app.router.add_static(
+        '/hls',
+        hls_dir,
+        name='hls'
+    )
+    
+    # Eventos
+    app.on_startup.append(on_startup)
+    app.on_shutdown.append(on_shutdown)
+    
+    return app
+
+
+# ==================== PUNTO DE ENTRADA ====================
+
+def main():
+    """Función principal que inicia el servidor."""
+    logger.info("=" * 60)
+    logger.info("  SERVIDOR DRONE ACUÁTICO - CONTROL REMOTO WEB")
+    logger.info("=" * 60)
+    logger.info(f"Iniciando en http://192.168.1.7:{PUERTO}")
+    logger.info("=" * 60)
+    
+    # Terminar procesos previos del servidor
+    matar_procesos_servidor_previos()
+    
+    # Inicializar hardware
+    inicializar_gpio()
+    iniciar_gps()
+    
+    # Crear y ejecutar aplicación
+    app = crear_app()
+    web.run_app(app, host=HOST, port=PUERTO)
+
+
+if __name__ == '__main__':
+    main()

@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Configuración - Drone Acuático</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+      color: #fff;
+      margin: 0;
+      padding: 12px;
+    }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(0, 0, 0, 0.35);
+      padding: 8px 12px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+    }
+    h1 { font-size: 16px; margin: 0; }
+    .btn {
+      border: none; border-radius: 6px; cursor: pointer;
+      padding: 8px 10px; font-weight: bold; color: #fff;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .btn:hover { transform: scale(1.03); box-shadow: 0 6px 18px rgba(0,0,0,0.35); }
+    .btn-volver { background: #2196F3; }
+    .btn-guardar { background: #4CAF50; }
+    .btn-cargar { background: #607D8B; }
+    main {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    @media (max-width: 900px) {
+      main { grid-template-columns: 1fr; }
+    }
+    .card {
+      background: rgba(0,0,0,0.35);
+      border-radius: 8px;
+      padding: 10px;
+    }
+    .card h2 {
+      font-size: 13px; margin: 0 0 8px 0; padding-bottom: 6px;
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+      text-align: center;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .grid-uno { grid-template-columns: 1fr; }
+    label { font-size: 11px; display: block; margin-bottom: 4px; }
+    input, select {
+      width: 100%; padding: 8px; border: none; border-radius: 6px;
+      font-size: 12px; outline: none;
+    }
+    input[type="checkbox"] { width: auto; }
+    .row { display: flex; align-items: center; gap: 8px; }
+    .row label { margin: 0; }
+    footer {
+      margin-top: 12px; display: flex; gap: 8px; justify-content: center;
+    }
+    .msg { text-align: center; font-size: 11px; margin-top: 6px; opacity: 0.9; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>⚙️ Configuración del Drone Acuático</h1>
+    <div>
+      <button class="btn btn-volver" onclick="volverAlControl()">⟵ Volver al Control</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="card">
+      <h2>🔧 Sistema</h2>
+      <div class="grid">
+        <div>
+          <label for="ipPublica">IP pública de la Raspberry</label>
+          <input id="ipPublica" type="text" placeholder="Ej: 192.168.1.7" />
+        </div>
+        <div class="row" style="margin-top: 18px;">
+          <input id="solicitarPassword" type="checkbox" />
+          <label for="solicitarPassword">Solicitar contraseña al iniciar</label>
+        </div>
+        <div>
+          <label for="correo">Correo electrónico</label>
+          <input id="correo" type="email" placeholder="correo@ejemplo.com" />
+        </div>
+        <div>
+          <label for="passwordNueva">Nueva contraseña</label>
+          <input id="passwordNueva" type="password" placeholder="••••••" />
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>🗺️ Mapa GPS</h2>
+      <div class="grid">
+        <div>
+          <label for="tamanoMapa">Tamaño del mapa (px altura)</label>
+          <input id="tamanoMapa" type="number" min="200" max="1200" step="10" placeholder="400" />
+        </div>
+        <div class="row" style="margin-top: 18px;">
+          <input id="guardarRecorrido" type="checkbox" />
+          <label for="guardarRecorrido">Guardar recorrido automáticamente</label>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>📷 Cámaras</h2>
+      <div class="grid-uno">
+        <div>
+          <label for="urlCamara1SD">URL RTSP Cámara 1 - Calidad SD</label>
+          <input id="urlCamara1SD" type="text" placeholder="rtsp://usuario:clave@192.168.1.9:554/live/ch0" />
+        </div>
+        <div>
+          <label for="urlCamara1HD">URL RTSP Cámara 1 - Calidad HD/2K</label>
+          <input id="urlCamara1HD" type="text" placeholder="rtsp://usuario:clave@192.168.1.9:554/live/ch1" />
+        </div>
+        <div class="row" style="margin-top: 18px;">
+          <input id="desactivarCamara1" type="checkbox" />
+          <label for="desactivarCamara1">Desactivar Cámara 1</label>
+        </div>
+        <div style="margin-top: 10px;">
+          <label for="urlCamara2SD">URL RTSP Cámara 2 - Calidad SD</label>
+          <input id="urlCamara2SD" type="text" placeholder="rtsp://usuario:clave@192.168.1.10:554/live/ch0" />
+        </div>
+        <div>
+          <label for="urlCamara2HD">URL RTSP Cámara 2 - Calidad HD/2K</label>
+          <input id="urlCamara2HD" type="text" placeholder="rtsp://usuario:clave@192.168.1.10:554/live/ch1" />
+        </div>
+        <div class="row" style="margin-top: 18px;">
+          <input id="desactivarCamara2" type="checkbox" />
+          <label for="desactivarCamara2">Desactivar Cámara 2</label>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>⚡ Nombres de Relés (1–9)</h2>
+      <div class="grid">
+        <div>
+          <label for="rele1">Relé 1</label>
+          <input id="rele1" type="text" placeholder="Nombre 1" />
+        </div>
+        <div>
+          <label for="rele2">Relé 2</label>
+          <input id="rele2" type="text" placeholder="Nombre 2" />
+        </div>
+        <div>
+          <label for="rele3">Relé 3</label>
+          <input id="rele3" type="text" placeholder="Nombre 3" />
+        </div>
+        <div>
+          <label for="rele4">Relé 4</label>
+          <input id="rele4" type="text" placeholder="Nombre 4" />
+        </div>
+        <div>
+          <label for="rele5">Relé 5</label>
+          <input id="rele5" type="text" placeholder="Nombre 5" />
+        </div>
+        <div>
+          <label for="rele6">Relé 6</label>
+          <input id="rele6" type="text" placeholder="Nombre 6" />
+        </div>
+        <div>
+          <label for="rele7">Relé 7</label>
+          <input id="rele7" type="text" placeholder="Nombre 7" />
+        </div>
+        <div>
+          <label for="rele8">Relé 8</label>
+          <input id="rele8" type="text" placeholder="Nombre 8" />
+        </div>
+        <div class="grid-uno">
+          <label for="rele9">Relé 9</label>
+          <input id="rele9" type="text" placeholder="Nombre 9" />
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <button class="btn btn-guardar" onclick="guardarConfig()">💾 Guardar</button>
+    <button class="btn btn-cargar" onclick="cargarConfig()">⤳ Cargar</button>
+  </footer>
+  <div id="mensaje" class="msg"></div>
+
+  <script>
+    const API = '/api/config';
+
+    function volverAlControl() {
+      window.location.href = '/configuracion.html'.includes('/configuracion.html') ? '/' : '/';
+    }
+
+    function setMsg(texto, ok = true) {
+      const el = document.getElementById('mensaje');
+      el.textContent = texto;
+      el.style.color = ok ? '#B2FF59' : '#FFCDD2';
+      setTimeout(() => el.textContent = '', 3000);
+    }
+
+    function recogerConfig() {
+      return {
+        ip_publica: document.getElementById('ipPublica').value.trim(),
+        solicitar_password: document.getElementById('solicitarPassword').checked,
+        correo: document.getElementById('correo').value.trim(),
+        tamano_mapa: parseInt(document.getElementById('tamanoMapa').value || '400', 10),
+        guardar_recorrido: document.getElementById('guardarRecorrido').checked,
+        url_camara1_sd: document.getElementById('urlCamara1SD').value.trim(),
+        url_camara1_hd: document.getElementById('urlCamara1HD').value.trim(),
+        desactivar_camara1: document.getElementById('desactivarCamara1').checked,
+        url_camara2_sd: document.getElementById('urlCamara2SD').value.trim(),
+        url_camara2_hd: document.getElementById('urlCamara2HD').value.trim(),
+        desactivar_camara2: document.getElementById('desactivarCamara2').checked,
+        reles: {
+          1: document.getElementById('rele1').value.trim(),
+          2: document.getElementById('rele2').value.trim(),
+          3: document.getElementById('rele3').value.trim(),
+          4: document.getElementById('rele4').value.trim(),
+          5: document.getElementById('rele5').value.trim(),
+          6: document.getElementById('rele6').value.trim(),
+          7: document.getElementById('rele7').value.trim(),
+          8: document.getElementById('rele8').value.trim(),
+          9: document.getElementById('rele9').value.trim()
+        }
+      };
+    }
+
+    function llenarCampos(cfg) {
+      if (!cfg) return;
+      document.getElementById('ipPublica').value = cfg.ip_publica || '';
+      document.getElementById('solicitarPassword').checked = !!cfg.solicitar_password;
+      document.getElementById('correo').value = cfg.correo || '';
+      document.getElementById('tamanoMapa').value = cfg.tamano_mapa || 400;
+      document.getElementById('guardarRecorrido').checked = !!cfg.guardar_recorrido;
+      document.getElementById('urlCamara1SD').value = cfg.url_camara1_sd || '';
+      document.getElementById('urlCamara1HD').value = cfg.url_camara1_hd || '';
+      document.getElementById('desactivarCamara1').checked = !!cfg.desactivar_camara1;
+      document.getElementById('urlCamara2SD').value = cfg.url_camara2_sd || '';
+      document.getElementById('urlCamara2HD').value = cfg.url_camara2_hd || '';
+      document.getElementById('desactivarCamara2').checked = !!cfg.desactivar_camara2;
+      if (cfg.reles) {
+        for (let i = 1; i <= 9; i++) {
+          const val = (cfg.reles[i] || '');
+          document.getElementById('rele'+i).value = val;
+        }
+      }
+    }
+
+    async function guardarConfig() {
+      const cfg = recogerConfig();
+      try {
+        const res = await fetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(cfg) });
+        const data = await res.json();
+        if (data.exito) setMsg('Configuración guardada en la base de datos.');
+        else setMsg('Error en guardado: ' + (data.mensaje || 'Desconocido'), false);
+      } catch (e) {
+        setMsg('Error conectando al servidor.', false);
+      }
+    }
+
+    async function cargarConfig() {
+      try {
+        const res = await fetch(API);
+        if (!res.ok) return setMsg('Sin configuración en servidor.', false);
+        const cfg = await res.json();
+        llenarCampos(cfg);
+        setMsg('Configuración cargada desde servidor.');
+      } catch (e) {
+        setMsg('Error cargando configuración del servidor.', false);
+      }
+    }
+
+    window.onload = function() {
+      cargarConfig();
+    };
+  </script>
+</body>
+</html>

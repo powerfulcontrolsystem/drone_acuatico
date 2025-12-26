@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control Remoto Digital - Drone Acuático</title>
+    
+    <!-- Leaflet para el mapa -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #fff;
+            padding: 5px;
+            overflow: hidden;
+            height: 100vh;
+        }
+                    display: flex;
+        .container {
+            max-width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        header {
+                    display: inline-flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 6px;
+            margin-bottom: 5px;
+            flex-shrink: 0;
+                    background: #f44336;
+
+                /* Indicadores de sistema */
+                .info-sistema {
+                    display: flex;
+                    gap: 6px;
+                    align-items: center;
+                    font-size: 11px;
+                }
+                .indicador-bat, .indicador-peso {
+                    padding: 2px 8px;
+                    border-radius: 10px;
+                    font-size: 11px;
+                    background: rgba(255, 255, 255, 0.15);
+                    font-family: monospace;
+                }
+                .bat-ok { background: rgba(76, 175, 80, 0.3); }
+                .bat-warning { background: rgba(255, 152, 0, 0.3); }
+                .bat-critical { background: rgba(244, 67, 54, 0.3); }
+                .peso-ok { background: rgba(76, 175, 80, 0.3); }
+                .peso-warning { background: rgba(255, 152, 0, 0.3); }
+                .peso-critical { background: rgba(244, 67, 54, 0.3); }
+        h1 {
+                    <h1>🚤 Control Remoto Digital</h1>
+                    <div class="info-sistema">
+                        <span id="estado-conexion" class="estado-conexion desconectado">● Desconectado</span>
+                        <span id="indicador-bat" class="indicador-bat">🔋 --%</span>
+                        <span id="indicador-peso" class="indicador-peso">⚖️ -- kg</span>
+                    </div>
+                </header>
+            gap: 5px;
+                    console.log('Mensaje recibido:', datos);
+            border-radius: 12px;
+            font-size: 11px;
+        }
+
+        .conectado {
+            background: #4CAF50;
+        }
+
+        .desconectado {
+                            // Actualizar indicadores si vienen en el mensaje inicial
+                            if (datos.bateria) actualizarBateria(datos.bateria);
+                            if (datos.peso) actualizarPeso(datos.peso);
+            background: #f44336;
+        }
+
+        /* Grid de 3 columnas: Cámara 1, Cámara 2, Mapa */
+                        case 'bateria':
+                            actualizarBateria(datos.datos);
+                            break;
+                        case 'peso':
+                            actualizarPeso(datos.datos);
+                            break;
+        .grid-vistas {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+                    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            margin-bottom: 5px;
+            flex: 1;
+            min-height: 0;
+        }
+
+        .vista-columna {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 8px;
+                        // Solicitar datos actuales para inicializar indicadores
+                        enviarMensaje({ tipo: 'obtener_datos' });
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+
+        .vista-titulo {
+            font-size: 12px;
+            font-weight: bold;
+            text-align: center;
+
+                // ==================== INDICADORES ====================
+                function actualizarBateria(datos) {
+                    const elem = document.getElementById('indicador-bat');
+                    const cargando = (datos?.cargando === true) || (datos?.estado === 'cargando');
+                    const icono = cargando ? '🔌' : '🔋';
+                    const porcentaje = datos?.porcentaje ?? 0;
+                    elem.textContent = `${icono} ${porcentaje}%`;
+                    elem.className = 'indicador-bat';
+                    if (porcentaje > 50) elem.classList.add('bat-ok');
+                    else if (porcentaje > 20) elem.classList.add('bat-warning');
+                    else elem.classList.add('bat-critical');
+                }
+
+                function actualizarPeso(datos) {
+                    const elem = document.getElementById('indicador-peso');
+                    const peso = datos?.peso_kg ?? 0;
+                    const umbral = datos?.umbral_kg ?? 0;
+                    elem.textContent = `⚖️ ${Number(peso).toFixed(2)} kg`;
+                    elem.className = 'indicador-peso';
+                    if (datos?.alerta) elem.classList.add('peso-critical');
+                    else if (peso >= umbral * 0.7) elem.classList.add('peso-warning');
+                    else elem.classList.add('peso-ok');
+                }
+            margin-bottom: 5px;
+            padding: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            flex-shrink: 0;
+        }
+
+        /* Cámaras */
+        .camara {
+            background: #263238;
+            border-radius: 6px;
+            overflow: hidden;
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .camara img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .camara-placeholder {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* Mapa */
+        #mapa {
+            width: 100%;
+            height: 100%;
+            border-radius: 6px;
+        }
+
+        /* Panel de controles de relés */
+        .panel-controles {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 8px;
+            padding: 10px;
+            flex-shrink: 0;
+        }
+
+        .panel-controles h3 {
+            font-size: 14px;
+            margin: 0 0 10px 0;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 8px;
+        }
+
+        /* Grid de relés 3x3 */
+        .grid-reles {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .btn-rele {
+            background: #607D8B;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 12px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-rele:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-rele:active {
+            transform: scale(0.95);
+        }
+
+        .btn-rele.activo {
+            background: #4CAF50;
+            box-shadow: 0 0 15px rgba(76, 175, 80, 0.6);
+        }
+
+        /* Responsivo */
+        @media (orientation: portrait) {
+            .grid-vistas {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 14px;
+            }
+            
+            .btn-rele {
+                padding: 10px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <h1>🚤 Control Remoto Digital</h1>
+            <div>
+                <span id="estado-conexion" class="estado-conexion desconectado">
+                    ● Desconectado
+                </span>
+            </div>
+        </header>
+
+        <!-- Grid de 3 columnas: Cámara 1, Cámara 2, Mapa -->
+        <div class="grid-vistas">
+            <!-- Cámara 1 -->
+            <div class="vista-columna">
+                <div class="vista-titulo">📹 Cámara 1</div>
+                <div class="camara">
+                    <div class="camara-placeholder" id="camara1-placeholder">
+                        Cámara 1 no configurada
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cámara 2 -->
+            <div class="vista-columna">
+                <div class="vista-titulo">📹 Cámara 2</div>
+                <div class="camara">
+                    <div class="camara-placeholder" id="camara2-placeholder">
+                        Cámara 2 no configurada
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mapa GPS -->
+            <div class="vista-columna">
+                <div class="vista-titulo">🗺️ Mapa GPS</div>
+                <div id="mapa"></div>
+            </div>
+        </div>
+
+        <!-- Panel de control de relés -->
+        <div class="panel-controles">
+            <h3>⚡ CONTROL DE RELÉS GPIO</h3>
+            <div class="grid-reles">
+                <button class="btn-rele" id="rele-1" onclick="toggleRele(1)">R1</button>
+                <button class="btn-rele" id="rele-2" onclick="toggleRele(2)">R2</button>
+                <button class="btn-rele" id="rele-3" onclick="toggleRele(3)">R3</button>
+                <button class="btn-rele" id="rele-4" onclick="toggleRele(4)">R4</button>
+                <button class="btn-rele" id="rele-5" onclick="toggleRele(5)">R5</button>
+                <button class="btn-rele" id="rele-6" onclick="toggleRele(6)">R6</button>
+                <button class="btn-rele" id="rele-7" onclick="toggleRele(7)">R7</button>
+                <button class="btn-rele" id="rele-8" onclick="toggleRele(8)">R8</button>
+                <button class="btn-rele" id="rele-9" onclick="toggleRele(9)">R9</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <script>
+        // ==================== VARIABLES GLOBALES ====================
+        let ws = null;
+        let mapa = null;
+        let estadoReles = {1: false, 2: false, 3: false, 4: false, 5: false, 6: false, 7: false, 8: false, 9: false};
+
+        // ==================== WEBSOCKET ====================
+        
+        function conectarWebSocket() {
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsUrl = `${protocol}//${window.location.host}/ws`;
+            
+            ws = new WebSocket(wsUrl);
+
+            ws.onopen = function() {
+                console.log('WebSocket conectado');
+                document.getElementById('estado-conexion').textContent = '● Conectado';
+                document.getElementById('estado-conexion').className = 'estado-conexion conectado';
+            };
+
+            ws.onmessage = function(event) {
+                const datos = JSON.parse(event.data);
+                procesarMensaje(datos);
+            };
+
+            ws.onclose = function() {
+                console.log('WebSocket desconectado');
+                document.getElementById('estado-conexion').textContent = '● Desconectado';
+                document.getElementById('estado-conexion').className = 'estado-conexion desconectado';
+                
+                // Reintentar conexión después de 3 segundos
+                setTimeout(conectarWebSocket, 3000);
+            };
+
+            ws.onerror = function(error) {
+                console.error('Error WebSocket:', error);
+            };
+        }
+
+        function procesarMensaje(datos) {
+            console.log('Mensaje recibido:', datos);
+
+            switch(datos.tipo) {
+                case 'conexion':
+                    console.log('✓ Conectado al servidor');
+                    // Sincronizar estado de relés
+                    if (datos.reles) {
+                        estadoReles = datos.reles;
+                        actualizarUIReles();
+                    }
+                    break;
+
+                case 'respuesta_rele':
+                    if (datos.exito) {
+                        console.log(`✓ Relé ${datos.numero}: ${datos.estado}`);
+                    } else {
+                        console.error(`✗ Error relé ${datos.numero}: ${datos.error}`);
+                        // Revertir estado en caso de error
+                        estadoReles[datos.numero] = !estadoReles[datos.numero];
+                        actualizarBotonRele(datos.numero);
+                    }
+                    break;
+
+                case 'estado_reles':
+                    estadoReles = datos.reles;
+                    actualizarUIReles();
+                    break;
+
+                case 'error':
+                    console.error('✗ Error:', datos.mensaje);
+                    break;
+            }
+        }
+
+        function enviarMensaje(datos) {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify(datos));
+            } else {
+                console.error('WebSocket no conectado');
+            }
+        }
+
+        // ==================== CONTROL DE RELÉS ====================
+        
+        function toggleRele(numero) {
+            const nuevoEstado = !estadoReles[numero];
+            estadoReles[numero] = nuevoEstado;
+
+            // Actualizar UI inmediatamente
+            actualizarBotonRele(numero);
+
+            // Enviar comando al servidor
+            enviarMensaje({
+                tipo: 'rele',
+                numero: numero,
+                estado: nuevoEstado
+            });
+
+            console.log(`Relé ${numero}: ${nuevoEstado ? 'ON' : 'OFF'}`);
+        }
+
+        function actualizarBotonRele(numero) {
+            const boton = document.getElementById(`rele-${numero}`);
+            if (estadoReles[numero]) {
+                boton.classList.add('activo');
+            } else {
+                boton.classList.remove('activo');
+            }
+        }
+
+        function actualizarUIReles() {
+            for (let i = 1; i <= 9; i++) {
+                actualizarBotonRele(i);
+            }
+        }
+
+        // ==================== MAPA ====================
+        
+        function inicializarMapa() {
+            // Crear mapa centrado en Colombia (ajustar según ubicación)
+            mapa = L.map('mapa').setView([4.6097, -74.0817], 13);
+            
+            // Capa de OpenStreetMap
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors',
+                maxZoom: 19
+            }).addTo(mapa);
+
+            // Marcador de ejemplo
+            L.marker([4.6097, -74.0817]).addTo(mapa)
+                .bindPopup('Drone Acuático')
+                .openPopup();
+        }
+
+        // ==================== INICIALIZACIÓN ====================
+        
+        window.onload = function() {
+            console.log('Inicializando aplicación...');
+            inicializarMapa();
+            conectarWebSocket();
+        };
+    </script>
+</body>
+</html>
