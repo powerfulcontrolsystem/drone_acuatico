@@ -22,6 +22,7 @@ from funciones import (
     obtener_bateria,
     obtener_peso,
     obtener_solar,
+    obtener_velocidad_red,
     iniciar_gps,
     detener_gps,
     obtener_posicion_gps,
@@ -65,12 +66,26 @@ VELOCIDAD_ACTUAL = 50
 CLIENTES_WS = set()
 RECORRIDO_ACTIVO = None  # ID del recorrido GPS actual
 
+# Cache de datos del sistema para evitar múltiples subprocesses
+DATOS_SISTEMA_CACHE = {
+    'ram': None,
+    'temperatura': None,
+    'bateria': None,
+    'peso': None,
+    'solar': None,
+    'gps': None,
+    'ultima_actualizacion': 0
+}
+
 # ==================== FUNCIONES WEBSOCKET ====================
 
 async def enviar_datos_periodicos():
     """
     Envía datos del sistema (RAM, temperatura, batería, GPS) 
     a todos los clientes conectados cada 5 segundos.
+    
+    OPTIMIZACIÓN: Calcula datos UNA sola vez por ciclo,
+    evitando múltiples subprocesses costosos.
     """
     # Esperar 3 segundos antes de empezar
     await asyncio.sleep(3)
@@ -81,48 +96,96 @@ async def enviar_datos_periodicos():
         if not CLIENTES_WS:
             continue
         
-        # Obtener datos del sistema
-        ram = obtener_ram()
-        temp = obtener_temperatura()
-        bat = obtener_bateria()
-        peso = obtener_peso()
-        solar = obtener_solar()
-        gps = obtener_posicion_gps()
-        
-        # Crear mensajes
-        mensaje_ram = {'tipo': 'ram', 'datos': ram}
-        mensaje_temp = {'tipo': 'temperatura', 'datos': temp}
-        mensaje_bat = {'tipo': 'bateria', 'datos': bat}
-        mensaje_peso = {'tipo': 'peso', 'datos': peso}
-        mensaje_solar = {'tipo': 'solar', 'datos': solar}
-        
-        # Enviar a todos los clientes
-        for cliente in list(CLIENTES_WS):
-            try:
-                await cliente.send_json(mensaje_ram)
-                await cliente.send_json(mensaje_temp)
-                await cliente.send_json(mensaje_bat)
-                await cliente.send_json(mensaje_peso)
-                await cliente.send_json(mensaje_solar)
-                
-                # Enviar GPS si hay señal válida
-                if gps:
-                    await cliente.send_json({'tipo': 'gps', 'datos': gps})
+        try:
+            # Obtener datos del sistema UNA SOLA VEZ
+            # (ejecutor previene bloqueo del event loop)
+            loop = asyncio.get_event_loop()
             
-            except Exception as e:
-                logger.error(f"Error enviando datos a cliente: {e}")
+            ram = await loop.run_in_executor(None, obtener_ram)
+            temp = await loop.run_in_executor(None, obtener_temperatura)
+            bat = await loop.run_in_executor(None, obtener_bateria)
+            peso = await loop.run_in_executor(None, obtener_peso)
+            solar = await loop.run_in_executor(None, obtener_solar)
+            gps = obtener_posicion_gps()
+            
+            # Crear mensajes
+            mensaje_ram = {'tipo': 'ram', 'datos': ram}
+            mensaje_temp = {'tipo': 'temperatura', 'datos': temp}
+            mensaje_bat = {'tipo': 'bateria', 'datos': bat}
+            mensaje_peso = {'tipo': 'peso', 'datos': peso}
+            mensaje_solar = {'tipo': 'solar', 'datos': solar}
+            
+            # Enviar a todos los clientes (mismo dato a todos = eficiente)
+            desconectados = []
+            for cliente in list(CLIENTES_WS):
+                try:
+                    await cliente.send_json(mensaje_ram)
+                    await cliente.send_json(mensaje_temp)
+                    await cliente.send_json(mensaje_bat)
+                    await cliente.send_json(mensaje_peso)
+                    await cliente.send_json(mensaje_solar)
+                    
+                    # Enviar GPS si hay señal válida
+                    if gps:
+                        await cliente.send_json({'tipo': 'gps', 'datos': gps})
+                
+                except Exception as e:
+                    logger.debug(f"Error enviando datos a cliente: {e}")
+                    desconectados.append(cliente)
+            
+            # Limpiar clientes desconectados
+            for cliente in desconectados:
                 CLIENTES_WS.discard(cliente)
+        
+        except Exception as e:
+            logger.error(f"Error en enviar_datos_periodicos: {e}")
+
+
+async def enviar_velocidad_red_periodica():
+    """
+    Envía la velocidad de conexión a internet a todos los clientes
+    conectados cada 30 segundos (menos frecuente que otros datos).
+    """
+    # Esperar 5 segundos antes de empezar
+    await asyncio.sleep(5)
+    
+    while True:
+        await asyncio.sleep(30)
+        
+        if not CLIENTES_WS:
+            continue
+        
+        try:
+            # Ejecutar en un executor para no bloquear el event loop
+            velocidad_red = await asyncio.get_event_loop().run_in_executor(
+                None, obtener_velocidad_red
+            )
+            mensaje = {'tipo': 'velocidad_red', 'datos': velocidad_red}
+            
+            # Enviar a todos los clientes
+            for cliente in list(CLIENTES_WS):
+                try:
+                    await cliente.send_json(mensaje)
+                except Exception as e:
+                    logger.debug(f"Error enviando velocidad_red a cliente: {e}")
+                    CLIENTES_WS.discard(cliente)
+        
+        except Exception as e:
+            logger.error(f"Error obteniendo velocidad de red: {e}")
 
 
 async def websocket_handler(request):
     """
     Manejador de conexiones WebSocket.
     Recibe comandos y envía respuestas en tiempo real.
+    
+    MEJORA: Heartbeat reducido a 15s para WiFi más inestable
     """
     global VELOCIDAD_ACTUAL
     
-    # Crear conexión WebSocket
-    ws = web.WebSocketResponse(heartbeat=30)
+    # Crear conexión WebSocket con heartbeat de 15 segundos
+    # (antes: 30s era muy largo para WiFi inestable)
+    ws = web.WebSocketResponse(heartbeat=15)
     await ws.prepare(request)
     CLIENTES_WS.add(ws)
     
@@ -440,12 +503,19 @@ async def on_startup(app):
     
     # Iniciar tarea de envío periódico de datos
     app['datos_task'] = asyncio.create_task(enviar_datos_periodicos())
-    logger.info("Tarea de envío periódico iniciada")
+    app['velocidad_red_task'] = asyncio.create_task(enviar_velocidad_red_periodica())
+    logger.info("Tareas de envío periódico iniciadas")
 
 
 async def on_shutdown(app):
     """Se ejecuta al cerrar el servidor."""
     global RECORRIDO_ACTIVO
+    
+    # Cancelar tareas periódicas
+    if 'datos_task' in app:
+        app['datos_task'].cancel()
+    if 'velocidad_red_task' in app:
+        app['velocidad_red_task'].cancel()
     
     # Finalizar recorrido GPS activo si existe
     if RECORRIDO_ACTIVO:

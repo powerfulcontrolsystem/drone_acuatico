@@ -1,71 +1,72 @@
 #!/bin/bash
-# Script para iniciar el servidor del drone con optimización de RAM
-# Uso: ./iniciar_servidor.sh
+# ===================================================================
+# Script ÚNICO para iniciar el servidor del Drone Acuático
+# Archivo: iniciar_servidor.sh
+# Servidor: servidor.py
+# ===================================================================
 
-cd "$HOME/drone acuatico"
+# Cambiar al directorio del proyecto
+cd "$(dirname "$(readlink -f "$0")")" || exit 1
 
 # Colores para output
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 YELLOW='\033[1;33m'
+RED='\033[0;31m'
 NC='\033[0m' # Sin color
 
-echo -e "${BLUE}==================================================${NC}"
-echo -e "${BLUE}    INICIANDO SERVIDOR DEL DRONE ACUÁTICO${NC}"
-echo -e "${BLUE}==================================================${NC}"
+echo -e "${BLUE}===================================================${NC}"
+echo -e "${BLUE}   SERVIDOR DRONE ACUÁTICO - CONTROL REMOTO WEB${NC}"
+echo -e "${BLUE}===================================================${NC}"
 echo ""
 
-# 1. Optimizar RAM antes de iniciar
-echo -e "${YELLOW}[1/5] Optimizando RAM...${NC}"
-bash optimizacion/optimizar_inicio.sh
+# 0. Limpiar procesos previos y liberar puerto
+echo -e "${YELLOW}[0/4] Limpiando procesos previos...${NC}"
+pkill -9 -f "servidor.py" 2>/dev/null || true
+pkill -9 -f "python3" 2>/dev/null || true
+sleep 1
+echo -e "${GREEN}✓ Procesos limpiados${NC}"
 echo ""
 
-# 2. Activar entorno virtual
-echo -e "${YELLOW}[2/5] Activando entorno virtual...${NC}"
+# 1. Activar entorno virtual
+echo -e "${YELLOW}[1/4] Activando entorno virtual...${NC}"
 if [ -f "venv_pi/bin/activate" ]; then
     source venv_pi/bin/activate
     echo -e "${GREEN}✓ Entorno virtual activado${NC}"
 else
-    echo -e "${RED}✗ Error: No se encontró el entorno virtual${NC}"
+    echo -e "${RED}✗ Error: No se encontró venv_pi/bin/activate${NC}"
     exit 1
 fi
 echo ""
 
-# 3. Verificar dependencias
-echo -e "${YELLOW}[3/5] Verificando dependencias...${NC}"
-python3 -c "import aiohttp, serial, pynmea2, RPi.GPIO as GPIO" 2>/dev/null
+# 2. Verificar dependencias
+echo -e "${YELLOW}[2/4] Verificando dependencias...${NC}"
+python3 -c "import aiohttp, serial, pynmea2" 2>/dev/null
 if [ $? -eq 0 ]; then
     echo -e "${GREEN}✓ Dependencias OK${NC}"
 else
-    echo -e "${YELLOW}⚠ Instalando dependencias faltantes...${NC}"
-    pip install -q aiohttp pyserial pynmea2 RPi.GPIO
+    echo -e "${YELLOW}⚠ Instalando dependencias...${NC}"
+    pip install -q aiohttp pyserial pynmea2
+    if [ $? -ne 0 ]; then
+        echo -e "${YELLOW}⚠ Algunas dependencias pueden no estar disponibles${NC}"
+    fi
 fi
 echo ""
 
-# 4. Verificar estado del sistema
-echo -e "${YELLOW}[4/5] Estado del sistema:${NC}"
-RAM_USAGE=$(free | grep Mem | awk '{print int($3/$2 * 100)}')
-TEMP=$(vcgencmd measure_temp 2>/dev/null | cut -d'=' -f2 | cut -d"'" -f1 || echo "N/A")
-echo "  RAM en uso: ${RAM_USAGE}%"
-echo "  Temperatura: ${TEMP}°C"
+# 3. Iniciar el servidor
+echo -e "${YELLOW}[3/4] Iniciando servidor...${NC}"
+echo -e "${GREEN}===================================================${NC}"
+echo -e "${GREEN}✓ Servidor en: http://localhost:8080${NC}"
+echo -e "${GREEN}✓ Archivo: servidor.py${NC}"
+echo -e "${GREEN}===================================================${NC}"
+echo ""
+echo -e "${YELLOW}[4/4] Esperando conexiones...${NC}"
+echo -e "${YELLOW}Presiona Ctrl+C para detener${NC}"
 echo ""
 
-# 5. Iniciar el servidor
-echo -e "${YELLOW}[5/5] Iniciando servidor en puerto 8080...${NC}"
-echo -e "${GREEN}==================================================${NC}"
+# Ejecutar el servidor
+python3 servidor.py
+
+# Si el servidor se detiene
 echo ""
-
-# Ejecutar el servidor con manejo de errores
-cd servidores
-python3 drone_server.py
-
-# Si el servidor termina inesperadamente
-EXIT_CODE=$?
-echo ""
-echo -e "${YELLOW}Servidor detenido con código: ${EXIT_CODE}${NC}"
-
-# Limpiar memoria al finalizar
-echo -e "${YELLOW}Limpiando memoria...${NC}"
-sync
-echo 3 | sudo tee /proc/sys/vm/drop_caches > /dev/null 2>&1
-echo -e "${GREEN}✓ Limpieza completada${NC}"
+echo -e "${YELLOW}Servidor detenido${NC}"

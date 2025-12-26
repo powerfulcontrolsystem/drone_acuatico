@@ -223,5 +223,8 @@ notepad $env:APPDATA\Code\User\settings.json
 - tener en cuenta que la ram de la raspberry pi3 es limitada, y hay que cuidar que vsc no llene demasiado la memoria de la raspberry pi 3.
 
 
-## repositorio del proyecto 
-https://github.com/powerfulcontrolsystem/drone-acuatico.git
+## repositorio del proyecto (Creado el 26/dic/26)
+https://github.com/powerfulcontrolsystem/drone_acuatico
+
+## conexion 
+La raspberry usa el wifi para conectarse a la red

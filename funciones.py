@@ -116,6 +116,14 @@ def inicializar_gpio():
         return False
     
     try:
+        # Limpiar GPIO previo (sin advertencias)
+        try:
+            GPIO.setwarnings(False)
+            GPIO.cleanup()
+            logger.info("GPIO limpiado (proceso previo)")
+        except:
+            pass
+        
         GPIO.setmode(GPIO.BCM)
         GPIO.setwarnings(False)
         
@@ -323,6 +331,91 @@ def obtener_solar():
             'bateria_voltaje': 0.0,
             'estado': 'desconocido'
         }
+
+
+def obtener_velocidad_red():
+    """
+    Obtiene la velocidad de conexión a internet.
+    Intenta varios métodos, siendo más rápido el primero que funcione.
+    Retorna la velocidad en Kbps (kilobits por segundo).
+    """
+    try:
+        # Método 1: iperf3 (más rápido si está disponible)
+        try:
+            # Esto requeriría un servidor iperf3, así que saltamos
+            pass
+        except:
+            pass
+        
+        # Método 2: speedtest-cli (más preciso pero más lento)
+        try:
+            resultado = subprocess.run(
+                ['speedtest-cli', '--simple'],
+                capture_output=True,
+                text=True,
+                timeout=60
+            )
+            
+            if resultado.returncode == 0:
+                lineas = resultado.stdout.strip().split('\n')
+                if len(lineas) >= 2:
+                    # Formato: ping, download (Mbps), upload (Mbps)
+                    velocidad_mbps = float(lineas[1])
+                    velocidad_kbps = velocidad_mbps * 1000  # Convertir a Kbps
+                    logger.info(f"Velocidad red (speedtest): {velocidad_mbps:.2f} Mbps")
+                    return {'velocidad': velocidad_kbps}
+        except subprocess.TimeoutExpired:
+            logger.warning("Timeout en speedtest-cli (>60s)")
+        except FileNotFoundError:
+            logger.debug("speedtest-cli no instalado")
+        
+        # Método 3: ookla speedtest (si speedtest-cli no funciona)
+        try:
+            resultado = subprocess.run(
+                ['speedtest', '--simple'],
+                capture_output=True,
+                text=True,
+                timeout=60
+            )
+            
+            if resultado.returncode == 0:
+                lineas = resultado.stdout.strip().split('\n')
+                if len(lineas) >= 2:
+                    velocidad_mbps = float(lineas[1])
+                    velocidad_kbps = velocidad_mbps * 1000
+                    logger.info(f"Velocidad red (ookla speedtest): {velocidad_mbps:.2f} Mbps")
+                    return {'velocidad': velocidad_kbps}
+        except:
+            pass
+        
+        # Método 4: Medir con curl/wget a un servidor conocido (rápido pero menos preciso)
+        try:
+            import time
+            # Descargar 1MB de un servidor rápido
+            url = "http://speedtest.ftp.otenet.gr/files/test10Mb.db"
+            inicio = time.time()
+            resultado = subprocess.run(
+                ['curl', '-o', '/dev/null', '-s', '-w', '%{speed_download}', url],
+                capture_output=True,
+                text=True,
+                timeout=30
+            )
+            
+            if resultado.returncode == 0:
+                # curl retorna bytes/segundo
+                velocidad_bytes_seg = float(resultado.stdout.strip())
+                velocidad_kbps = velocidad_bytes_seg * 8 / 1000  # Convertir a Kbps
+                logger.info(f"Velocidad red (curl): {velocidad_kbps:.2f} Kbps")
+                if velocidad_kbps > 0:
+                    return {'velocidad': velocidad_kbps}
+        except Exception as e:
+            logger.debug(f"Error con método curl: {e}")
+    
+    except Exception as e:
+        logger.debug(f"Error obteniendo velocidad red: {e}")
+    
+    # Retornar velocidad desconocida si hay error
+    return {'velocidad': 0}
 
 
 # ==================== FUNCIONES GPS ====================
