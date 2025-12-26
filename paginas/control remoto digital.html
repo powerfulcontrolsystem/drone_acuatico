@@ -4,19 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Control Remoto Digital - Drone Acuático</title>
+    
+    <!-- Leaflet CSS para el mapa -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
+        /* Reset básico */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Cuerpo principal */
         body {
             font-family: Arial, sans-serif;
             background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
             color: #fff;
             padding: 3px;
             overflow: hidden;
+            margin: 0;
             height: 100vh;
         }
-        
+
+        /* Contenedor principal */
         .container {
             max-width: 100%;
             margin: 0 auto;
@@ -24,8 +35,8 @@
             display: flex;
             flex-direction: column;
         }
-        
-        /* Encabezado */
+
+        /* Encabezado compacto - Una sola línea */
         header {
             display: flex;
             justify-content: space-between;
@@ -36,16 +47,53 @@
             margin-bottom: 4px;
             flex-shrink: 0;
         }
-        
-        h1 { font-size: 13px; margin: 0; font-weight: bold; }
-        
+
+        h1 {
+            font-size: 13px;
+            margin: 0;
+            font-weight: bold;
+        }
+
         .info-sistema {
             display: flex;
             gap: 8px;
             align-items: center;
             font-size: 9px;
         }
-        
+
+        /* Menú hamburguesa */
+        .menu-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 3px 6px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 10px;
+        }
+
+        .menu-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Botón de pantalla completa */
+        .btn-fullscreen {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 3px 6px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            line-height: 1;
+            margin-left: 5px;
+        }
+
+        .btn-fullscreen:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Estado de conexión compacto */
         .estado-conexion {
             display: inline-flex;
             align-items: center;
@@ -54,41 +102,86 @@
             border-radius: 10px;
             font-size: 9px;
         }
-        
-        .conectado { background: #4CAF50; }
-        .desconectado { background: #f44336; }
-        
-        .indicador-ram, .indicador-temp, .indicador-bat {
+
+        .conectado {
+            background: #4CAF50;
+        }
+
+        .desconectado {
+            background: #f44336;
+        }
+
+        /* Indicadores compactos */
+        .indicador-ram, .indicador-temp {
             padding: 2px 6px;
             border-radius: 10px;
             font-size: 9px;
             background: rgba(255, 255, 255, 0.15);
             font-family: monospace;
         }
-        
-        .ram-ok, .temp-ok, .bat-ok { background: rgba(76, 175, 80, 0.3); }
-        .ram-warning, .temp-warning, .bat-warning { background: rgba(255, 152, 0, 0.3); }
-        .ram-critical, .temp-critical, .bat-critical { background: rgba(244, 67, 54, 0.3); animation: parpadeo 1s infinite; }
-        
-        @keyframes parpadeo {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+
+        .ram-ok {
+            background: rgba(76, 175, 80, 0.3);
         }
-        
-        .btn-header {
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
+
+        .ram-warning {
+            background: rgba(255, 152, 0, 0.3);
+        }
+
+        .ram-critical {
+            background: rgba(244, 67, 54, 0.3);
+            animation: parpadeo 2s infinite;
+        }
+
+        .temp-ok {
+            background: rgba(76, 175, 80, 0.3);
+        }
+
+        .temp-warning {
+            background: rgba(255, 152, 0, 0.3);
+        }
+
+        .temp-critical {
+            background: rgba(244, 67, 54, 0.3);
+            animation: parpadeo 1s infinite;
+        }
+        /* Popup de navegación en el mapa */
+        .leaflet-popup-content {
+            margin: 10px;
+            text-align: center;
+        }
+
+        .btn-navegar {
+            background: #2196F3;
             color: white;
-            padding: 3px 6px;
-            border-radius: 4px;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
             cursor: pointer;
-            font-size: 10px;
-            margin-left: 3px;
+            font-size: 12px;
+            margin: 5px;
         }
-        
-        .btn-header:hover { background: rgba(255, 255, 255, 0.3); }
-        
-        /* Grid de vistas */
+
+        .btn-navegar:hover {
+            background: #1976D2;
+        }
+
+        .btn-cancelar {
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            margin: 5px;
+        }
+
+        .btn-cancelar:hover {
+            background: #d32f2f;
+        }
+
+        /* Grid de 3 columnas: Cámara 1, Cámara 2, Mapa */
         .grid-vistas {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
@@ -97,7 +190,7 @@
             flex: 1;
             min-height: 0;
         }
-        
+
         .vista-columna {
             background: rgba(0, 0, 0, 0.4);
             border-radius: 5px;
@@ -106,7 +199,7 @@
             flex-direction: column;
             min-height: 0;
         }
-        
+
         .vista-titulo {
             font-size: 9px;
             font-weight: bold;
@@ -117,33 +210,95 @@
             border-radius: 3px;
             flex-shrink: 0;
         }
-        
+
+        /* Cámaras */
         .camara {
             background: #263238;
             border-radius: 5px;
             overflow: hidden;
             flex: 1;
             min-height: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 9px;
         }
-        
+
         .camara img {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
-        
+
+        .camara-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 9px;
+            color: rgba(255, 255, 255, 0.5);
+            height: 100%;
+        }
+
+        /* Mapa */
         #mapa {
             width: 100%;
             height: 100%;
             border-radius: 5px;
+            z-index: 1;
         }
-        
-        /* Panel de controles */
+
+        /* Botón de guardar ubicación flotante dentro del mapa */
+        .btn-guardar-mapa {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            z-index: 1000;
+            background: #FF9800;
+            color: white;
+            border: 2px solid white;
+            padding: 6px 10px;
+            border-radius: 50%;
+            font-size: 14px;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s;
+            line-height: 1;
+        }
+
+        .btn-guardar-mapa:hover {
+            background: #F57C00;
+            transform: scale(1.1);
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
+        }
+
+        .btn-guardar-mapa:active {
+            transform: scale(0.95);
+        }
+
+        /* Botón de guardar ubicación dentro del mapa */
+        .btn-guardar-mapa {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            z-index: 1000;
+            background: #FF9800;
+            color: white;
+            border: 2px solid white;
+            padding: 8px 12px;
+            border-radius: 50%;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s;
+            line-height: 1;
+        }
+
+        .btn-guardar-mapa:hover {
+            background: #F57C00;
+            transform: scale(1.1);
+        }
+
+        .btn-guardar-mapa:active {
+            transform: scale(0.95);
+        }
+
+        /* Panel de controles debajo */
         .panel-controles {
             background: rgba(0, 0, 0, 0.4);
             border-radius: 5px;
@@ -153,13 +308,13 @@
             gap: 4px;
             flex-shrink: 0;
         }
-        
+
         .seccion-control {
             background: rgba(255, 255, 255, 0.05);
             border-radius: 4px;
             padding: 4px;
         }
-        
+
         .seccion-control h3 {
             font-size: 9px;
             margin: 0 0 3px 0;
@@ -167,14 +322,15 @@
             border-bottom: 1px solid rgba(255, 255, 255, 0.2);
             padding-bottom: 2px;
         }
-        
-        /* Relés */
+
+        /* Botones de relés */
         .grid-reles {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 3px;
         }
-        
+
+        /* Botones generales */
         button {
             padding: 4px;
             border: none;
@@ -185,179 +341,238 @@
             transition: all 0.2s;
             color: #fff;
         }
-        
+
         button:hover {
             transform: scale(1.05);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
-        
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        /* Botones de relés */
         .btn-rele {
             background: #607D8B;
             font-size: 8px;
             padding: 5px 3px;
         }
-        
-        .btn-rele.activo { background: #4CAF50; }
-        
-        /* Control de movimiento */
-        .control-movimiento {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-            align-items: center;
-        }
-        
-        .btn-direccion {
-            background: #1a1a1a;
-            color: white;
-            padding: 8px;
-            font-size: 12px;
-            border: 2px solid #333;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-        }
-        
-        .btn-direccion:hover {
-            background: #333;
-            transform: scale(1.05);
-        }
-        
-        .btn-parar {
-            background: #f44336;
-            border-color: #d32f2f;
-        }
-        
-        .btn-parar:hover {
-            background: #d32f2f;
-        }
-        
-        .btn-fila-lateral {
-            display: flex;
-            gap: 2px;
-            justify-content: center;
-        }
-        
-        .columna-velocidad {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-            margin-left: 5px;
-        }
-        
-        .btn-velocidad {
-            background: #2196F3;
-            border: 2px solid #1976D2;
-            padding: 6px 8px;
-            border-radius: 4px;
-            font-size: 9px;
-            font-weight: bold;
-            cursor: pointer;
-            min-width: 40px;
-        }
-        
-        .btn-velocidad:hover { background: #1976D2; }
-        .btn-velocidad.activo { background: #0D47A1; border-color: #0D47A1; }
-        
-        /* GPS */
-        .gps-actions {
-            display: flex;
-            gap: 4px;
-            align-items: center;
-            justify-content: center;
-            flex-wrap: nowrap;
+
+        .btn-rele.activo {
+            background: #4CAF50;
         }
 
+        /* Control de movimiento */
+        .control-movimiento {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2px;
+        }
+
+        .btn-direccion {
+            background: #2196F3;
+            padding: 6px;
+            font-size: 11px;
+            line-height: 1;
+        }
+
+        .btn-adelante {
+            grid-column: 2;
+        }
+
+        .btn-izquierda {
+            grid-column: 1;
+            grid-row: 2;
+        }
+
+        .btn-parar {
+            grid-column: 2;
+            grid-row: 2;
+            background: #f44336;
+        }
+
+        .btn-derecha {
+            grid-column: 3;
+            grid-row: 2;
+        }
+
+        .btn-atras {
+            grid-column: 2;
+            grid-row: 3;
+        }
+
+        /* GPS */
         .btn-gps {
             background: #FF9800;
-            margin-top: 0;
-            font-size: 11px;
-            padding: 6px 8px;
+            margin-top: 3px;
+            width: 100%;
+            font-size: 8px;
+            padding: 4px 2px;
         }
-        
-        .control-movimiento-wrapper {
-            display: flex;
-            gap: 4px;
-            align-items: center;
-            justify-content: center;
+
+        /* Sensor de peso */
+        .sensor-peso {
+            text-align: center;
+            padding: 3px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+            font-size: 8px;
+            margin-top: 3px;
         }
-        /* Notificaciones no intrusivas */
-        .toast { position: fixed; bottom: 12px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); color: #fff; padding: 8px 12px; border-radius: 6px; font-size: 12px; z-index: 9999; display: none; box-shadow: 0 4px 12px rgba(0,0,0,0.35); }
-        .toast.show { display: block; }
-        .toast.ok { background: rgba(76,175,80,0.92); }
-        .toast.warn { background: rgba(255,152,0,0.92); }
-        .toast.err { background: rgba(244,67,54,0.92); }
+
+        .valor-peso {
+            font-size: 13px;
+            font-weight: bold;
+            margin: 2px 0;
+        }
+
+        .alerta-peso {
+            background: #f44336;
+            animation: parpadeo 1s infinite;
+        }
+
+        @keyframes parpadeo {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Ubicaciones GPS */
+        .lista-ubicaciones {
+            max-height: 100px;
+            overflow-y: auto;
+            margin-top: 5px;
+            font-size: 10px;
+        }
+
+        .ubicacion-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 3px 6px;
+            margin: 3px 0;
+            border-radius: 4px;
+        }
+
+        /* IMPORTANTE: Mantener 3 columnas SIEMPRE en móvil horizontal */
+        @media (max-width: 768px) and (orientation: portrait) {
+            .grid-vistas {
+                grid-template-columns: 1fr;
+            }
+
+            .panel-controles {
+                grid-template-columns: 1fr;
+            }
+            
+            body {
+                height: auto;
+            }
+        }
+
+        /* Forzar las 3 columnas en horizontal */
+        @media (orientation: landscape) {
+            body {
+                padding: 2px;
+                overflow: hidden;
+            }
+            
+            header {
+                padding: 3px 6px;
+                margin-bottom: 2px;
+            }
+
+            h1 {
+                font-size: 11px;
+            }
+
+            .info-sistema {
+                font-size: 8px;
+                gap: 5px;
+            }
+
+            .grid-vistas {
+                gap: 3px;
+                margin-bottom: 3px;
+                /* Forzar 3 columnas */
+                grid-template-columns: 1fr 1fr 1fr !important;
+            }
+
+            .vista-columna {
+                padding: 3px;
+            }
+
+            .vista-titulo {
+                font-size: 8px;
+                padding: 1px;
+                margin-bottom: 2px;
+            }
+
+            .panel-controles {
+                padding: 3px;
+                gap: 3px;
+            }
+
+            button {
+                padding: 3px;
+                font-size: 8px;
+            }
+            
+            .btn-direccion {
+                padding: 4px;
+                font-size: 10px;
+            }
+            
+            .seccion-control h3 {
+                font-size: 8px;
+                margin-bottom: 2px;
+                padding-bottom: 1px;
+            }
+        }
     </style>
 </head>
 <body>
+    <!-- Audio para alerta -->
+    <audio id="alerta-sonido" loop>
+        <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBjGH0fPTgjMGHm7A7+OZUQ0PVKjn77FfHg=="></source>
+    </audio>
+
     <div class="container">
+        <!-- Encabezado compacto en una sola línea -->
         <header>
             <h1>🚤 Control Remoto Digital</h1>
             <div class="info-sistema">
                 <span id="estado-conexion" class="estado-conexion desconectado">● Desconectado</span>
                 <span id="indicador-ram" class="indicador-ram">RAM: --</span>
                 <span id="indicador-temp" class="indicador-temp">Temp: --</span>
-                <span id="indicador-bat" class="indicador-bat">Bat: --</span>
             </div>
             <div>
-                <button class="btn-header" onclick="toggleFullScreen()" title="Pantalla completa">⛶</button>
-                <button class="btn-header" onclick="irConfiguracion()">⚙️ Config</button>
-                <button class="btn-header" onclick="apagarRaspberry()" title="Apagar">🔴</button>
-                <button class="btn-header" onclick="reiniciarRaspberry()" title="Reiniciar">🔄</button>
+                <button class="btn-fullscreen" id="btn-fullscreen" onclick="toggleFullScreen()" title="Pantalla completa">⛶</button>
+                <button class="menu-btn" onclick="irConfiguracion()">⚙️ Config</button>
             </div>
         </header>
 
+        <!-- Grid de 3 columnas: Cámara 1, Cámara 2, Mapa -->
         <div class="grid-vistas">
+            <!-- Cámara 1 -->
             <div class="vista-columna">
                 <div class="vista-titulo">📹 Cámara 1</div>
-                <div class="camara" id="camara1">
-                    <div>
-                        <div style="font-size:10px; margin-bottom:4px;">
-                            <label style="margin-right:6px;">Calidad:</label>
-                            <select id="calidadCam1" style="font-size:11px; padding:2px 4px; border-radius:4px;">
-                                <option value="sd">SD</option>
-                                <option value="hd" selected>HD/2K</option>
-                            </select>
-                        </div>
-                        <a id="linkCamara1" href="#" style="color:#B2FF59; font-size:11px;">rtsp://...</a>
-                        <div style="margin-top:6px;">
-                            <video id="videoCam1" controls muted playsinline style="max-height:180px; width:100%; background:#000; border-radius:4px"></video>
-                        </div>
-                        <div style="display:flex; gap:4px; margin-top:6px; justify-content:center;">
-                            <button class="btn-header" onclick="iniciarCamara(1)">▶️ Iniciar</button>
-                            <button class="btn-header" onclick="detenerCamara(1)">⏹️ Detener</button>
-                        </div>
+                <div class="camara">
+                    <div class="camara-placeholder" id="camara1-placeholder">
+                        Cámara 1 no disponible
                     </div>
+                    <img id="camara1" style="display: none;" alt="Cámara 1">
                 </div>
             </div>
 
-            <div class="vista-columna" style="border-left:1px solid rgba(255,255,255,0.25); padding-left:8px;">
-                <div class="vista-titulo">📹 Cámara 2 (2K por defecto)</div>
-                <div class="camara" id="camara2">
-                    <div>
-                        <div style="font-size:10px; margin-bottom:4px;">
-                            <label style="margin-right:6px;">Calidad:</label>
-                            <select id="calidadCam2" style="font-size:11px; padding:2px 4px; border-radius:4px;">
-                                <option value="sd">SD</option>
-                                <option value="hd" selected>HD/2K</option>
-                            </select>
-                        </div>
-                        <a id="linkCamara2" href="#" style="color:#B2FF59; font-size:11px;">rtsp://...</a>
-                        <div style="margin-top:6px;">
-                            <video id="videoCam2" controls muted playsinline style="max-height:180px; width:100%; background:#000; border-radius:4px"></video>
-                        </div>
-                        <div style="display:flex; gap:4px; margin-top:6px; justify-content:center;">
-                            <button class="btn-header" onclick="iniciarCamara(2)">▶️ Iniciar</button>
-                            <button class="btn-header" onclick="detenerCamara(2)">⏹️ Detener</button>
-                        </div>
+            <!-- Cámara 2 -->
+            <div class="vista-columna">
+                <div class="vista-titulo">📹 Cámara 2</div>
+                <div class="camara">
+                    <div class="camara-placeholder" id="camara2-placeholder">
+                        Cámara 2 no disponible
                     </div>
+                    <img id="camara2" style="display: none;" alt="Cámara 2">
                 </div>
             </div>
 
+            <!-- Mapa GPS -->
             <div class="vista-columna">
                 <div class="vista-titulo">
                     <span style="float: left;">🗺️ Mapa</span>
@@ -366,33 +581,25 @@
                     </span>
                     <div style="clear: both;"></div>
                 </div>
-                <div id="mapa"></div>
+                <div id="mapa" style="flex: 1; position: relative;"></div>
             </div>
         </div>
 
+        <!-- Panel de controles debajo de las 3 columnas -->
         <div class="panel-controles">
-            <!-- Control de Movimiento -->
+            <!-- Sección 1: Control de Movimiento (IZQUIERDA) -->
             <div class="seccion-control">
                 <h3>🎮 MOVIMIENTO</h3>
-                <div class="control-movimiento-wrapper">
-                    <div class="control-movimiento">
-                        <button class="btn-direccion" onmousedown="moverDrone('adelante')" onmouseup="pararDrone()">▲</button>
-                        <div class="btn-fila-lateral">
-                            <button class="btn-direccion" onmousedown="moverDrone('izquierda')" onmouseup="pararDrone()">◀</button>
-                            <button class="btn-direccion btn-parar" onclick="pararDrone()">■</button>
-                            <button class="btn-direccion" onmousedown="moverDrone('derecha')" onmouseup="pararDrone()">▶</button>
-                        </div>
-                        <button class="btn-direccion" onmousedown="moverDrone('atras')" onmouseup="pararDrone()">▼</button>
-                    </div>
-                    <div class="columna-velocidad">
-                        <button class="btn-velocidad activo" onclick="setVelocidad(1)">V1</button>
-                        <button class="btn-velocidad" onclick="setVelocidad(2)">V2</button>
-                        <button class="btn-velocidad" onclick="setVelocidad(3)">V3</button>
-                    </div>
+                <div class="control-movimiento">
+                    <button class="btn-direccion btn-adelante" onmousedown="moverDrone('adelante')" onmouseup="pararDrone()" ontouchstart="moverDrone('adelante')" ontouchend="pararDrone()">▲</button>
+                    <button class="btn-direccion btn-izquierda" onmousedown="moverDrone('izquierda')" onmouseup="pararDrone()" ontouchstart="moverDrone('izquierda')" ontouchend="pararDrone()">◀</button>
+                    <button class="btn-direccion btn-parar" onclick="pararDrone()">■</button>
+                    <button class="btn-direccion btn-derecha" onmousedown="moverDrone('derecha')" onmouseup="pararDrone()" ontouchstart="moverDrone('derecha')" ontouchend="pararDrone()">▶</button>
+                    <button class="btn-direccion btn-atras" onmousedown="moverDrone('atras')" onmouseup="pararDrone()" ontouchstart="moverDrone('atras')" ontouchend="pararDrone()">▼</button>
                 </div>
             </div>
 
-            <!-- Relés -->
+            <!-- Sección 2: Relés (CENTRO) -->
             <div class="seccion-control">
                 <h3>⚡ RELÉS</h3>
                 <div class="grid-reles">
@@ -408,374 +615,477 @@
                 </div>
             </div>
 
-            <!-- GPS -->
+            <!-- Sección 3: Sensor de Peso (DERECHA) -->
             <div class="seccion-control">
-                <h3>🗺️ GPS</h3>
-                <div class="gps-actions">
-                    <button class="btn-gps" onclick="guardarUbicacion()">💾 Guardar Ubicación</button>
-                    <button class="btn-gps" onclick="irADestino()">📍 Ir a Destino</button>
-                    <button class="btn-gps" onclick="mostrarRuta()">🛣️ Ver Recorrido</button>
+                <h3>⚖️ SENSOR DE PESO</h3>
+                
+                <!-- Sensor de peso -->
+                <div class="sensor-peso" id="sensor-peso" style="margin-top: 5px;">
+                    <div style="font-size: 10px;">Peso Detectado</div>
+                    <div class="valor-peso" id="valor-peso">0.0 kg</div>
+                    <div style="font-size: 8px; margin-top: 3px; color: rgba(255,255,255,0.7);">Umbral: 5.0 kg</div>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Leaflet JS para el mapa -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    
     <script>
-        let ws = null;
-        let estadoReles = {};
-        let mapa = null;
-        let __toastTimer = null;
+        // ==================== VARIABLES GLOBALES ====================
+        let ws = null; // WebSocket
+        let estadoReles = {}; // Estado de cada relé (true = encendido, false = apagado)
+        let alertaSonando = false; // Control de alerta sonora
+        let mapa = null; // Instancia del mapa Leaflet
+        let marcadorActual = null; // Marcador de posición actual
+        let marcadorDestino = null; // Marcador de destino al hacer clic
+        let rutaLinea = null; // Línea que muestra el recorrido
+        let puntosRuta = []; // Array con todas las posiciones del recorrido
 
-        function mostrarToast(texto, tipo = 'ok') {
-            const t = document.getElementById('toast');
-            if (!t) return;
-            t.textContent = texto;
-            t.className = 'toast show ' + (tipo === 'warn' ? 'warn' : tipo === 'err' ? 'err' : 'ok');
-            clearTimeout(__toastTimer);
-            __toastTimer = setTimeout(() => { t.className = 'toast'; }, 2500);
-        }
-        let marcadorGPS = null;
-        let marcadorActual = null;
-        let velocidadActual = 50;
-
-        // Conectar WebSocket
+        // ==================== CONEXIÓN WEBSOCKET ====================
+        
+        // Conectar al WebSocket al cargar la página
         function conectarWebSocket() {
             const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
             const wsUrl = `${protocol}//${window.location.host}/ws`;
             
             ws = new WebSocket(wsUrl);
 
+            // Evento: Conexión establecida
             ws.onopen = function() {
                 console.log('WebSocket conectado');
                 document.getElementById('estado-conexion').textContent = '● Conectado';
                 document.getElementById('estado-conexion').className = 'estado-conexion conectado';
-                enviarMensaje({ tipo: 'obtener_datos' });
-                enviarMensaje({ tipo: 'obtener_config' });
             };
 
+            // Evento: Mensaje recibido
             ws.onmessage = function(event) {
                 const datos = JSON.parse(event.data);
                 procesarMensaje(datos);
             };
 
+            // Evento: Conexión cerrada
             ws.onclose = function() {
                 console.log('WebSocket desconectado');
                 document.getElementById('estado-conexion').textContent = '● Desconectado';
                 document.getElementById('estado-conexion').className = 'estado-conexion desconectado';
+                
+                // Intentar reconectar después de 3 segundos
                 setTimeout(conectarWebSocket, 3000);
             };
 
+            // Evento: Error
             ws.onerror = function(error) {
                 console.error('Error WebSocket:', error);
             };
         }
 
-        function enviarMensaje(datos) {
-            if (ws && ws.readyState === WebSocket.OPEN) {
-                ws.send(JSON.stringify(datos));
-            }
-        }
-
+        // ==================== PROCESAR MENSAJES ====================
+        
+        // Procesar mensajes recibidos del servidor
         function procesarMensaje(datos) {
-            console.log('Mensaje:', datos);
-            
+            console.log('Mensaje recibido:', datos);
+
             switch(datos.tipo) {
                 case 'conexion':
-                    console.log('✓ Conectado');
+                    console.log(datos.mensaje);
+                    solicitarDatos(); // Solicitar datos iniciales
                     break;
-                    
-                case 'respuesta_rele':
-                    if (datos.exito) {
-                        console.log(`✓ Relé ${datos.numero}: ${datos.estado}`);
-                    }
+
+                case 'gps_actual':
+                case 'gps':
+                    actualizarGPS(datos.posicion);
                     break;
-                    
+
+                case 'gps_guardado':
+                    console.log('Ubicación GPS guardada');
+                    solicitarUbicaciones(); // Actualizar lista
+                    break;
+
+                case 'ubicaciones':
+                    mostrarUbicaciones(datos.datos);
+                    break;
+
+                case 'peso':
+                    actualizarPeso(datos.peso, false);
+                    break;
+
+                case 'alerta_peso':
+                    actualizarPeso(datos.peso, true);
+                    break;
+
                 case 'ram':
                     actualizarRAM(datos.datos);
                     break;
-                    
+
                 case 'temperatura':
                     actualizarTemperatura(datos.datos);
                     break;
-                    
-                case 'bateria':
-                    actualizarBateria(datos.datos);
+
+                case 'respuesta':
+                    console.log('Respuesta del servidor:', datos);
                     break;
 
-                case 'gps':
-                    actualizarGPS(datos.datos);
-                    break;
-
-                case 'config_actual':
-                    aplicarConfig(datos.datos || {});
-                    break;
-
-                case 'camara':
-                    manejarRespuestaCamara(datos);
-                    break;
-
-                case 'respuesta_gps':
-                    mostrarToast(datos.mensaje || (datos.exito ? 'Ubicación guardada' : 'No se pudo guardar'), datos.exito ? 'ok' : 'err');
+                case 'error':
+                    console.error('Error del servidor:', datos.mensaje);
                     break;
             }
         }
 
-        function actualizarRAM(datos) {
-            const elem = document.getElementById('indicador-ram');
-            elem.textContent = `💾 ${datos.used}/${datos.total}MB (${datos.percent}%)`;
-            elem.className = 'indicador-ram';
-            if (datos.percent < 70) elem.classList.add('ram-ok');
-            else if (datos.percent < 85) elem.classList.add('ram-warning');
-            else elem.classList.add('ram-critical');
-        }
-
-        function actualizarTemperatura(datos) {
-            const elem = document.getElementById('indicador-temp');
-            elem.textContent = `🌡️ ${datos.temperatura}°C`;
-            elem.className = 'indicador-temp';
-            if (datos.temperatura < 60) elem.classList.add('temp-ok');
-            else if (datos.temperatura < 75) elem.classList.add('temp-warning');
-            else elem.classList.add('temp-critical');
-        }
-
-        function actualizarBateria(datos) {
-            const elem = document.getElementById('indicador-bat');
-            const icono = datos.estado === "cargando" ? '🔌' : '🔋';
-            elem.textContent = `${icono} ${datos.porcentaje}%`;
-            elem.className = 'indicador-bat';
-            if (datos.porcentaje > 50) elem.classList.add('bat-ok');
-            else if (datos.porcentaje > 20) elem.classList.add('bat-warning');
-            else elem.classList.add('bat-critical');
-        }
-
+        // ==================== FUNCIONES DE CONTROL ====================
+        
+        // Alternar estado de un relé
         function toggleRele(numero) {
-            const boton = event.target;
-            const nuevoEstado = !estadoReles[numero];
+            const nuevoEstado = !estadoReles[numero]; // Invertir estado
             estadoReles[numero] = nuevoEstado;
 
-            if (nuevoEstado) boton.classList.add('activo');
-            else boton.classList.remove('activo');
-
-            enviarMensaje({ tipo: 'rele', numero: numero, estado: nuevoEstado });
-        }
-
-        function moverDrone(direccion) {
-            enviarMensaje({ tipo: 'motor', direccion: direccion });
-        }
-
-        function pararDrone() {
-            enviarMensaje({ tipo: 'motor', direccion: 'parar' });
-        }
-
-        function setVelocidad(nivel) {
-            velocidadActual = nivel * 33;
-            enviarMensaje({ tipo: 'velocidad', nivel: velocidadActual });
-            
-            document.querySelectorAll('.btn-velocidad').forEach(btn => btn.classList.remove('activo'));
-            event.target.classList.add('activo');
-        }
-
-        function guardarUbicacion() {
-            enviarMensaje({ tipo: 'gps_guardar' });
-        }
-
-        function irADestino() {
-            mostrarToast('Función en desarrollo: Navegar a destino', 'warn');
-        }
-
-        function mostrarRuta() {
-            mostrarToast('Función en desarrollo: Mostrar recorrido', 'warn');
-        }
-
-        function iniciarCamara(indice) {
-            const calidad = document.getElementById(`calidadCam${indice}`).value;
-            enviarMensaje({ tipo: 'camara', accion: 'iniciar', indice, calidad });
-        }
-
-        function detenerCamara(indice) {
-            enviarMensaje({ tipo: 'camara', accion: 'detener', indice });
-        }
-
-        function manejarRespuestaCamara(datos) {
-            const i = datos.indice;
-            const exito = !!datos.exito;
-            if (datos.accion === 'iniciar') {
-                const videoEl = i === 1 ? document.getElementById('videoCam1') : document.getElementById('videoCam2');
-                const playlist = i === 1 ? '/hls/cam1/cam1.m3u8' : '/hls/cam2/cam2.m3u8';
-                if (exito) {
-                    inicializarHLS(videoEl, playlist);
-                } else {
-                    mostrarToast('No se pudo iniciar la cámara ' + i, 'err');
-                }
-            } else if (datos.accion === 'detener') {
-                const videoEl = i === 1 ? document.getElementById('videoCam1') : document.getElementById('videoCam2');
-                try {
-                    videoEl.pause();
-                    videoEl.removeAttribute('src');
-                } catch (e) {}
-            }
-        }
-
-        function irConfiguracion() {
-            window.location.href = '/configuracion.html';
-        }
-
-        function toggleFullScreen() {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen();
+            // Actualizar interfaz
+            const boton = event.target;
+            if (nuevoEstado) {
+                boton.classList.add('activo');
             } else {
-                document.exitFullscreen();
+                boton.classList.remove('activo');
             }
+
+            // Enviar comando al servidor
+            enviarMensaje({
+                tipo: 'rele',
+                numero: numero,
+                estado: nuevoEstado
+            });
         }
 
-        function apagarRaspberry() {
-            if (confirm('¿Apagar Raspberry Pi?')) {
-                enviarMensaje({ tipo: 'sistema', comando: 'apagar' });
-            }
+        // Mover el drone en una dirección
+        function moverDrone(direccion) {
+            enviarMensaje({
+                tipo: 'motor',
+                direccion: direccion
+            });
         }
 
-        function reiniciarRaspberry() {
-            if (confirm('¿Reiniciar Raspberry Pi?')) {
-                enviarMensaje({ tipo: 'sistema', comando: 'reiniciar' });
-            }
+        // Parar el drone
+        function pararDrone() {
+            enviarMensaje({
+                tipo: 'motor',
+                direccion: 'parar'
+            });
         }
 
+        // Guardar ubicación GPS actual
+        function guardarUbicacion() {
+            enviarMensaje({
+                tipo: 'guardar_gps'
+            });
+        }
 
-        function actualizarGPS(datos) {
-            if (!mapa || !datos.lat || !datos.lon) return;
+        // Ir a página de configuración
+        function irConfiguracion() {
+            // TODO: Implementar página de configuración
+            alert('Página de configuración - En desarrollo');
+            // window.location.href = '/configuracion.html';
+        }
+
+        // Alternar pantalla completa
+        function toggleFullScreen() {
+            const btn = document.getElementById('btn-fullscreen');
             
-            const lat = parseFloat(datos.lat);
-            const lon = parseFloat(datos.lon);
+            if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.mozFullScreenElement) {
+                // Entrar en pantalla completa
+                const elem = document.documentElement;
+                if (elem.requestFullscreen) {
+                    elem.requestFullscreen();
+                } else if (elem.webkitRequestFullscreen) { /* Safari */
+                    elem.webkitRequestFullscreen();
+                } else if (elem.mozRequestFullScreen) { /* Firefox */
+                    elem.mozRequestFullScreen();
+                } else if (elem.msRequestFullscreen) { /* IE11 */
+                    elem.msRequestFullscreen();
+                }
+                btn.innerHTML = '⛶'; // Icono para salir de pantalla completa
+                btn.title = 'Salir de pantalla completa';
+            } else {
+                // Salir de pantalla completa
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) { /* Safari */
+                    document.webkitExitFullscreen();
+                } else if (document.mozCancelFullScreen) { /* Firefox */
+                    document.mozCancelFullScreen();
+                } else if (document.msExitFullscreen) { /* IE11 */
+                    document.msExitFullscreen();
+                }
+                btn.innerHTML = '⛶'; // Icono para entrar en pantalla completa
+                btn.title = 'Pantalla completa';
+            }
+        }
+
+        // Actualizar el icono cuando cambia el estado de pantalla completa
+        document.addEventListener('fullscreenchange', actualizarIconoFullscreen);
+        document.addEventListener('webkitfullscreenchange', actualizarIconoFullscreen);
+        document.addEventListener('mozfullscreenchange', actualizarIconoFullscreen);
+
+        function actualizarIconoFullscreen() {
+            const btn = document.getElementById('btn-fullscreen');
+            if (document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement) {
+                btn.innerHTML = '⛶';
+                btn.title = 'Salir de pantalla completa';
+            } else {
+                btn.innerHTML = '⛶';
+                btn.title = 'Pantalla completa';
+            }
+        }
+
+        // Solicitar datos iniciales
+        function solicitarDatos() {
+            enviarMensaje({ tipo: 'obtener_gps' });
+            solicitarUbicaciones();
+        }
+
+        // Solicitar ubicaciones guardadas
+        function solicitarUbicaciones() {
+            enviarMensaje({ tipo: 'obtener_ubicaciones' });
+        }
+
+        // ==================== MAPA ====================
+        
+        // Inicializar el mapa con Leaflet
+        function inicializarMapa() {
+            // Crear mapa centrado en posición por defecto
+            mapa = L.map('mapa').setView([4.6097, -74.0817], 13);
             
-            // Crear o actualizar marcador
-            if (!marcadorGPS) {
-                marcadorGPS = L.marker([lat, lon], {
-                    icon: L.divIcon({
-                        className: 'marcador-gps',
-                        html: '<div style="background: #ff4444; border: 3px solid white; border-radius: 50%; width: 20px; height: 20px; box-shadow: 0 0 10px rgba(255,68,68,0.8);"></div>',
-                        iconSize: [20, 20],
-                        iconAnchor: [10, 10]
+            // Agregar capa de OpenStreetMap
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors',
+                maxZoom: 19
+            }).addTo(mapa);
+            
+            // Agregar botón flotante de guardar ubicación
+            const contenedorMapa = document.getElementById('mapa');
+            const btnGuardar = document.createElement('button');
+            btnGuardar.className = 'btn-guardar-mapa';
+            btnGuardar.innerHTML = '💾';
+            btnGuardar.title = 'Guardar ubicación actual';
+            btnGuardar.onclick = guardarUbicacion;
+            contenedorMapa.appendChild(btnGuardar);
+            
+            // Crear marcador inicial (invisible hasta tener posición real)
+            marcadorActual = L.marker([4.6097, -74.0817], {
+                icon: L.icon({
+                    iconUrl: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMCAwIDMwIDQwIj48cGF0aCBmaWxsPSIjRkYwMDAwIiBkPSJNMTUgMEMxMC4wMyAwIDYgNC4wMyA2IDljMCA3LjUgOSAxNiA5IDE2czkgOC41IDktMTZjMC00Ljk3LTQuMDMtOS05LTl6Ii8+PGNpcmNsZSBjeD0iMTUiIGN5PSI5IiByPSIzIiBmaWxsPSIjRkZGIi8+PC9zdmc+',
+                    iconSize: [30, 40],
+                    iconAnchor: [15, 40]
+                })
+            });
+            
+            // Inicializar línea de ruta
+            rutaLinea = L.polyline([], {
+                color: '#2196F3',
+                weight: 3,
+                opacity: 0.7
+            }).addTo(mapa);
+            
+            // Agregar evento de clic en el mapa
+            mapa.on('click', function(e) {
+                const lat = e.latlng.lat;
+                const lng = e.latlng.lng;
+                
+                // Eliminar marcador anterior si existe
+                if (marcadorDestino) {
+                    mapa.removeLayer(marcadorDestino);
+                }
+                
+                // Crear nuevo marcador de destino (azul)
+                marcadorDestino = L.marker([lat, lng], {
+                    icon: L.icon({
+                        iconUrl: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMCAwIDMwIDQwIj48cGF0aCBmaWxsPSIjMjE5NkYzIiBkPSJNMTUgMEMxMC4wMyAwIDYgNC4wMyA2IDljMCA3LjUgOSAxNiA5IDE2czkgOC41IDktMTZjMC00Ljk3LTQuMDMtOS05LTl6Ii8+PGNpcmNsZSBjeD0iMTUiIGN5PSI5IiByPSIzIiBmaWxsPSIjRkZGIi8+PC9zdmc+',
+                        iconSize: [30, 40],
+                        iconAnchor: [15, 40]
                     })
                 }).addTo(mapa);
                 
-                marcadorGPS.bindPopup('<b>Posición Drone</b><br>Cargando datos GPS...');
+                // Crear contenido del popup
+                const popupContent = `
+                    <div style="text-align: center;">
+                        <p style="margin: 5px 0; font-weight: bold;">¿Navegar a ubicación?</p>
+                        <p style="margin: 5px 0; font-size: 11px;">
+                            Lat: ${lat.toFixed(6)}<br>
+                            Lng: ${lng.toFixed(6)}
+                        </p>
+                        <button class="btn-navegar" onclick="navegarADestino(${lat}, ${lng})">SÍ, NAVEGAR</button>
+                        <button class="btn-cancelar" onclick="cancelarNavegacion()">CANCELAR</button>
+                    </div>
+                `;
                 
-                // Centrar mapa en primera lectura GPS válida
-                mapa.setView([lat, lon], 17);
-                console.log('GPS inicializado en:', lat, lon);
+                // Mostrar popup
+                marcadorDestino.bindPopup(popupContent).openPopup();
+            });
+        }
+        
+        // Navegar a destino seleccionado
+        function navegarADestino(lat, lng) {
+            console.log(`Navegando a: ${lat}, ${lng}`);
+            
+            // Enviar comando de navegación al servidor
+            enviarMensaje({
+                tipo: 'navegar_a',
+                latitud: lat,
+                longitud: lng
+            });
+            
+            // Cerrar popup
+            if (marcadorDestino) {
+                marcadorDestino.closePopup();
+            }
+            
+            // Mostrar notificación
+            alert(`Navegando a destino:\nLat: ${lat.toFixed(6)}\nLng: ${lng.toFixed(6)}`);
+        }
+        
+        // Cancelar navegación
+        function cancelarNavegacion() {
+            // Eliminar marcador de destino
+            if (marcadorDestino) {
+                mapa.removeLayer(marcadorDestino);
+                marcadorDestino = null;
+            }
+        }
+        
+        // ==================== ACTUALIZACIÓN DE INTERFAZ ====================
+        
+        // Actualizar información de GPS
+        function actualizarGPS(posicion) {
+            if (!posicion) return;
+            
+            const lat = posicion.latitud;
+            const lng = posicion.longitud;
+            
+            // Actualizar coordenadas en texto
+            document.getElementById('latitud').textContent = lat.toFixed(6);
+            document.getElementById('longitud').textContent = lng.toFixed(6);
+            
+            // Actualizar mapa si existe
+            if (mapa) {
+                // Mover marcador a nueva posición
+                marcadorActual.setLatLng([lat, lng]);
+                
+                // Agregar marcador al mapa si no está visible
+                if (!mapa.hasLayer(marcadorActual)) {
+                    marcadorActual.addTo(mapa);
+                }
+                
+                // Centrar mapa en la nueva posición
+                mapa.setView([lat, lng], mapa.getZoom());
+                
+                // Agregar punto a la ruta
+                puntosRuta.push([lat, lng]);
+                rutaLinea.setLatLngs(puntosRuta);
+            }
+        }
+
+        // Mostrar lista de ubicaciones guardadas
+        function mostrarUbicaciones(ubicaciones) {
+            const lista = document.getElementById('lista-ubicaciones');
+            
+            if (!ubicaciones || ubicaciones.length === 0) {
+                lista.innerHTML = '<p style="text-align: center; color: rgba(255,255,255,0.5);">Sin ubicaciones guardadas</p>';
+                return;
+            }
+
+            lista.innerHTML = ubicaciones.map((ubi, index) => `
+                <div class="ubicacion-item">
+                    <strong>#${index + 1}</strong> - 
+                    Lat: ${ubi.latitud.toFixed(6)}, 
+                    Lng: ${ubi.longitud.toFixed(6)}
+                </div>
+            `).join('');
+        }
+
+        // Actualizar sensor de peso
+        function actualizarPeso(peso, alerta) {
+            const valorPeso = document.getElementById('valor-peso');
+            const panelPeso = document.getElementById('panel-peso');
+            const alertaSonido = document.getElementById('alerta-sonido');
+
+            valorPeso.textContent = `${peso.toFixed(2)} kg`;
+
+            if (alerta) {
+                // Activar alerta visual
+                panelPeso.classList.add('alerta-peso');
+                
+                // Activar alerta sonora
+                if (!alertaSonando) {
+                    alertaSonido.play();
+                    alertaSonando = true;
+                }
             } else {
-                // Actualizar posición del marcador
-                marcadorGPS.setLatLng([lat, lon]);
+                // Desactivar alerta
+                panelPeso.classList.remove('alerta-peso');
                 
-                // Seguir el drone automáticamente
-                mapa.panTo([lat, lon]);
-            }
-            
-            // Actualizar popup con datos actuales
-            const popupContent = `
-                <b>🚤 Posición Drone</b><br>
-                <b>Lat:</b> ${lat.toFixed(6)}<br>
-                <b>Lon:</b> ${lon.toFixed(6)}<br>
-                <b>Alt:</b> ${datos.alt || 0}m<br>
-                <b>Satélites:</b> ${datos.satelites || 0}<br>
-                <b>Velocidad:</b> ${(datos.velocidad || 0).toFixed(1)} km/h
-            `;
-            marcadorGPS.getPopup().setContent(popupContent);
-            
-            console.log(`GPS actualizado: ${lat.toFixed(6)}, ${lon.toFixed(6)} - ${datos.satelites} sats`);
-        }
-
-        function inicializarMapa() {
-            mapa = L.map('mapa').setView([4.6097, -74.0817], 13);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap',
-                maxZoom: 19
-            }).addTo(mapa);
-        }
-
-        function aplicarConfig(cfg) {
-            try {
-                // Cámara 1
-                const des1 = !!cfg.desactivar_camara1;
-                const url1_sd = (cfg.url_camara1_sd || '').trim();
-                const url1_hd = (cfg.url_camara1_hd || '').trim();
-                const link1 = document.getElementById('linkCamara1');
-                const cam1 = document.getElementById('camara1');
-                const v1 = document.getElementById('videoCam1');
-                const sel1 = document.getElementById('calidadCam1');
-                
-                if (des1 || (!url1_sd && !url1_hd)) {
-                    link1.textContent = 'Cámara 1 desactivada';
-                    link1.removeAttribute('href');
-                    cam1.style.opacity = 0.6;
-                    v1.removeAttribute('src');
-                } else {
-                    const urlMostrar = url1_sd || url1_hd;
-                    link1.textContent = urlMostrar;
-                    link1.setAttribute('href', urlMostrar);
-                    cam1.style.opacity = 1.0;
-                    inicializarHLS(v1, '/hls/cam1/cam1.m3u8');
-                    
-                    // Habilitar/deshabilitar opciones según disponibilidad
-                    if (!url1_hd) sel1.querySelector('[value="hd"]').disabled = true;
-                    if (!url1_sd) sel1.querySelector('[value="sd"]').disabled = true;
-                    // Seleccionar HD/2K por defecto si está disponible
-                    sel1.value = url1_hd ? 'hd' : 'sd';
+                if (alertaSonando) {
+                    alertaSonido.pause();
+                    alertaSonido.currentTime = 0;
+                    alertaSonando = false;
                 }
-
-                // Cámara 2
-                const des2 = !!cfg.desactivar_camara2;
-                const url2_sd = (cfg.url_camara2_sd || '').trim();
-                const url2_hd = (cfg.url_camara2_hd || '').trim();
-                const link2 = document.getElementById('linkCamara2');
-                const cam2 = document.getElementById('camara2');
-                const v2 = document.getElementById('videoCam2');
-                const sel2 = document.getElementById('calidadCam2');
-                
-                if (des2 || (!url2_sd && !url2_hd)) {
-                    link2.textContent = 'Cámara 2 desactivada';
-                    link2.removeAttribute('href');
-                    cam2.style.opacity = 0.6;
-                    v2.removeAttribute('src');
-                } else {
-                    const urlMostrar = url2_sd || url2_hd;
-                    link2.textContent = urlMostrar;
-                    link2.setAttribute('href', urlMostrar);
-                    cam2.style.opacity = 1.0;
-                    inicializarHLS(v2, '/hls/cam2/cam2.m3u8');
-                    
-                    // Habilitar/deshabilitar opciones según disponibilidad
-                    if (!url2_hd) sel2.querySelector('[value="hd"]').disabled = true;
-                    if (!url2_sd) sel2.querySelector('[value="sd"]').disabled = true;
-                    // Seleccionar HD/2K por defecto si está disponible
-                    sel2.value = url2_hd ? 'hd' : 'sd';
-                }
-            } catch (e) {
-                console.error('Error aplicando configuración:', e);
             }
         }
 
+        // Actualizar indicador de RAM
+        function actualizarRAM(datos) {
+            const indicador = document.getElementById('indicador-ram');
+            const percent = datos.percent;
+            
+            // Formato: "RAM: 450/906 MB (50%)"
+            indicador.textContent = `💾 RAM: ${datos.used}/${datos.total} MB (${percent}%)`;
+            
+            // Cambiar color según uso
+            indicador.className = 'indicador-ram';
+            if (percent < 70) {
+                indicador.classList.add('ram-ok');
+            } else if (percent < 85) {
+                indicador.classList.add('ram-warning');
+            } else {
+                indicador.classList.add('ram-critical');
+            }
+        }
+
+        // Actualizar indicador de Temperatura
+        function actualizarTemperatura(datos) {
+            const indicador = document.getElementById('indicador-temp');
+            const temp = datos.celsius;
+            
+            // Formato: "🌡️ 45.3°C"
+            indicador.textContent = `🌡️ ${temp}°C`;
+            
+            // Cambiar color según temperatura (límites para Raspberry Pi)
+            indicador.className = 'indicador-temp';
+            if (temp < 60) {
+                indicador.classList.add('temp-ok');
+            } else if (temp < 75) {
+                indicador.classList.add('temp-warning');
+            } else {
+                indicador.classList.add('temp-critical');
+            }
+        }
+
+        // ==================== ENVÍO DE MENSAJES ====================
+        
+        // Enviar mensaje por WebSocket
+        function enviarMensaje(datos) {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify(datos));
+            } else {
+                console.error('WebSocket no conectado');
+            }
+        }
+
+        // ==================== INICIALIZACIÓN ====================
+        
+        // Conectar al cargar la página
         window.onload = function() {
             inicializarMapa();
             conectarWebSocket();
         };
-
-        function inicializarHLS(videoEl, playlistUrl) {
-            try {
-                if (Hls.isSupported()) {
-                    const hls = new Hls({ lowLatencyMode: true });
-                    hls.loadSource(playlistUrl);
-                    hls.attachMedia(videoEl);
-                } else if (videoEl.canPlayType('application/vnd.apple.mpegurl')) {
-                    videoEl.src = playlistUrl;
-                }
-            } catch (e) {
-                console.error('Error inicializando HLS:', e);
-            }
-        }
     </script>
-    <div id="toast" class="toast"></div>
 </body>
 </html>
