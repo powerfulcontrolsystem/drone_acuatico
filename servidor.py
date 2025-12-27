@@ -77,6 +77,15 @@ DATOS_SISTEMA_CACHE = {
     'ultima_actualizacion': 0
 }
 
+
+def obtener_payload_gps():
+    """Devuelve datos GPS o un marcador de ausencia de señal."""
+    gps = obtener_posicion_gps()
+    if gps:
+        gps['valido'] = True
+        return gps
+    return {'valido': False}
+
 # ==================== FUNCIONES WEBSOCKET ====================
 
 async def enviar_datos_periodicos():
@@ -106,7 +115,7 @@ async def enviar_datos_periodicos():
             bat = await loop.run_in_executor(None, obtener_bateria)
             peso = await loop.run_in_executor(None, obtener_peso)
             solar = await loop.run_in_executor(None, obtener_solar)
-            gps = obtener_posicion_gps()
+            gps = obtener_payload_gps()
             
             # Crear mensajes
             mensaje_ram = {'tipo': 'ram', 'datos': ram}
@@ -125,9 +134,8 @@ async def enviar_datos_periodicos():
                     await cliente.send_json(mensaje_peso)
                     await cliente.send_json(mensaje_solar)
                     
-                    # Enviar GPS si hay señal válida
-                    if gps:
-                        await cliente.send_json({'tipo': 'gps', 'datos': gps})
+                    # Enviar GPS siempre (con bandera de válido)
+                    await cliente.send_json({'tipo': 'gps', 'datos': gps})
                 
                 except Exception as e:
                     logger.debug(f"Error enviando datos a cliente: {e}")
@@ -190,17 +198,19 @@ async def websocket_handler(request):
     CLIENTES_WS.add(ws)
     
     # Enviar mensaje inicial con estado completo
+    config_inicial = obtener_configuracion() or {}
     await ws.send_json({
         'tipo': 'conexion',
         'mensaje': 'WebSocket conectado',
         'reles': ESTADO_RELES,
+        'nombres_reles': config_inicial.get('reles', {}),
         'velocidad': VELOCIDAD_ACTUAL,
         'ram': obtener_ram(),
         'temperatura': obtener_temperatura(),
         'bateria': obtener_bateria(),
         'peso': obtener_peso(),
         'solar': obtener_solar(),
-        'gps': obtener_posicion_gps()
+        'gps': obtener_payload_gps()
     })
     
     logger.info(f"Cliente WebSocket conectado: {request.remote}")
@@ -323,14 +333,15 @@ async def procesar_mensaje_ws(ws, datos):
         config = obtener_configuracion() or {}
         if accion == 'iniciar':
             rtsp = construir_rtsp_url(config, indice, calidad)
-            exito = iniciar_hls(cam_id, rtsp)
+            exito, mensaje = iniciar_hls(cam_id, rtsp)
             await ws.send_json({
                 'tipo': 'camara',
                 'indice': indice,
                 'accion': 'iniciar',
                 'calidad': calidad,
                 'exito': exito,
-                'rtsp': rtsp
+                'rtsp': rtsp,
+                'mensaje': mensaje
             })
         elif accion == 'detener':
             detener_hls(cam_id)
@@ -348,10 +359,7 @@ async def procesar_mensaje_ws(ws, datos):
         await ws.send_json({'tipo': 'bateria', 'datos': obtener_bateria()})
         await ws.send_json({'tipo': 'peso', 'datos': obtener_peso()})
         await ws.send_json({'tipo': 'solar', 'datos': obtener_solar()})
-        
-        gps = obtener_posicion_gps()
-        if gps:
-            await ws.send_json({'tipo': 'gps', 'datos': gps})
+        await ws.send_json({'tipo': 'gps', 'datos': obtener_payload_gps()})
     
     # Guardar configuración
     elif tipo == 'guardar_config':

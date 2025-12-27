@@ -59,11 +59,13 @@
         .desconectado { background: #f44336; }
         
         .indicador-ram, .indicador-temp, .indicador-bat, .indicador-red {
-            padding: 2px 6px;
+            padding: 4px 8px;
             border-radius: 10px;
-            font-size: 11px;
+            font-size: 12px;
             background: rgba(255, 255, 255, 0.15);
             font-family: monospace;
+            font-weight: bold;
+            display: inline-block;
         }
         
         .ram-ok, .temp-ok, .bat-ok { background: rgba(76, 175, 80, 0.3); }
@@ -87,6 +89,43 @@
         }
         
         .btn-header:hover { background: rgba(255, 255, 255, 0.3); }
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            right: 0;
+            top: 110%;
+            background: rgba(0, 0, 0, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            box-shadow: 0 6px 14px rgba(0,0,0,0.35);
+            min-width: 140px;
+            padding: 4px;
+            display: none;
+            z-index: 2000;
+        }
+
+        .dropdown.open .dropdown-menu { display: block; }
+
+        .btn-menu {
+            width: 100%;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            color: #fff;
+            padding: 6px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            cursor: pointer;
+            text-align: left;
+        }
+
+        .btn-menu + .btn-menu { margin-top: 4px; }
+
+        .btn-menu:hover { background: rgba(255,255,255,0.18); }
         
         /* Grid de vistas */
         .grid-vistas {
@@ -193,8 +232,13 @@
         
         .btn-rele {
             background: #607D8B;
-            font-size: 8px;
-            padding: 5px 3px;
+            font-size: 11px;
+            padding: 8px 4px;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
         }
         
         .btn-rele.activo { background: #4CAF50; }
@@ -307,8 +351,13 @@
             <div>
                 <button class="btn-header" onclick="toggleFullScreen()" title="Pantalla completa">⛶</button>
                 <button class="btn-header" onclick="irConfiguracion()">⚙️ Config</button>
-                <button class="btn-header" onclick="apagarRaspberry()" title="Apagar">🔴</button>
-                <button class="btn-header" onclick="reiniciarRaspberry()" title="Reiniciar">🔄</button>
+                <div class="dropdown" id="power-dropdown">
+                    <button class="btn-header" onclick="togglePowerMenu(event)" title="Opciones de energía">⚡ Power</button>
+                    <div class="dropdown-menu" id="menu-power">
+                        <button class="btn-menu" onclick="apagarRaspberry()">🔴 Apagar</button>
+                        <button class="btn-menu" onclick="reiniciarRaspberry()">🔄 Reiniciar</button>
+                    </div>
+                </div>
             </div>
         </header>
 
@@ -428,6 +477,9 @@
         let estadoReles = {};
         let mapa = null;
         let __toastTimer = null;
+        let audioCtx = null;
+        let menuPowerAbierto = false;
+        let wasDesconectado = false;
 
         function mostrarToast(texto, tipo = 'ok') {
             const t = document.getElementById('toast');
@@ -441,6 +493,29 @@
         let marcadorActual = null;
         let velocidadActual = 50;
 
+        function reproducirBeep(freq = 900, durMs = 220, wave = 'sine') {
+            try {
+                const Ctx = window.AudioContext || window.webkitAudioContext;
+                if (!Ctx) return;
+                if (!audioCtx) audioCtx = new Ctx();
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = wave;
+                osc.frequency.value = freq;
+                gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + durMs / 1000);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + durMs / 1000);
+            } catch (e) {
+                console.warn('No se pudo reproducir sonido', e);
+            }
+        }
+
         // Conectar WebSocket
         function conectarWebSocket() {
             const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
@@ -452,6 +527,19 @@
                 console.log('WebSocket conectado');
                 document.getElementById('estado-conexion').textContent = '● Conectado';
                 document.getElementById('estado-conexion').className = 'estado-conexion conectado';
+                
+                // Sonido: beep simple al conectar, doble beep al reconectar
+                if (wasDesconectado) {
+                    // Reconexión: doble beep más fuerte
+                    reproducirBeep(880, 150, 'sine');
+                    setTimeout(() => reproducirBeep(1000, 150, 'sine'), 200);
+                    mostrarToast('✓ Reconectado a la red', 'ok');
+                    wasDesconectado = false;
+                } else {
+                    // Conexión inicial: beep simple
+                    reproducirBeep(960, 160, 'triangle');
+                }
+                
                 enviarMensaje({ tipo: 'obtener_datos' });
                 enviarMensaje({ tipo: 'obtener_config' });
             };
@@ -463,14 +551,32 @@
 
             ws.onclose = function() {
                 console.log('WebSocket desconectado');
+                reproducirBeep(360, 320, 'sawtooth');
                 document.getElementById('estado-conexion').textContent = '● Desconectado';
                 document.getElementById('estado-conexion').className = 'estado-conexion desconectado';
+                wasDesconectado = true;
+                mostrarToast('✗ Desconectado, reintentando...', 'warn');
                 setTimeout(conectarWebSocket, 3000);
             };
 
             ws.onerror = function(error) {
                 console.error('Error WebSocket:', error);
             };
+        }
+
+        function togglePowerMenu(event) {
+            event.stopPropagation();
+            const dd = document.getElementById('power-dropdown');
+            if (!dd) return;
+            const abierto = dd.classList.toggle('open');
+            menuPowerAbierto = abierto;
+        }
+
+        function cerrarPowerMenu() {
+            const dd = document.getElementById('power-dropdown');
+            if (!dd) return;
+            dd.classList.remove('open');
+            menuPowerAbierto = false;
         }
 
         function enviarMensaje(datos) {
@@ -485,6 +591,8 @@
             switch(datos.tipo) {
                 case 'conexion':
                     console.log('✓ Conectado');
+                    if (datos.gps) actualizarGPS(datos.gps);
+                    if (datos.nombres_reles) aplicarNombresReles(datos.nombres_reles);
                     break;
                     
                 case 'respuesta_rele':
@@ -515,6 +623,11 @@
 
                 case 'config_actual':
                     aplicarConfig(datos.datos || {});
+                    if (datos.datos && datos.datos.reles) aplicarNombresReles(datos.datos.reles);
+                    break;
+
+                case 'config_actualizada':
+                    console.log('Configuración actualizada');
                     break;
 
                 case 'camara':
@@ -557,12 +670,17 @@
 
         function actualizarVelocidadRed(datos) {
             const elem = document.getElementById('indicador-red');
-            if (!datos || typeof datos.velocidad !== 'number' || datos.velocidad === 0) {
-                elem.textContent = '🌐 Red: --';
+            const velocidad = datos && typeof datos.velocidad === 'number' ? datos.velocidad : null;
+            if (velocidad === null) {
+                elem.textContent = '🌐 Red: sin datos';
                 elem.className = 'indicador-red';
                 return;
             }
-            const velocidad = datos.velocidad;
+            if (velocidad <= 0) {
+                elem.textContent = '🌐 Red: sin datos';
+                elem.className = 'indicador-red ram-critical';
+                return;
+            }
             const unidad = velocidad >= 1000 ? 'Mbps' : 'Kbps';
             const valor = velocidad >= 1000 ? (velocidad / 1000).toFixed(1) : velocidad.toFixed(0);
             elem.textContent = `🌐 ${valor} ${unidad}`;
@@ -571,6 +689,18 @@
             if (velocidad >= 10000) elem.classList.add('ram-ok');
             else if (velocidad >= 5000) elem.classList.add('ram-warning');
             else elem.classList.add('ram-critical');
+        }
+
+        function aplicarNombresReles(nombresDict) {
+            // Aplicar nombres configurados a los botones de relés
+            for (let i = 1; i <= 9; i++) {
+                const btn = document.querySelector(`.btn-rele:nth-child(${i})`);
+                if (btn) {
+                    const nombre = nombresDict[i] || `R${i}`;
+                    btn.textContent = nombre;
+                    btn.title = `Relé ${i}: ${nombre}`;
+                }
+            }
         }
 
         function toggleRele(numero) {
@@ -624,13 +754,15 @@
         function manejarRespuestaCamara(datos) {
             const i = datos.indice;
             const exito = !!datos.exito;
+            const mensaje = datos.mensaje || '';
             if (datos.accion === 'iniciar') {
                 const videoEl = i === 1 ? document.getElementById('videoCam1') : document.getElementById('videoCam2');
                 const playlist = i === 1 ? '/hls/cam1/cam1.m3u8' : '/hls/cam2/cam2.m3u8';
                 if (exito) {
                     inicializarHLS(videoEl, playlist);
                 } else {
-                    mostrarToast('No se pudo iniciar la cámara ' + i, 'err');
+                    const msg = mensaje || ('No se pudo iniciar la cámara ' + i);
+                    mostrarToast(msg, 'err');
                 }
             } else if (datos.accion === 'detener') {
                 const videoEl = i === 1 ? document.getElementById('videoCam1') : document.getElementById('videoCam2');
@@ -654,12 +786,14 @@
         }
 
         function apagarRaspberry() {
+            cerrarPowerMenu();
             if (confirm('¿Apagar Raspberry Pi?')) {
                 enviarMensaje({ tipo: 'sistema', comando: 'apagar' });
             }
         }
 
         function reiniciarRaspberry() {
+            cerrarPowerMenu();
             if (confirm('¿Reiniciar Raspberry Pi?')) {
                 enviarMensaje({ tipo: 'sistema', comando: 'reiniciar' });
             }
@@ -667,10 +801,25 @@
 
 
         function actualizarGPS(datos) {
-            if (!mapa || !datos.lat || !datos.lon) return;
+            const sinSenal = !datos || datos.valido === false || datos.lat === undefined || datos.lon === undefined;
+            if (sinSenal) {
+                document.getElementById('latitud').textContent = 'Sin señal';
+                document.getElementById('longitud').textContent = 'Sin señal';
+                return;
+            }
+
+            if (!mapa) return;
             
             const lat = parseFloat(datos.lat);
             const lon = parseFloat(datos.lon);
+            const latEl = document.getElementById('latitud');
+            const lonEl = document.getElementById('longitud');
+            if (latEl && lonEl) {
+                latEl.textContent = isFinite(lat) ? lat.toFixed(6) : '---';
+                lonEl.textContent = isFinite(lon) ? lon.toFixed(6) : '---';
+            }
+
+            if (!isFinite(lat) || !isFinite(lon)) return;
             
             // Crear o actualizar marcador
             if (!marcadorGPS) {
@@ -783,6 +932,9 @@
         window.onload = function() {
             inicializarMapa();
             conectarWebSocket();
+            document.addEventListener('click', function() {
+                if (menuPowerAbierto) cerrarPowerMenu();
+            });
         };
 
         function inicializarHLS(videoEl, playlistUrl) {

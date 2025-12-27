@@ -33,7 +33,15 @@ GPS_DATOS = {
     'timestamp': None,
     'valido': False
 }
-GPS_PUERTO = '/dev/ttyACM0'
+
+# Detectar puerto GPS automáticamente
+def _detectar_puerto_gps():
+    """Detecta automáticamente el puerto del módulo GPS"""
+    import glob
+    puertos = glob.glob('/dev/ttyACM*') + glob.glob('/dev/ttyUSB*')
+    return puertos[0] if puertos else '/dev/ttyACM0'
+
+GPS_PUERTO = _detectar_puerto_gps()
 GPS_BAUDRATE = 9600
 gps_thread = None
 gps_running = False

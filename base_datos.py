@@ -224,6 +224,13 @@ def guardar_configuracion(config):
         return False
     
     try:
+        # Normalizar nombres de relés: admitir claves '1'..'9' (strings) o enteros
+        reles_cfg = config.get('reles', {}) or {}
+        try:
+            reles_normalizados = {int(str(k)): (v or '').strip() for k, v in reles_cfg.items() if str(k).isdigit()}
+        except Exception:
+            reles_normalizados = {}
+
         cursor = conexion.cursor()
         cursor.execute('''
             UPDATE configuracion SET
@@ -261,15 +268,15 @@ def guardar_configuracion(config):
             config.get('url_camara2_sd', ''),
             config.get('url_camara2_hd', ''),
             int(config.get('desactivar_camara2', False)),
-            config.get('reles', {}).get(1, 'Relé 1'),
-            config.get('reles', {}).get(2, 'Relé 2'),
-            config.get('reles', {}).get(3, 'Relé 3'),
-            config.get('reles', {}).get(4, 'Relé 4'),
-            config.get('reles', {}).get(5, 'Relé 5'),
-            config.get('reles', {}).get(6, 'Relé 6'),
-            config.get('reles', {}).get(7, 'Relé 7'),
-            config.get('reles', {}).get(8, 'Relé 8'),
-            config.get('reles', {}).get(9, 'Relé 9')
+            reles_normalizados.get(1, 'Relé 1') or 'Relé 1',
+            reles_normalizados.get(2, 'Relé 2') or 'Relé 2',
+            reles_normalizados.get(3, 'Relé 3') or 'Relé 3',
+            reles_normalizados.get(4, 'Relé 4') or 'Relé 4',
+            reles_normalizados.get(5, 'Relé 5') or 'Relé 5',
+            reles_normalizados.get(6, 'Relé 6') or 'Relé 6',
+            reles_normalizados.get(7, 'Relé 7') or 'Relé 7',
+            reles_normalizados.get(8, 'Relé 8') or 'Relé 8',
+            reles_normalizados.get(9, 'Relé 9') or 'Relé 9'
         ))
         
         conexion.commit()

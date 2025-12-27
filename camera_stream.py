@@ -11,11 +11,12 @@ Provee utilidades que usa el servidor:
 
 import logging
 import os
+import time
 from pathlib import Path
 import shutil
 import signal
 import subprocess
-from typing import Dict, Optional
+from typing import Dict, Optional, Tuple
 
 logger = logging.getLogger(__name__)
 
@@ -93,7 +94,7 @@ def _limpiar_salida(cam_id: str) -> None:
         pass
 
 
-def iniciar_hls(indice_o_id, url_rtsp: Optional[str]) -> bool:
+def iniciar_hls(indice_o_id, url_rtsp: Optional[str]) -> Tuple[bool, str]:
     """Inicia un proceso ffmpeg que convierte RTSP a HLS.
 
     Args:
@@ -101,23 +102,23 @@ def iniciar_hls(indice_o_id, url_rtsp: Optional[str]) -> bool:
         url_rtsp: URL RTSP completa.
 
     Returns:
-        True si se lanzó ffmpeg correctamente.
+        (exito, mensaje)
     """
     cam_id = _resolver_cam_id(indice_o_id)
     if not cam_id:
         logger.error(f"✗ Identificador de cámara inválido: {indice_o_id}")
-        return False
+        return False, "Identificador de cámara inválido"
 
     try:
         if not url_rtsp:
             logger.warning(f"⚠ URL RTSP vacía para {cam_id}")
-            return False
+            return False, "URL RTSP vacía"
 
         # Verificar ffmpeg
         ffmpeg = shutil.which("ffmpeg")
         if not ffmpeg:
             logger.error("✗ ffmpeg no encontrado en el sistema. Instálelo para HLS.")
-            return False
+            return False, "ffmpeg no encontrado en el sistema"
 
         asegurar_carpetas()
 
@@ -151,10 +152,23 @@ def iniciar_hls(indice_o_id, url_rtsp: Optional[str]) -> bool:
         proc = subprocess.Popen(cmd)
         PROCESOS[cam_id] = proc
         logger.info(f"✓ Iniciando HLS {cam_id} desde {url_rtsp} (PID {proc.pid})")
-        return True
+
+        # Validación rápida: proceso vivo y playlist creada
+        playlist_path = carpeta / HLS_PLAYLIST_NAME.get(cam_id, f"{cam_id}.m3u8")
+        for _ in range(6):  # ~3s
+            time.sleep(0.5)
+            if proc.poll() is not None:
+                PROCESOS.pop(cam_id, None)
+                logger.error(f"✗ ffmpeg terminó temprano para {cam_id} (código {proc.returncode})")
+                return False, "No se pudo abrir el RTSP (proceso terminó)"
+            if playlist_path.exists() and playlist_path.stat().st_size > 0:
+                return True, "HLS iniciado"
+
+        # Si sigue vivo pero sin playlist, consideramos que sigue en progreso
+        return True, "HLS iniciado (validación pendiente)"
     except Exception as e:
         logger.error(f"✗ Error iniciando HLS para {cam_id}: {e}")
-        return False
+        return False, str(e)
 
 def detener_hls(indice_o_id) -> bool:
     """Detiene el ffmpeg de una cámara y libera recursos."""

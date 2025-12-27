@@ -64,8 +64,48 @@ echo -e "${YELLOW}[4/4] Esperando conexiones...${NC}"
 echo -e "${YELLOW}Presiona Ctrl+C para detener${NC}"
 echo ""
 
-# Ejecutar el servidor
-python3 servidor.py
+# Ejecutar el servidor (logs en archivo, solo startup en pantalla)
+echo -e "${BLUE}===================================================${NC}"
+echo -e "${BLUE}   LOGS DEL SERVIDOR: /tmp/servidor_drone.log${NC}"
+echo -e "${BLUE}===================================================${NC}"
+echo ""
+python3 servidor.py > /tmp/servidor_drone.log 2>&1 &
+SERVER_PID=$!
+
+# Esperar a que el servidor esté listo
+sleep 2
+
+# Mostrar estado GPS
+echo -e "${YELLOW}═══════════════════════════════════════════${NC}"
+echo -e "${YELLOW}   ESTADO DEL SISTEMA${NC}"
+echo -e "${YELLOW}═══════════════════════════════════════════${NC}"
+echo ""
+
+# Obtener estado GPS
+python3 -c "
+import time
+from funciones import GPS_DATOS, iniciar_gps
+iniciar_gps()
+time.sleep(2)
+if GPS_DATOS['valido']:
+    print(f'✓ GPS: Conectado')
+    print(f'  Latitud:  {GPS_DATOS[\"latitud\"]}')
+    print(f'  Longitud: {GPS_DATOS[\"longitud\"]}')
+    print(f'  Altitud:  {GPS_DATOS[\"altitud\"]}m')
+    print(f'  Satélites: {GPS_DATOS[\"satelites\"]}')
+else:
+    print(f'⚠ GPS: Sin señal (mueve a una ubicación con vista al cielo)')
+    if GPS_DATOS['satelites'] > 0:
+        print(f'  Satélites en vista: {GPS_DATOS[\"satelites\"]}')
+" 2>/dev/null || echo "⚠ GPS: No disponible"
+
+echo ""
+echo -e "${GREEN}✓ Servidor listo en http://localhost:8080${NC}"
+echo -e "${YELLOW}Presiona Ctrl+C para detener${NC}"
+echo ""
+
+# Mantener el script vivo
+wait $SERVER_PID
 
 # Si el servidor se detiene
 echo ""
