@@ -602,6 +602,7 @@
                     console.log('✓ Conectado');
                     if (datos.gps) actualizarGPS(datos.gps);
                     if (datos.nombres_reles) aplicarNombresReles(datos.nombres_reles);
+                    if (datos.reles) aplicarEstadosReles(datos.reles);
                     break;
                     
                 case 'respuesta_rele':
@@ -702,12 +703,29 @@
 
         function aplicarNombresReles(nombresDict) {
             // Aplicar nombres configurados a los botones de relés
+            const botones = document.querySelectorAll('.btn-rele');
             for (let i = 1; i <= 9; i++) {
-                const btn = document.querySelector(`.btn-rele:nth-child(${i})`);
+                const btn = botones[i - 1];
                 if (btn) {
                     const nombre = nombresDict[i] || `R${i}`;
                     btn.textContent = nombre;
                     btn.title = `Relé ${i}: ${nombre}`;
+                }
+            }
+        }
+
+        function aplicarEstadosReles(estadosDict) {
+            // Aplicar estados guardados a los botones de relés
+            const botones = document.querySelectorAll('.btn-rele');
+            for (let i = 1; i <= 9; i++) {
+                const btn = botones[i - 1];
+                if (btn && estadosDict[i] !== undefined) {
+                    estadoReles[i] = estadosDict[i];
+                    if (estadosDict[i]) {
+                        btn.classList.add('activo');
+                    } else {
+                        btn.classList.remove('activo');
+                    }
                 }
             }
         }

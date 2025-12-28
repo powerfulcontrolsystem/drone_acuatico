@@ -343,7 +343,8 @@ async def procesar_mensaje_ws(ws, datos):
         accion = datos.get('accion', 'iniciar')
         calidad = datos.get('calidad', 'sd')  # sd o hd
         cam_id = 'cam1' if indice == 1 else 'cam2'
-        config = obtener_configuracion() or {}
+        loop = asyncio.get_event_loop()
+        config = await loop.run_in_executor(None, obtener_configuracion) or {}
         if accion == 'iniciar':
             rtsp = construir_rtsp_url(config, indice, calidad)
             exito, mensaje = iniciar_hls(cam_id, rtsp)
@@ -392,7 +393,8 @@ async def procesar_mensaje_ws(ws, datos):
     
     # Obtener configuración
     elif tipo == 'obtener_config':
-        config = obtener_configuracion()
+        loop = asyncio.get_event_loop()
+        config = await loop.run_in_executor(None, obtener_configuracion)
         await ws.send_json({
             'tipo': 'config_actual',
             'datos': config if config else {}
@@ -510,7 +512,8 @@ async def api_config_handler(request):
     POST: Guarda la configuración
     """
     if request.method == 'GET':
-        config = obtener_configuracion()
+        loop = asyncio.get_event_loop()
+        config = await loop.run_in_executor(None, obtener_configuracion)
         if config:
             return web.json_response(config)
         else:
@@ -557,7 +560,8 @@ async def on_startup(app):
     logger.info("Base de datos inicializada")
     
     # Cargar configuración desde BD
-    config = obtener_configuracion()
+    loop = asyncio.get_event_loop()
+    config = await loop.run_in_executor(None, obtener_configuracion)
     if config:
         logger.info(f"Configuración cargada: IP={config['ip_publica']}, Tamaño mapa={config['tamano_mapa']}px")
         # Preparar carpeta HLS y arrancar cámaras si están configuradas
