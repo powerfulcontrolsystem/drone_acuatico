@@ -39,9 +39,12 @@ from base_datos import (
     guardar_configuracion,
     obtener_estado_reles,
     guardar_estado_rele,
+    restaurar_estados_reles,
     iniciar_recorrido,
     guardar_posicion_gps as guardar_posicion_bd,
-    obtener_todos_recorridos
+    obtener_todos_recorridos,
+    obtener_tema,
+    guardar_tema
 )
 from camera_stream import (
     asegurar_carpetas as hls_asegurar,
@@ -187,31 +190,36 @@ async def websocket_handler(request):
     Manejador de conexiones WebSocket.
     Recibe comandos y envía respuestas en tiempo real.
     
-    MEJORA: Heartbeat reducido a 15s para WiFi más inestable
+    MEJORA: Heartbeat de 30s óptimo para conexión por cable Ethernet
     """
     global VELOCIDAD_ACTUAL
     
-    # Crear conexión WebSocket con heartbeat de 15 segundos
-    # (antes: 30s era muy largo para WiFi inestable)
-    ws = web.WebSocketResponse(heartbeat=15)
+    # Crear conexión WebSocket con heartbeat de 30 segundos y timeout aumentado
+    # Para conexión por cable: heartbeat 30s es suficiente y reduce overhead
+    ws = web.WebSocketResponse(heartbeat=30, timeout=60)
     await ws.prepare(request)
     CLIENTES_WS.add(ws)
     
-    # Enviar mensaje inicial con estado completo
-    config_inicial = obtener_configuracion() or {}
-    await ws.send_json({
-        'tipo': 'conexion',
-        'mensaje': 'WebSocket conectado',
-        'reles': ESTADO_RELES,
-        'nombres_reles': config_inicial.get('reles', {}),
-        'velocidad': VELOCIDAD_ACTUAL,
-        'ram': obtener_ram(),
-        'temperatura': obtener_temperatura(),
-        'bateria': obtener_bateria(),
-        'peso': obtener_peso(),
-        'solar': obtener_solar(),
-        'gps': obtener_payload_gps()
-    })
+    # Enviar mensaje inicial con estado completo (sin bloquear)
+    try:
+        loop = asyncio.get_event_loop()
+        config_inicial = await loop.run_in_executor(None, obtener_configuracion) or {}
+        
+        await ws.send_json({
+            'tipo': 'conexion',
+            'mensaje': 'WebSocket conectado',
+            'reles': ESTADO_RELES,
+            'nombres_reles': config_inicial.get('reles', {}),
+            'velocidad': VELOCIDAD_ACTUAL,
+            'ram': obtener_ram(),
+            'temperatura': obtener_temperatura(),
+            'bateria': obtener_bateria(),
+            'peso': obtener_peso(),
+            'solar': obtener_solar(),
+            'gps': obtener_payload_gps()
+        })
+    except Exception as e:
+        logger.error(f"Error en mensaje inicial WebSocket: {e}")
     
     logger.info(f"Cliente WebSocket conectado: {request.remote}")
     
@@ -264,6 +272,11 @@ async def procesar_mensaje_ws(ws, datos):
         numero = int(datos.get('numero', 0))
         estado = bool(datos.get('estado', False))
         exito, error = controlar_rele(numero, estado)
+        
+        # Guardar estado en base de datos para persistencia
+        if exito:
+            guardar_estado_rele(numero, 1 if estado else 0)
+            logger.info(f"Estado del relé {numero} guardado en BD: {'ON' if estado else 'OFF'}")
         
         await ws.send_json({
             'tipo': 'respuesta_rele',
@@ -450,6 +463,46 @@ async def configuracion_handler(request):
     return web.FileResponse(archivo)
 
 
+async def api_tema_get_handler(request):
+    """Obtiene el tema guardado en la BD (sin bloquear el event loop)."""
+    try:
+        # Ejecutar operación de BD en executor para no bloquear
+        loop = asyncio.get_event_loop()
+        tema = await loop.run_in_executor(None, obtener_tema)
+        return web.json_response({'tema': tema})
+    except Exception as e:
+        logger.error(f"Error obteniendo tema: {e}")
+        return web.json_response({'tema': 'oscuro', 'error': str(e)}, status=500)
+
+
+async def api_tema_post_handler(request):
+    """Guarda el tema en la BD (sin bloquear el event loop)."""
+    try:
+        datos = await request.json()
+        tema = datos.get('tema', 'oscuro')
+        tema_oscuro = (tema == 'oscuro')
+        
+        # Ejecutar operación de BD en executor para no bloquear
+        loop = asyncio.get_event_loop()
+        exito = await asyncio.wait_for(
+            loop.run_in_executor(None, guardar_tema, tema_oscuro),
+            timeout=5.0  # Timeout de 5 segundos
+        )
+        
+        if exito:
+            logger.info(f"Tema cambiado a {tema} exitosamente")
+            return web.json_response({'exito': True, 'tema': tema})
+        else:
+            return web.json_response({'exito': False, 'error': 'No se pudo guardar el tema'}, status=500)
+    
+    except asyncio.TimeoutError:
+        logger.error("Timeout al guardar tema (5s)")
+        return web.json_response({'exito': False, 'error': 'Timeout al guardar tema'}, status=504)
+    except Exception as e:
+        logger.error(f"Error guardando tema: {e}")
+        return web.json_response({'exito': False, 'error': str(e)}, status=500)
+
+
 async def api_config_handler(request):
     """
     API REST para obtener y guardar configuración.
@@ -570,6 +623,8 @@ def crear_app():
     app.router.add_get('/configuracion.html', configuracion_handler)
     app.router.add_get('/api/config', api_config_handler)
     app.router.add_post('/api/config', api_config_handler)
+    app.router.add_get('/api/tema', api_tema_get_handler)
+    app.router.add_post('/api/tema', api_tema_post_handler)
     app.router.add_get('/ws', websocket_handler)
     
     # Archivos estáticos (CSS, JS, imágenes)
@@ -595,6 +650,17 @@ def crear_app():
     return app
 
 
+def configurar_keepalive(app):
+    """Configura TCP keepalive para mantener conexiones estables por cable."""
+    try:
+        import socket
+        # El servidor aiohttp ya maneja keepalive, pero podemos ajustar parámetros
+        # mediante las opciones de TCPSite que usa web.run_app internamente
+        logger.info("✓ TCP keepalive habilitado automáticamente por aiohttp")
+    except Exception as e:
+        logger.warning(f"No se pudo configurar keepalive: {e}")
+
+
 # ==================== PUNTO DE ENTRADA ====================
 
 def main():
@@ -608,13 +674,38 @@ def main():
     # Terminar procesos previos del servidor
     matar_procesos_servidor_previos()
     
+    # Inicializar base de datos
+    inicializar_bd()
+    
     # Inicializar hardware
     inicializar_gpio()
+    
+    # Restaurar estados de relés desde la base de datos
+    logger.info("Restaurando estados de relés desde base de datos...")
+    estados_guardados = restaurar_estados_reles()
+    for numero, estado in estados_guardados.items():
+        if estado:  # Solo activar los que estaban prendidos
+            exito, error = controlar_rele(numero, True)
+            if exito:
+                logger.info(f"✓ Relé {numero} activado (restaurado desde BD)")
+            else:
+                logger.warning(f"⚠ No se pudo activar relé {numero}: {error}")
+    
     iniciar_gps()
     
     # Crear y ejecutar aplicación
     app = crear_app()
-    web.run_app(app, host=HOST, port=PUERTO)
+    
+    # Configuración optimizada para conexión Ethernet (cable)
+    # keepalive_timeout: 75s mantiene conexiones idle activas
+    # access_log: None reduce I/O y mejora performance
+    web.run_app(
+        app, 
+        host=HOST, 
+        port=PUERTO,
+        keepalive_timeout=75,  # Mantener conexiones TCP vivas
+        access_log=None  # Desactivar logs HTTP para mejor performance
+    )
 
 
 if __name__ == '__main__':

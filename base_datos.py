@@ -71,6 +71,8 @@ def inicializar_bd():
                 nombre_rele7 TEXT DEFAULT 'Relé 7',
                 nombre_rele8 TEXT DEFAULT 'Relé 8',
                 nombre_rele9 TEXT DEFAULT 'Relé 9',
+                tema_oscuro INTEGER DEFAULT 1,
+                tamano_letra_datos INTEGER DEFAULT 12,
                 fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         ''')
@@ -122,6 +124,8 @@ def inicializar_bd():
             "ALTER TABLE configuracion ADD COLUMN url_camara1_hd TEXT",
             "ALTER TABLE configuracion ADD COLUMN url_camara2_sd TEXT",
             "ALTER TABLE configuracion ADD COLUMN url_camara2_hd TEXT",
+            "ALTER TABLE configuracion ADD COLUMN tema_oscuro INTEGER DEFAULT 1",
+            "ALTER TABLE configuracion ADD COLUMN tamano_letra_datos INTEGER DEFAULT 12",
         ]:
             try:
                 cursor.execute(stmt)
@@ -138,6 +142,16 @@ def inicializar_bd():
             ''', ('192.168.1.7',))
             conexion.commit()
             logger.info("Configuración por defecto creada")
+        
+        # Inicializar estado de los 9 relés si no existen
+        cursor.execute('SELECT COUNT(*) FROM estado_reles')
+        if cursor.fetchone()[0] == 0:
+            for i in range(1, 10):
+                cursor.execute('''
+                    INSERT INTO estado_reles (numero, estado) VALUES (?, ?)
+                ''', (i, 0))
+            conexion.commit()
+            logger.info("Estados de relés inicializados (todos apagados)")
         
         # Crear entradas de relés si no existen
         for i in range(1, 10):
@@ -590,15 +604,101 @@ def guardar_estado_rele(numero, estado):
     try:
         cursor = conexion.cursor()
         cursor.execute('''
-            UPDATE estado_reles
-            SET estado = ?, fecha_actualizacion = CURRENT_TIMESTAMP
-            WHERE numero = ?
-        ''', (int(estado), numero))
+            INSERT INTO estado_reles (numero, estado, fecha_actualizacion)
+            VALUES (?, ?, CURRENT_TIMESTAMP)
+            ON CONFLICT(numero) DO UPDATE SET
+                estado = excluded.estado,
+                fecha_actualizacion = CURRENT_TIMESTAMP
+        ''', (numero, int(estado)))
         conexion.commit()
         return True
     
     except sqlite3.Error as e:
         logger.error(f"Error guardando estado de relé: {e}")
+        return False
+    
+    finally:
+        conexion.close()
+
+
+def restaurar_estados_reles():
+    """
+    Restaura los estados de todos los relés desde la base de datos.
+    
+    Returns:
+        dict: Diccionario con número de relé como clave y estado como valor
+              Ej: {1: True, 2: False, 3: True, ...}
+    """
+    estados = obtener_estado_reles()
+    
+    # Si no hay estados guardados, inicializar todos como apagados
+    if not estados:
+        return {i: False for i in range(1, 10)}
+    
+    # Asegurar que existen todos los 9 relés
+    for i in range(1, 10):
+        if i not in estados:
+            estados[i] = False
+    
+    logger.info(f"Estados de relés restaurados desde BD: {estados}")
+    return estados
+
+
+def obtener_tema():
+    """
+    Obtiene el tema guardado en la configuración.
+    
+    Returns:
+        str: 'oscuro' o 'claro'
+    """
+    conexion = obtener_conexion()
+    if not conexion:
+        return 'oscuro'  # Por defecto oscuro
+    
+    try:
+        cursor = conexion.cursor()
+        cursor.execute('SELECT tema_oscuro FROM configuracion WHERE id = 1')
+        resultado = cursor.fetchone()
+        
+        if resultado:
+            return 'oscuro' if resultado['tema_oscuro'] else 'claro'
+        return 'oscuro'
+    
+    except sqlite3.Error as e:
+        logger.error(f"Error obteniendo tema: {e}")
+        return 'oscuro'
+    
+    finally:
+        conexion.close()
+
+
+def guardar_tema(tema_oscuro):
+    """
+    Guarda el tema en la configuración.
+    
+    Args:
+        tema_oscuro (bool): True para modo oscuro, False para modo claro
+    
+    Returns:
+        bool: True si se guardó correctamente
+    """
+    conexion = obtener_conexion()
+    if not conexion:
+        return False
+    
+    try:
+        cursor = conexion.cursor()
+        cursor.execute('''
+            UPDATE configuracion
+            SET tema_oscuro = ?, fecha_actualizacion = CURRENT_TIMESTAMP
+            WHERE id = 1
+        ''', (1 if tema_oscuro else 0,))
+        conexion.commit()
+        logger.info(f"Tema guardado: {'oscuro' if tema_oscuro else 'claro'}")
+        return True
+    
+    except sqlite3.Error as e:
+        logger.error(f"Error guardando tema: {e}")
         return False
     
     finally:

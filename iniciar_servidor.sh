@@ -20,8 +20,10 @@ echo -e "${BLUE}   SERVIDOR DRONE ACUÁTICO - CONTROL REMOTO WEB${NC}"
 echo -e "${BLUE}===================================================${NC}"
 echo ""
 
-# 0. Limpiar procesos previos y liberar puerto
-echo -e "${YELLOW}[0/4] Limpiando procesos previos...${NC}"
+
+
+# 1. Limpiar procesos previos y liberar puerto
+echo -e "${YELLOW}[1/5] Limpiando procesos previos...${NC}"
 pkill -9 -f "servidor.py" 2>/dev/null || true
 pkill -9 -f "python3" 2>/dev/null || true
 sleep 1

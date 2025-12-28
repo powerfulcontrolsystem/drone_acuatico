@@ -1,0 +1,31 @@
+# =======================================================================
+# CONFIGURACIÓN RECOMENDADA PARA SSH SERVER (/etc/ssh/sshd_config)
+# Copiar estas líneas al archivo /etc/ssh/sshd_config
+# Luego ejecutar: sudo systemctl restart ssh
+# =======================================================================
+
+# Mantener conexión viva (evitar caídas)
+TCPKeepAlive yes
+ClientAliveInterval 30
+ClientAliveCountMax 3
+
+# Permitir múltiples sesiones para VS Code
+MaxSessions 10
+
+# Autenticación rápida
+UseDNS no
+
+# =======================================================================
+# CONFIGURACIÓN PARA EL CLIENTE (~/.ssh/config o en Windows/Mac)
+# =======================================================================
+# Agregar esto en tu computadora cliente que se conecta a la Raspberry:
+#
+# Host raspberry
+#     HostName <IP_DE_TU_RASPBERRY>
+#     User admin
+#     ServerAliveInterval 30
+#     ServerAliveCountMax 3
+#     TCPKeepAlive yes
+#     Compression yes
+#
+# =======================================================================

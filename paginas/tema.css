@@ -1,0 +1,281 @@
+/* ==================== ESTILOS DE TEMA COMPARTIDOS ==================== */
+/* Archivo de estilos para modo oscuro/claro - Todas las páginas */
+
+/* Switch del toggle de tema */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 22px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #2196F3;
+    transition: 0.4s;
+    border-radius: 22px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: 0.4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: #FFA500;
+}
+
+input:checked + .slider:before {
+    transform: translateX(22px);
+}
+
+body.modo-claro .slider {
+    background-color: #FFA500;
+}
+
+/* Transiciones suaves para cambio de tema */
+body {
+    transition: background 0.3s ease, color 0.3s ease;
+}
+
+/* ==================== MODO CLARO - DISEÑO MEJORADO ==================== */
+
+/* Fondo principal - Degradado suave y claro */
+body.modo-claro {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%) !important;
+    color: #2c3e50 !important;
+}
+
+/* Header - Fondo blanco semi-transparente */
+body.modo-claro header {
+    background: rgba(255, 255, 255, 0.9) !important;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* Títulos - Color oscuro legible */
+body.modo-claro h1,
+body.modo-claro h2,
+body.modo-claro h3 {
+    color: #2c3e50 !important;
+}
+
+/* Cards y paneles - Fondo blanco con sombra suave */
+body.modo-claro .card,
+body.modo-claro .panel-controles,
+body.modo-claro .vista-columna {
+    background: rgba(255, 255, 255, 0.95) !important;
+    color: #2c3e50 !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* Títulos de vista - Azul claro suave */
+body.modo-claro .vista-titulo {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: white !important;
+    font-weight: 600;
+}
+
+/* Inputs y selects - Fondo blanco con borde */
+body.modo-claro input,
+body.modo-claro select,
+body.modo-claro textarea {
+    background: #ffffff !important;
+    color: #2c3e50 !important;
+    border: 2px solid #e0e6ed !important;
+    transition: border-color 0.3s ease;
+}
+
+body.modo-claro input:focus,
+body.modo-claro select:focus,
+body.modo-claro textarea:focus {
+    border-color: #667eea !important;
+    outline: none;
+}
+
+body.modo-claro label {
+    color: #4a5568 !important;
+    font-weight: 500;
+}
+
+/* Botones de relé - Gris claro */
+body.modo-claro .btn-rele {
+    background: linear-gradient(135deg, #f7fafc 0%, #e2e8f0 100%) !important;
+    color: #2c3e50 !important;
+    border: 2px solid #cbd5e0;
+    font-weight: 600;
+}
+
+body.modo-claro .btn-rele.activo {
+    background: linear-gradient(135deg, #48bb78 0%, #38a169 100%) !important;
+    color: white !important;
+    border-color: #38a169;
+    box-shadow: 0 4px 12px rgba(72, 187, 120, 0.3);
+}
+
+body.modo-claro .btn-rele:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Indicadores - Fondo claro con borde */
+body.modo-claro .indicador-bat,
+body.modo-claro .indicador-peso,
+body.modo-claro .indicador-ram,
+body.modo-claro .indicador-temp,
+body.modo-claro .indicador-red,
+body.modo-claro .indicador-solar {
+    background: rgba(255, 255, 255, 0.9) !important;
+    color: #2c3e50 !important;
+    border: 2px solid #e0e6ed;
+    font-weight: 600;
+}
+
+/* Cámaras - Fondo gris muy claro */
+body.modo-claro .camara {
+    background: #f7fafc !important;
+    border: 2px solid #e0e6ed;
+}
+
+body.modo-claro .camara-placeholder {
+    background: #f7fafc !important;
+    color: #718096 !important;
+}
+
+/* Mapa - Borde suave */
+body.modo-claro #mapa {
+    border: 2px solid #e0e6ed !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Estado de conexión */
+body.modo-claro .estado-conexion {
+    background: rgba(255, 255, 255, 0.9) !important;
+    color: #2c3e50 !important;
+    border: 2px solid #e0e6ed;
+    font-weight: 600;
+}
+
+body.modo-claro .conectado {
+    background: #48bb78 !important;
+    color: white !important;
+    border-color: #48bb78;
+}
+
+body.modo-claro .desconectado {
+    background: #f56565 !important;
+    color: white !important;
+    border-color: #f56565;
+}
+
+/* Botones del header */
+body.modo-claro .btn-header,
+body.modo-claro .btn,
+body.modo-claro .btn-volver,
+body.modo-claro .btn-guardar,
+body.modo-claro .btn-cargar {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: white !important;
+    border: none;
+    font-weight: 600;
+}
+
+body.modo-claro .btn-header:hover,
+body.modo-claro .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+body.modo-claro .btn-guardar {
+    background: linear-gradient(135deg, #48bb78 0%, #38a169 100%) !important;
+}
+
+body.modo-claro .btn-volver {
+    background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%) !important;
+}
+
+/* Mensajes */
+body.modo-claro .msg {
+    color: #4a5568 !important;
+    font-weight: 500;
+}
+
+/* Controles de dirección */
+body.modo-claro .controles-direccion {
+    background: rgba(255, 255, 255, 0.9) !important;
+    border: 2px solid #e0e6ed;
+}
+
+body.modo-claro .btn-direccion {
+    background: linear-gradient(135deg, #f7fafc 0%, #e2e8f0 100%) !important;
+    color: #2c3e50 !important;
+    border: 2px solid #cbd5e0;
+    font-weight: 600;
+}
+
+body.modo-claro .btn-direccion:hover {
+    background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e0 100%) !important;
+    transform: scale(1.05);
+}
+
+body.modo-claro .btn-direccion.activo {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: white !important;
+    border-color: #667eea;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+/* Velocidad */
+body.modo-claro .velocidad {
+    color: #2c3e50 !important;
+    font-weight: 600;
+}
+
+/* Menús dropdown */
+body.modo-claro .dropdown-menu {
+    background: white !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    border: 1px solid #e0e6ed;
+}
+
+body.modo-claro .dropdown-menu button,
+body.modo-claro .dropdown-menu a {
+    color: #2c3e50 !important;
+}
+
+body.modo-claro .dropdown-menu button:hover,
+body.modo-claro .dropdown-menu a:hover {
+    background: #f7fafc !important;
+}
+
+/* Grid de vistas */
+body.modo-claro .grid-vistas {
+    gap: 8px;
+}
+
+/* Toast/notificaciones */
+body.modo-claro .toast {
+    background: white !important;
+    color: #2c3e50 !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    border: 1px solid #e0e6ed;
+}

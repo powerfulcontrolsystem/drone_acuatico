@@ -114,9 +114,7 @@ def matar_procesos_servidor_previos():
     except Exception as e:
         logger.error(f"Error buscando procesos previos: {e}")
         return 0
-
 # ==================== FUNCIONES GPIO ====================
-
 def inicializar_gpio():
     """Inicializa los pines GPIO para relés y motores."""
     if not GPIO_DISPONIBLE:
@@ -151,8 +149,6 @@ def inicializar_gpio():
     except Exception as e:
         logger.error(f"Error inicializando GPIO: {e}")
         return False
-
-
 def controlar_rele(numero, encender):
     """
     Controla un relé específico.
@@ -184,8 +180,6 @@ def controlar_rele(numero, encender):
     except Exception as e:
         logger.error(f"Error controlando relé {numero}: {e}")
         return False, str(e)
-
-
 def controlar_motor(direccion, velocidad):
     """
     Controla los motores del drone.
@@ -210,8 +204,6 @@ def controlar_motor(direccion, velocidad):
     except Exception as e:
         logger.error(f"Error controlando motor: {e}")
         return False, str(e)
-
-
 def liberar_gpio():
     """Libera los recursos GPIO al cerrar."""
     if GPIO_DISPONIBLE:
@@ -220,10 +212,7 @@ def liberar_gpio():
             logger.info("GPIO liberado")
         except Exception as e:
             logger.error(f"Error liberando GPIO: {e}")
-
-
 # ==================== FUNCIONES DE MONITOREO ====================
-
 def obtener_ram():
     """
     Obtiene información del uso de RAM del sistema.

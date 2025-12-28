@@ -176,14 +176,14 @@ Todo lo relacionado con la pagina, es decir el archivo html, java etc, debe esta
 ## conexion a raspberry
 usuario: admin
 clave: admin
-ip: 192.168.1.8
+ip: 192.168.1.15
 
 ## Base de datos drone-acuatico
 la base de datos se llamara: drone-acuatico
 se usara SQLite corriendo en la raspberry, en el se guardaran las configuraciones basicas, se guardaran posiciones gps entre otros que tu creas necesario
 se guardara el estado de todos los rele (on/off)
 
-- La rasberry se conecta a internet por wifi.
+- La rasberry se conecta a internet por cable de red.
 - El codigo de este proyecto lo corro desde el vsc de mi portatil, pero se ejecuta en la raspberry para que funcionen bien los puertos GPIO.
 - Se registrara el tamaño del mapa , para cuando se abra la pagina, el mapa quede del ultimo taaño que lo dejo el usuario.
 

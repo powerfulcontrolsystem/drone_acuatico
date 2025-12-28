@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Control Remoto Digital - Drone Acuático</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="tema.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -348,7 +349,11 @@
                 <span id="indicador-red" class="indicador-red">Red: --</span>
                 <span id="indicador-bat" class="indicador-bat">Bat: --</span>
             </div>
-            <div>
+            <div style="display: flex; gap: 4px; align-items: center;">
+                <label class="switch" title="Cambiar tema">
+                    <input type="checkbox" id="toggle-tema" aria-label="Cambiar tema">
+                    <span class="slider"></span>
+                </label>
                 <button class="btn-header" onclick="toggleFullScreen()" title="Pantalla completa">⛶</button>
                 <button class="btn-header" onclick="irConfiguracion()">⚙️ Config</button>
                 <div class="dropdown" id="power-dropdown">
@@ -951,6 +956,8 @@
             }
         }
     </script>
+    <script src="tema.js"></script>
+    <script src="config-ui.js"></script>
     <div id="toast" class="toast"></div>
 </body>
 </html>
