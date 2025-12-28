@@ -293,9 +293,13 @@
                     <span id="indicador-bat" class="indicador-bat">🔋 --%</span>
                     <span id="indicador-peso" class="indicador-peso">⚖️ -- kg</span>
                 </div>
-                <label class="switch" title="Cambiar tema">
-                    <input type="checkbox" id="toggle-tema" aria-label="Cambiar tema">
-                    <span class="slider"></span>
+                <!-- Switch moderno de tema -->
+                <label class="theme-switch-label" title="Cambiar tema">
+                    <input type="checkbox" id="toggle-tema" class="switch-checkbox" aria-label="Cambiar tema">
+                    <label for="toggle-tema" class="switch-label">
+                        <span class="switch-icon moon">🌙</span>
+                        <span class="switch-icon sun">☀️</span>
+                    </label>
                 </label>
             </div>
         </header>

@@ -349,10 +349,14 @@
                 <span id="indicador-red" class="indicador-red">Red: --</span>
                 <span id="indicador-bat" class="indicador-bat">Bat: --</span>
             </div>
-            <div style="display: flex; gap: 4px; align-items: center;">
-                <label class="switch" title="Cambiar tema">
-                    <input type="checkbox" id="toggle-tema" aria-label="Cambiar tema">
-                    <span class="slider"></span>
+            <div style="display: flex; gap: 6px; align-items: center;">
+                <!-- Switch moderno de tema -->
+                <label class="theme-switch-label" title="Cambiar tema">
+                    <input type="checkbox" id="toggle-tema" class="switch-checkbox" aria-label="Cambiar tema">
+                    <label for="toggle-tema" class="switch-label">
+                        <span class="switch-icon moon">🌙</span>
+                        <span class="switch-icon sun">☀️</span>
+                    </label>
                 </label>
                 <button class="btn-header" onclick="toggleFullScreen()" title="Pantalla completa">⛶</button>
                 <button class="btn-header" onclick="irConfiguracion()">⚙️ Config</button>

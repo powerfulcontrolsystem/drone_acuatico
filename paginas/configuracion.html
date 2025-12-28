@@ -74,10 +74,14 @@
 <body>
   <header>
     <h1>⚙️ Configuración del Drone Acuático</h1>
-    <div style="display: flex; gap: 8px; align-items: center;">
-      <label class="switch" title="Cambiar tema">
-        <input type="checkbox" id="toggle-tema" aria-label="Cambiar tema">
-        <span class="slider"></span>
+    <div style="display: flex; gap: 12px; align-items: center;">
+      <!-- Switch moderno de tema -->
+      <label class="theme-switch-label" title="Cambiar tema">
+        <input type="checkbox" id="toggle-tema" class="switch-checkbox" aria-label="Cambiar tema">
+        <label for="toggle-tema" class="switch-label">
+          <span class="switch-icon moon">🌙</span>
+          <span class="switch-icon sun">☀️</span>
+        </label>
       </label>
       <button class="btn btn-volver" onclick="volverAlControl()">⟵ Volver al Control</button>
     </div>

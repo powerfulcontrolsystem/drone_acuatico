@@ -1,54 +1,144 @@
-/* ==================== ESTILOS DE TEMA COMPARTIDOS ==================== */
-/* Archivo de estilos para modo oscuro/claro - Todas las páginas */
+/* ==================== SISTEMA DE TEMA OSCURO/CLARO ====================
+ * Estilos compartidos para todas las páginas del drone acuático
+ * Proporciona dos temas completos: oscuro y claro
+ * ======================================================================== */
 
-/* Switch del toggle de tema */
-.switch {
+/* ==================== VARIABLES DE TEMAS ====================
+ * Modo oscuro (por defecto) y modo claro para toda la aplicación
+ * ================================================================ */
+
+:root {
+    /* TEMA OSCURO (por defecto) */
+    --bg-primary: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    --bg-secondary: rgba(0, 0, 0, 0.4);
+    --bg-tertiary: rgba(255, 255, 255, 0.08);
+    --text-primary: #ffffff;
+    --text-secondary: rgba(255, 255, 255, 0.8);
+    --border-color: rgba(255, 255, 255, 0.15);
+    --header-bg: rgba(0, 0, 0, 0.4);
+    --card-bg: rgba(0, 0, 0, 0.35);
+    --input-bg: rgba(255, 255, 255, 0.1);
+    --input-border: rgba(255, 255, 255, 0.2);
+    --success-color: #4CAF50;
+    --danger-color: #f44336;
+    --info-color: #2196F3;
+    --warning-color: #FF9800;
+}
+
+body.modo-claro {
+    --bg-primary: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    --bg-secondary: rgba(255, 255, 255, 0.9);
+    --bg-tertiary: rgba(0, 0, 0, 0.08);
+    --text-primary: #2c3e50;
+    --text-secondary: #4a5568;
+    --border-color: rgba(0, 0, 0, 0.1);
+    --header-bg: rgba(255, 255, 255, 0.9);
+    --card-bg: rgba(255, 255, 255, 0.95);
+    --input-bg: #ffffff;
+    --input-border: #e0e6ed;
+    --success-color: #48bb78;
+    --danger-color: #f56565;
+    --info-color: #4299e1;
+    --warning-color: #ed8936;
+}
+
+/* ==================== SWITCH MODERNO ====================
+ * Switch con animación suave y estilos modernos
+ * ============================================================ */
+
+.theme-switch-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.theme-switch-label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+/* Switch Toggle */
+.switch-checkbox {
+    display: none;
+}
+
+.switch-label {
     position: relative;
     display: inline-block;
-    width: 44px;
-    height: 22px;
-}
-
-.switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-}
-
-.slider {
-    position: absolute;
+    width: 50px;
+    height: 26px;
+    background-color: #ccc;
+    border-radius: 26px;
     cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #2196F3;
-    transition: 0.4s;
-    border-radius: 22px;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-.slider:before {
+.switch-label::before {
+    content: '';
     position: absolute;
-    content: "";
-    height: 16px;
-    width: 16px;
-    left: 3px;
-    bottom: 3px;
-    background-color: white;
-    transition: 0.4s;
+    width: 22px;
+    height: 22px;
     border-radius: 50%;
+    background-color: white;
+    top: 2px;
+    left: 2px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-input:checked + .slider {
-    background-color: #FFA500;
+.switch-checkbox:checked + .switch-label {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    box-shadow: 0 0 10px rgba(102, 126, 234, 0.3), inset 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-input:checked + .slider:before {
-    transform: translateX(22px);
+.switch-checkbox:checked + .switch-label::before {
+    transform: translateX(24px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-body.modo-claro .slider {
-    background-color: #FFA500;
+.switch-checkbox:focus + .switch-label {
+    outline: 2px solid var(--info-color);
+    outline-offset: 2px;
+}
+
+/* Iconos del switch */
+.switch-icon {
+    position: absolute;
+    font-size: 12px;
+    font-weight: bold;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.switch-icon.moon {
+    left: 6px;
+}
+
+.switch-icon.sun {
+    right: 6px;
+    color: #FFB800;
+}
+
+.switch-checkbox:checked + .switch-label .moon {
+    opacity: 0;
+}
+
+.switch-checkbox:checked + .switch-label .sun {
+    opacity: 1;
+}
+
+.switch-checkbox + .switch-label .moon {
+    opacity: 1;
+}
+
+.switch-checkbox + .switch-label .sun {
+    opacity: 0;
 }
 
 /* Transiciones suaves para cambio de tema */
@@ -56,226 +146,372 @@ body {
     transition: background 0.3s ease, color 0.3s ease;
 }
 
-/* ==================== MODO CLARO - DISEÑO MEJORADO ==================== */
+/* ==================== ESTILOS GENERALES CON VARIABLES ====================
+ * Aplicar variables de tema a todos los elementos
+ * ========================================================================== */
 
-/* Fondo principal - Degradado suave y claro */
-body.modo-claro {
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%) !important;
-    color: #2c3e50 !important;
+* {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
-/* Header - Fondo blanco semi-transparente */
-body.modo-claro header {
-    background: rgba(255, 255, 255, 0.9) !important;
-    backdrop-filter: blur(10px);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+body {
+    background: var(--bg-primary);
+    color: var(--text-primary);
 }
 
-/* Títulos - Color oscuro legible */
-body.modo-claro h1,
-body.modo-claro h2,
-body.modo-claro h3 {
-    color: #2c3e50 !important;
+header, .card, .panel-controles, .vista-columna {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border-color: var(--border-color);
 }
 
-/* Cards y paneles - Fondo blanco con sombra suave */
-body.modo-claro .card,
-body.modo-claro .panel-controles,
-body.modo-claro .vista-columna {
-    background: rgba(255, 255, 255, 0.95) !important;
-    color: #2c3e50 !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    border: 1px solid rgba(0, 0, 0, 0.05);
+h1, h2, h3, h4, h5, h6 {
+    color: var(--text-primary);
 }
 
-/* Títulos de vista - Azul claro suave */
-body.modo-claro .vista-titulo {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-    color: white !important;
-    font-weight: 600;
+label {
+    color: var(--text-secondary);
 }
 
-/* Inputs y selects - Fondo blanco con borde */
-body.modo-claro input,
-body.modo-claro select,
-body.modo-claro textarea {
-    background: #ffffff !important;
-    color: #2c3e50 !important;
-    border: 2px solid #e0e6ed !important;
-    transition: border-color 0.3s ease;
+input, select, textarea {
+    background: var(--input-bg);
+    color: var(--text-primary);
+    border: 2px solid var(--input-border);
 }
 
-body.modo-claro input:focus,
-body.modo-claro select:focus,
-body.modo-claro textarea:focus {
-    border-color: #667eea !important;
+input::placeholder, textarea::placeholder {
+    color: rgba(0, 0, 0, 0.3);
+}
+
+body.modo-claro input::placeholder,
+body.modo-claro textarea::placeholder {
+    color: rgba(0, 0, 0, 0.4);
+}
+
+input:focus, select:focus, textarea:focus {
+    border-color: var(--info-color);
     outline: none;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
 }
 
-body.modo-claro label {
-    color: #4a5568 !important;
-    font-weight: 500;
-}
+/* ==================== BOTONES ====================
+ * Estilos para botones consistentes
+ * ================================================== */
 
-/* Botones de relé - Gris claro */
-body.modo-claro .btn-rele {
-    background: linear-gradient(135deg, #f7fafc 0%, #e2e8f0 100%) !important;
-    color: #2c3e50 !important;
-    border: 2px solid #cbd5e0;
+.btn, .btn-header, .btn-volver, .btn-guardar, .btn-cargar, .btn-rele, .btn-direccion, .btn-menu {
+    background: linear-gradient(135deg, var(--info-color) 0%, var(--info-color) 100%);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 12px;
+    cursor: pointer;
     font-weight: 600;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
 }
 
-body.modo-claro .btn-rele.activo {
-    background: linear-gradient(135deg, #48bb78 0%, #38a169 100%) !important;
-    color: white !important;
-    border-color: #38a169;
-    box-shadow: 0 4px 12px rgba(72, 187, 120, 0.3);
-}
-
-body.modo-claro .btn-rele:hover {
+.btn:hover, .btn-header:hover, .btn-volver:hover, .btn-guardar:hover, .btn-cargar:hover {
     transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+    filter: brightness(1.1);
+}
+
+.btn-guardar {
+    background: linear-gradient(135deg, var(--success-color) 0%, var(--success-color) 100%);
+}
+
+.btn-volver {
+    background: linear-gradient(135deg, var(--info-color) 0%, var(--info-color) 100%);
+}
+
+.btn-rele {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    border: 2px solid var(--border-color);
+}
+
+.btn-rele.activo {
+    background: linear-gradient(135deg, var(--success-color) 0%, var(--success-color) 100%);
+    color: white;
+    border-color: var(--success-color);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.btn-direccion {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    border: 2px solid var(--border-color);
+}
+
+.btn-direccion.activo {
+    background: linear-gradient(135deg, var(--info-color) 0%, var(--info-color) 100%);
+    color: white;
+    border-color: var(--info-color);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.btn-menu {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    text-align: left;
+    padding: 6px 8px;
+    font-size: 11px;
+    width: 100%;
+}
+
+.btn-menu:hover {
+    background: rgba(255, 255, 255, 0.18);
+}
+
+/* ==================== INDICADORES Y ESTADO ====================
+ * Estilos para indicadores de sistema y estado
+ * ================================================================== */
+
+.estado-conexion {
+    padding: 4px 8px;
+    border-radius: 10px;
+    font-size: 12px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.conectado {
+    background: var(--success-color) !important;
+    color: white !important;
+    border-color: var(--success-color) !important;
+}
+
+.desconectado {
+    background: var(--danger-color) !important;
+    color: white !important;
+    border-color: var(--danger-color) !important;
+}
+
+.indicador-bat, .indicador-peso, .indicador-ram, .indicador-temp, .indicador-red, .indicador-solar {
+    padding: 4px 8px;
+    border-radius: 8px;
+    font-size: 11px;
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    font-weight: 600;
+    display: inline-block;
+}
+
+/* Estados de indicadores */
+.ram-ok, .temp-ok, .bat-ok {
+    background: rgba(76, 175, 80, 0.2);
+    border-color: var(--success-color);
+}
+
+.ram-warning, .temp-warning, .bat-warning {
+    background: rgba(255, 152, 0, 0.2);
+    border-color: var(--warning-color);
+}
+
+.ram-critical, .temp-critical, .bat-critical {
+    background: rgba(244, 67, 54, 0.2);
+    border-color: var(--danger-color);
+    animation: parpadeo 1s infinite;
+}
+
+@keyframes parpadeo {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* ==================== TARJETAS Y PANELES ====================
+ * Estilos para tarjetas, paneles y contenedores
+ * ============================================================== */
+
+.card, .panel-controles, .vista-columna {
+    background: var(--card-bg);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.vista-titulo {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    font-weight: 600;
+    padding: 6px 8px;
+    border-radius: 6px;
+    text-align: center;
+    margin-bottom: 8px;
+}
+
+/* ==================== MAPAS ====================
+ * Estilos para elementos de mapas
+ * ================================================= */
+
+#mapa {
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-/* Indicadores - Fondo claro con borde */
-body.modo-claro .indicador-bat,
-body.modo-claro .indicador-peso,
-body.modo-claro .indicador-ram,
-body.modo-claro .indicador-temp,
-body.modo-claro .indicador-red,
-body.modo-claro .indicador-solar {
-    background: rgba(255, 255, 255, 0.9) !important;
-    color: #2c3e50 !important;
-    border: 2px solid #e0e6ed;
+/* ==================== DROPDOWN ====================
+ * Estilos para menús dropdown
+ * ================================================= */
+
+.dropdown-menu {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
+    border-radius: 6px;
+}
+
+.dropdown-menu button,
+.dropdown-menu a {
+    color: var(--text-primary);
+}
+
+.dropdown-menu button:hover,
+.dropdown-menu a:hover {
+    background: var(--bg-tertiary);
+}
+
+/* ==================== CONTROLES ESPECIALES ====================
+ * Estilos para controles específicos del drone
+ * ================================================================ */
+
+.controles-direccion {
+    background: var(--bg-secondary);
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    padding: 8px;
+}
+
+.velocidad {
+    color: var(--text-primary);
     font-weight: 600;
 }
 
-/* Cámaras - Fondo gris muy claro */
-body.modo-claro .camara {
-    background: #f7fafc !important;
-    border: 2px solid #e0e6ed;
+.camara {
+    background: var(--card-bg);
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
 }
 
-body.modo-claro .camara-placeholder {
-    background: #f7fafc !important;
-    color: #718096 !important;
+.camara-placeholder {
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
+    text-align: center;
+    padding: 20px;
 }
 
-/* Mapa - Borde suave */
-body.modo-claro #mapa {
-    border: 2px solid #e0e6ed !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
+/* ==================== MENSAJES Y NOTIFICACIONES ====================
+ * Estilos para mensajes, toasts y notificaciones
+ * ====================================================================== */
 
-/* Estado de conexión */
-body.modo-claro .estado-conexion {
-    background: rgba(255, 255, 255, 0.9) !important;
-    color: #2c3e50 !important;
-    border: 2px solid #e0e6ed;
-    font-weight: 600;
-}
-
-body.modo-claro .conectado {
-    background: #48bb78 !important;
-    color: white !important;
-    border-color: #48bb78;
-}
-
-body.modo-claro .desconectado {
-    background: #f56565 !important;
-    color: white !important;
-    border-color: #f56565;
-}
-
-/* Botones del header */
-body.modo-claro .btn-header,
-body.modo-claro .btn,
-body.modo-claro .btn-volver,
-body.modo-claro .btn-guardar,
-body.modo-claro .btn-cargar {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-    color: white !important;
-    border: none;
-    font-weight: 600;
-}
-
-body.modo-claro .btn-header:hover,
-body.modo-claro .btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-}
-
-body.modo-claro .btn-guardar {
-    background: linear-gradient(135deg, #48bb78 0%, #38a169 100%) !important;
-}
-
-body.modo-claro .btn-volver {
-    background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%) !important;
-}
-
-/* Mensajes */
-body.modo-claro .msg {
-    color: #4a5568 !important;
+.msg, .toast {
+    background: var(--card-bg);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 8px;
     font-weight: 500;
 }
 
-/* Controles de dirección */
-body.modo-claro .controles-direccion {
-    background: rgba(255, 255, 255, 0.9) !important;
-    border: 2px solid #e0e6ed;
+.msg-error {
+    border-color: var(--danger-color);
+    background: rgba(244, 67, 54, 0.1);
+    color: var(--danger-color);
 }
 
-body.modo-claro .btn-direccion {
-    background: linear-gradient(135deg, #f7fafc 0%, #e2e8f0 100%) !important;
-    color: #2c3e50 !important;
-    border: 2px solid #cbd5e0;
-    font-weight: 600;
+.msg-success {
+    border-color: var(--success-color);
+    background: rgba(76, 175, 80, 0.1);
+    color: var(--success-color);
 }
 
-body.modo-claro .btn-direccion:hover {
-    background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e0 100%) !important;
-    transform: scale(1.05);
+.msg-warning {
+    border-color: var(--warning-color);
+    background: rgba(255, 152, 0, 0.1);
+    color: var(--warning-color);
 }
 
-body.modo-claro .btn-direccion.activo {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-    color: white !important;
-    border-color: #667eea;
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+.msg-info {
+    border-color: var(--info-color);
+    background: rgba(33, 150, 243, 0.1);
+    color: var(--info-color);
 }
 
-/* Velocidad */
-body.modo-claro .velocidad {
-    color: #2c3e50 !important;
-    font-weight: 600;
-}
+/* ==================== GRID Y LAYOUT ====================
+ * Estilos para grids y layouts
+ * ================================================ */
 
-/* Menús dropdown */
-body.modo-claro .dropdown-menu {
-    background: white !important;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-    border: 1px solid #e0e6ed;
-}
-
-body.modo-claro .dropdown-menu button,
-body.modo-claro .dropdown-menu a {
-    color: #2c3e50 !important;
-}
-
-body.modo-claro .dropdown-menu button:hover,
-body.modo-claro .dropdown-menu a:hover {
-    background: #f7fafc !important;
-}
-
-/* Grid de vistas */
-body.modo-claro .grid-vistas {
+.grid-vistas {
     gap: 8px;
 }
 
-/* Toast/notificaciones */
-body.modo-claro .toast {
-    background: white !important;
-    color: #2c3e50 !important;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-    border: 1px solid #e0e6ed;
+/* ==================== SCROLLBAR ====================
+ * Estilos para scrollbar personalizada
+ * ================================================ */
+
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
 }
+
+::-webkit-scrollbar-track {
+    background: var(--bg-tertiary);
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.5);
+}
+
+body.modo-claro ::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+body.modo-claro ::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.4);
+}
+
+/* ==================== ANIMACIONES ====================
+ * Animaciones suaves de transición
+ * ================================================= */
+
+@media (prefers-reduced-motion: no-preference) {
+    * {
+        transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
+    }
+}
+
+/* ==================== RESPONSIVE ====================
+ * Ajustes para dispositivos móviles
+ * ================================================ */
+
+@media (max-width: 768px) {
+    .switch-label {
+        width: 45px;
+        height: 24px;
+    }
+
+    .switch-label::before {
+        width: 20px;
+        height: 20px;
+    }
+
+    .switch-checkbox:checked + .switch-label::before {
+        transform: translateX(21px);
+    }
+
+    .btn, .btn-header {
+        padding: 6px 8px;
+        font-size: 11px;
+    }
