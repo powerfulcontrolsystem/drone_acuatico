@@ -5,17 +5,17 @@ bash iniciar_servidor.sh
 
 ## Ver estados de relés guardados en BD
 ```bash
-sqlite3 ~/drone\ acuatico/drone-acuatico.db "SELECT numero, estado, datetime(fecha_actualizacion, 'localtime') as fecha FROM estado_reles ORDER BY numero"
+sqlite3 ~/drone\ acuatico/base_de_datos/drone-acuatico.db "SELECT numero, estado, datetime(fecha_actualizacion, 'localtime') as fecha FROM estado_reles ORDER BY numero"
 ```
 
 ## Ver tema guardado en BD
 ```bash
-sqlite3 ~/drone\ acuatico/drone-acuatico.db "SELECT CASE WHEN tema_oscuro = 1 THEN 'Oscuro' ELSE 'Claro' END as tema, datetime(fecha_actualizacion, 'localtime') as ultima_actualizacion FROM configuracion WHERE id = 1"
+sqlite3 ~/drone\ acuatico/base_de_datos/drone-acuatico.db "SELECT CASE WHEN tema_oscuro = 1 THEN 'Oscuro' ELSE 'Claro' END as tema, datetime(fecha_actualizacion, 'localtime') as ultima_actualizacion FROM configuracion WHERE id = 1"
 ```
 
 ## Ver configuración de guardado GPS automático
 ```bash
-sqlite3 ~/drone\ acuatico/drone-acuatico.db "SELECT CASE WHEN guardar_recorrido = 1 THEN 'Activado' ELSE 'Desactivado' END as guardado_auto, frecuencia_guardado as frecuencia_segundos FROM configuracion WHERE id = 1"
+sqlite3 ~/drone\ acuatico/base_de_datos/drone-acuatico.db "SELECT CASE WHEN guardar_recorrido = 1 THEN 'Activado' ELSE 'Desactivado' END as guardado_auto, frecuencia_guardado as frecuencia_segundos FROM configuracion WHERE id = 1"
 ```
 
 ## Conexión SSH en VS Code (sin contraseña)

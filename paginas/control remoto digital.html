@@ -10,17 +10,14 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            color: #fff;
-            padding: 3px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            padding: 8px;
             overflow: hidden;
             height: 100vh;
         }
         
         .container {
             max-width: 100%;
-            margin: 0 auto;
             height: 100%;
             display: flex;
             flex-direction: column;
@@ -31,65 +28,31 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 4px 8px;
-            background: rgba(0, 0, 0, 0.4);
-            border-radius: 4px;
-            margin-bottom: 4px;
+            padding: 12px 14px;
+            margin-bottom: 8px;
             flex-shrink: 0;
+            border-radius: 12px;
         }
         
-        h1 { font-size: 13px; margin: 0; font-weight: bold; }
+        h1 { font-size: 16px; margin: 0; font-weight: 700; }
         
         .info-sistema {
             display: flex;
             gap: 8px;
             align-items: center;
+            flex-wrap: wrap;
             font-size: 12px;
         }
         
         .estado-conexion {
             display: inline-flex;
             align-items: center;
-            gap: 3px;
-            padding: 2px 6px;
-            border-radius: 10px;
+            gap: 4px;
+            padding: 6px 10px;
+            border-radius: 8px;
             font-size: 11px;
+            font-weight: 600;
         }
-        
-        .conectado { background: #4CAF50; }
-        .desconectado { background: #f44336; }
-        
-        .indicador-ram, .indicador-temp, .indicador-bat, .indicador-red {
-            padding: 4px 8px;
-            border-radius: 10px;
-            font-size: 12px;
-            background: rgba(255, 255, 255, 0.15);
-            font-family: monospace;
-            font-weight: bold;
-            display: inline-block;
-        }
-        
-        .ram-ok, .temp-ok, .bat-ok { background: rgba(76, 175, 80, 0.3); }
-        .ram-warning, .temp-warning, .bat-warning { background: rgba(255, 152, 0, 0.3); }
-        .ram-critical, .temp-critical, .bat-critical { background: rgba(244, 67, 54, 0.3); animation: parpadeo 1s infinite; }
-        
-        @keyframes parpadeo {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-        
-        .btn-header {
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
-            color: white;
-            padding: 3px 6px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 10px;
-            margin-left: 3px;
-        }
-        
-        .btn-header:hover { background: rgba(255, 255, 255, 0.3); }
 
         .dropdown {
             position: relative;
@@ -99,76 +62,66 @@
         .dropdown-menu {
             position: absolute;
             right: 0;
-            top: 110%;
-            background: rgba(0, 0, 0, 0.85);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 6px;
-            box-shadow: 0 6px 14px rgba(0,0,0,0.35);
-            min-width: 140px;
-            padding: 4px;
+            top: 100%;
+            min-width: 160px;
+            padding: 6px;
             display: none;
             z-index: 2000;
+            border-radius: 8px;
+            margin-top: 4px;
         }
 
         .dropdown.open .dropdown-menu { display: block; }
 
         .btn-menu {
             width: 100%;
-            background: rgba(255,255,255,0.08);
-            border: 1px solid rgba(255,255,255,0.15);
-            color: #fff;
-            padding: 6px 8px;
-            border-radius: 4px;
+            padding: 8px 10px;
+            border-radius: 6px;
             font-size: 11px;
             cursor: pointer;
             text-align: left;
+            border: none;
+            font-weight: 500;
         }
 
-        .btn-menu + .btn-menu { margin-top: 4px; }
-
-        .btn-menu:hover { background: rgba(255,255,255,0.18); }
+        .btn-menu + .btn-menu { margin-top: 2px; }
         
         /* Grid de vistas */
         .grid-vistas {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
-            gap: 4px;
-            margin-bottom: 4px;
+            gap: 8px;
+            margin-bottom: 8px;
             flex: 1;
             min-height: 0;
         }
         
         .vista-columna {
-            background: rgba(0, 0, 0, 0.4);
-            border-radius: 5px;
-            padding: 4px;
             display: flex;
             flex-direction: column;
             min-height: 0;
+            border-radius: 12px;
+            overflow: hidden;
         }
         
         .vista-titulo {
-            font-size: 9px;
-            font-weight: bold;
-            text-align: center;
-            margin-bottom: 3px;
-            padding: 2px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 3px;
+            font-size: 12px;
+            margin-bottom: 6px;
+            padding: 8px;
             flex-shrink: 0;
+            border-radius: 8px;
+            z-index: 10;
         }
         
         .camara {
-            background: #263238;
-            border-radius: 5px;
+            border-radius: 8px;
             overflow: hidden;
             flex: 1;
             min-height: 0;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 9px;
+            font-size: 12px;
         }
         
         .camara img {
@@ -180,7 +133,7 @@
         #mapa {
             width: 100%;
             height: 100%;
-            border-radius: 5px;
+            border-radius: 8px;
         }
         
         /* Panel de controles */
@@ -189,38 +142,29 @@
             justify-content: center;
             align-items: center;
             flex-shrink: 0;
-            padding: 8px;
+            padding: 12px;
         }
         
         .contenedor-controles {
-            background: rgba(0, 0, 0, 0.5);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 8px;
-            padding: 12px;
+            padding: 14px;
             display: grid;
             grid-template-columns: auto auto auto auto;
             gap: 12px;
             align-items: start;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
         }
         
         .seccion-control {
-            background: rgba(0, 0, 0, 0.3);
-            border: 2px solid rgba(255, 255, 255, 0.25);
-            border-radius: 8px;
-            padding: 10px;
             display: flex;
             flex-direction: column;
+            min-width: 100px;
         }
         
         .seccion-control h3 {
-            font-size: 11px;
+            font-size: 12px;
             margin: 0 0 8px 0;
             text-align: center;
-            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
-            padding-bottom: 4px;
-            color: #B2FF59;
-            font-weight: bold;
+            padding-bottom: 6px;
+            font-weight: 700;
         }
         
         /* Relés */
@@ -230,116 +174,51 @@
             gap: 6px;
         }
         
-        button {
-            padding: 4px;
-            border: none;
-            border-radius: 6px;
-            font-size: 9px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.2s;
-            color: #fff;
-        }
-        
-        button:hover {
-            transform: scale(1.05);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-        }
-        
         /* Control de movimiento */
         .control-movimiento {
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: 6px;
             align-items: center;
         }
         
         .btn-direccion {
-            background: #2C3E50;
-            color: white;
             padding: 10px;
-            font-size: 13px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            width: 45px;
-            height: 45px;
+            font-size: 16px;
+            border-radius: 8px;
+            width: 48px;
+            height: 48px;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .btn-direccion:hover {
-            background: #34495E;
-            border-color: rgba(255, 255, 255, 0.5);
-            transform: scale(1.08);
-            box-shadow: 0 4px 12px rgba(44, 62, 80, 0.5);
-        }
-        
-        .btn-parar {
-            background: #E74C3C;
-            border-color: rgba(255, 255, 255, 0.3);
-        }
-        
-        .btn-parar:hover {
-            background: #C0392B;
-            border-color: rgba(255, 255, 255, 0.5);
         }
         
         .btn-fila-lateral {
             display: flex;
-            gap: 4px;
+            gap: 6px;
             justify-content: center;
         }
         
         .columna-velocidad {
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: 6px;
         }
         
-        /* Estilo profesional uniforme para botones */
-        .btn-rele,
-        .btn-velocidad,
-        .btn-gps {
-            background: #2C3E50;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            color: #FFFFFF;
-            font-size: 11px;
-            font-weight: bold;
-            padding: 8px 6px;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        .btn-rele,
-        .btn-velocidad,
-        .btn-gps {
-            min-height: 40px;
+        .gps-actions {
             display: flex;
-            align-items: center;
-            justify-content: center;
+            flex-direction: column;
+            gap: 6px;
         }
         
-        .btn-rele:hover,
-        .btn-velocidad:hover,
-        .btn-gps:hover {
-            background: #34495E;
-            box-shadow: 0 6px 16px rgba(44, 62, 80, 0.5);
-            transform: translateY(-2px);
-            border-color: rgba(255, 255, 255, 0.5);
+        button {
+            transition: all 0.2s ease;
         }
         
-        .btn-rele.activo,
-        .btn-velocidad.activo {
-            background: #3498DB;
-            box-shadow: 0 6px 16px rgba(52, 152, 219, 0.5);
-            border-color: rgba(255, 255, 255, 0.4);
+        button:active {
+            transform: translateY(1px);
+        }
         }
         
         .btn-rele.activo:hover,
@@ -419,16 +298,35 @@
         
         .btn-gps:hover {
             background: #34495E;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(44, 62, 80, 0.5);
-            border-color: rgba(255, 255, 255, 0.5);
         }
-        /* Notificaciones no intrusivas */
-        .toast { position: fixed; bottom: 12px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); color: #fff; padding: 8px 12px; border-radius: 6px; font-size: 12px; z-index: 9999; display: none; box-shadow: 0 4px 12px rgba(0,0,0,0.35); }
+        
+        /* Notificaciones */
+        .toast { 
+            position: fixed; 
+            bottom: 20px; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            padding: 12px 16px; 
+            border-radius: 8px; 
+            font-size: 12px; 
+            z-index: 9999; 
+            display: none; 
+            box-shadow: var(--shadow);
+            font-weight: 500;
+        }
         .toast.show { display: block; }
-        .toast.ok { background: rgba(76,175,80,0.92); }
-        .toast.warn { background: rgba(255,152,0,0.92); }
-        .toast.err { background: rgba(244,67,54,0.92); }
+        .toast.ok { 
+            background: var(--success-color); 
+            color: white; 
+        }
+        .toast.warn { 
+            background: var(--warning-color); 
+            color: white; 
+        }
+        .toast.err { 
+            background: var(--danger-color); 
+            color: white; 
+        }
     </style>
 </head>
 <body>
@@ -441,6 +339,7 @@
                 <span id="indicador-temp" class="indicador-temp">Temp: --</span>
                 <span id="indicador-red" class="indicador-red">Red: --</span>
                 <span id="indicador-bat" class="indicador-bat">Bat: --</span>
+                <span id="indicador-vel" class="indicador-vel">Vel: -- km/h</span>
             </div>
             <div style="display: flex; gap: 6px; align-items: center;">
                 <!-- Switch moderno de tema -->
@@ -930,6 +829,8 @@
             if (sinSenal) {
                 document.getElementById('latitud').textContent = 'Sin señal';
                 document.getElementById('longitud').textContent = 'Sin señal';
+                const velEl = document.getElementById('indicador-vel');
+                if (velEl) velEl.textContent = 'Vel: -- km/h';
                 return;
             }
 
@@ -937,11 +838,17 @@
             
             const lat = parseFloat(datos.lat);
             const lon = parseFloat(datos.lon);
+            const velGPS = (typeof datos.velocidad === 'number' && isFinite(datos.velocidad)) ? datos.velocidad : 0;
             const latEl = document.getElementById('latitud');
             const lonEl = document.getElementById('longitud');
             if (latEl && lonEl) {
                 latEl.textContent = isFinite(lat) ? lat.toFixed(6) : '---';
                 lonEl.textContent = isFinite(lon) ? lon.toFixed(6) : '---';
+            }
+
+            const velEl = document.getElementById('indicador-vel');
+            if (velEl) {
+                velEl.textContent = `🚀 ${velGPS.toFixed(1)} km/h`;
             }
 
             if (!isFinite(lat) || !isFinite(lon)) return;

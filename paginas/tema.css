@@ -1,45 +1,53 @@
-/* ==================== SISTEMA DE TEMA OSCURO/CLARO ====================
- * Estilos compartidos para todas las páginas del drone acuático
- * Proporciona dos temas completos: oscuro y claro
- * ======================================================================== */
+/* ==================== SISTEMA DE TEMA OSCURO/CLARO CENTRALIZADO ====================
+ * Estilos compartidos y modernos para todas las páginas del drone acuático
+ * Proporciona dos temas completos: oscuro (por defecto) y claro
+ * ==================================================================================== */
 
 /* ==================== VARIABLES DE TEMAS ====================
  * Modo oscuro (por defecto) y modo claro para toda la aplicación
  * ================================================================ */
 
 :root {
-    /* TEMA OSCURO (por defecto) */
-    --bg-primary: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-    --bg-secondary: rgba(0, 0, 0, 0.4);
-    --bg-tertiary: rgba(255, 255, 255, 0.08);
+    /* TEMA OSCURO MODERNO (por defecto) */
+    --bg-primary: linear-gradient(135deg, #0f1419 0%, #1a2332 100%);
+    --bg-secondary: rgba(30, 35, 55, 0.6);
+    --bg-tertiary: rgba(255, 255, 255, 0.06);
     --text-primary: #ffffff;
-    --text-secondary: rgba(255, 255, 255, 0.8);
-    --border-color: rgba(255, 255, 255, 0.15);
-    --header-bg: rgba(0, 0, 0, 0.4);
-    --card-bg: rgba(0, 0, 0, 0.35);
-    --input-bg: rgba(255, 255, 255, 0.1);
-    --input-border: rgba(255, 255, 255, 0.2);
-    --success-color: #4CAF50;
-    --danger-color: #f44336;
-    --info-color: #2196F3;
-    --warning-color: #FF9800;
+    --text-secondary: rgba(255, 255, 255, 0.85);
+    --text-tertiary: rgba(255, 255, 255, 0.6);
+    --border-color: rgba(255, 255, 255, 0.1);
+    --header-bg: rgba(20, 25, 40, 0.8);
+    --card-bg: rgba(30, 35, 55, 0.5);
+    --input-bg: rgba(255, 255, 255, 0.08);
+    --input-border: rgba(255, 255, 255, 0.15);
+    --success-color: #10b981;
+    --danger-color: #ef4444;
+    --info-color: #3b82f6;
+    --warning-color: #f59e0b;
+    --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 body.modo-claro {
-    --bg-primary: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-    --bg-secondary: rgba(255, 255, 255, 0.9);
-    --bg-tertiary: rgba(0, 0, 0, 0.08);
-    --text-primary: #2c3e50;
-    --text-secondary: #4a5568;
-    --border-color: rgba(0, 0, 0, 0.1);
-    --header-bg: rgba(255, 255, 255, 0.9);
-    --card-bg: rgba(255, 255, 255, 0.95);
+    --bg-primary: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    --bg-secondary: rgba(255, 255, 255, 0.95);
+    --bg-tertiary: rgba(0, 0, 0, 0.05);
+    --text-primary: #1e293b;
+    --text-secondary: #475569;
+    --text-tertiary: #64748b;
+    --border-color: rgba(0, 0, 0, 0.08);
+    --header-bg: rgba(255, 255, 255, 0.98);
+    --card-bg: rgba(255, 255, 255, 0.99);
     --input-bg: #ffffff;
-    --input-border: #e0e6ed;
-    --success-color: #48bb78;
-    --danger-color: #f56565;
-    --info-color: #4299e1;
-    --warning-color: #ed8936;
+    --input-border: #e2e8f0;
+    --success-color: #059669;
+    --danger-color: #dc2626;
+    --info-color: #2563eb;
+    --warning-color: #d97706;
+    --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+    --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 /* ==================== SWITCH MODERNO ====================
@@ -92,13 +100,13 @@ body.modo-claro {
 }
 
 .switch-checkbox:checked + .switch-label {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    box-shadow: 0 0 10px rgba(102, 126, 234, 0.3), inset 0 2px 4px rgba(0, 0, 0, 0.2);
+    background: var(--primary-gradient);
+    box-shadow: 0 0 15px rgba(102, 126, 234, 0.4);
 }
 
 .switch-checkbox:checked + .switch-label::before {
     transform: translateX(24px);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
 }
 
 .switch-checkbox:focus + .switch-label {
@@ -176,22 +184,21 @@ label {
 input, select, textarea {
     background: var(--input-bg);
     color: var(--text-primary);
-    border: 2px solid var(--input-border);
+    border: 1.5px solid var(--input-border);
+    border-radius: 6px;
+    padding: 8px;
+    font-family: inherit;
+    font-size: 14px;
 }
 
 input::placeholder, textarea::placeholder {
-    color: rgba(0, 0, 0, 0.3);
-}
-
-body.modo-claro input::placeholder,
-body.modo-claro textarea::placeholder {
-    color: rgba(0, 0, 0, 0.4);
+    color: var(--text-tertiary);
 }
 
 input:focus, select:focus, textarea:focus {
     border-color: var(--info-color);
     outline: none;
-    box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 /* ==================== BOTONES ====================
@@ -199,68 +206,134 @@ input:focus, select:focus, textarea:focus {
  * ================================================== */
 
 .btn, .btn-header, .btn-volver, .btn-guardar, .btn-cargar, .btn-rele, .btn-direccion, .btn-menu {
-    background: linear-gradient(135deg, var(--info-color) 0%, var(--info-color) 100%);
+    background: var(--info-color);
     color: white;
     border: none;
-    border-radius: 6px;
-    padding: 8px 12px;
+    border-radius: 8px;
+    padding: 10px 14px;
     cursor: pointer;
     font-weight: 600;
-    transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+    font-size: 13px;
+    transition: all 0.2s ease;
 }
 
 .btn:hover, .btn-header:hover, .btn-volver:hover, .btn-guardar:hover, .btn-cargar:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+    box-shadow: var(--shadow-sm);
     filter: brightness(1.1);
 }
 
+.btn:active {
+    transform: translateY(0);
+}
+
 .btn-guardar {
-    background: linear-gradient(135deg, var(--success-color) 0%, var(--success-color) 100%);
+    background: var(--success-color);
 }
 
 .btn-volver {
-    background: linear-gradient(135deg, var(--info-color) 0%, var(--info-color) 100%);
+    background: var(--info-color);
+}
+
+.btn-cargar {
+    background: var(--warning-color);
 }
 
 .btn-rele {
     background: var(--bg-tertiary);
     color: var(--text-primary);
-    border: 2px solid var(--border-color);
+    border: 1.5px solid var(--border-color);
+    padding: 8px 12px;
+}
+
+.btn-rele:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--text-primary);
 }
 
 .btn-rele.activo {
-    background: linear-gradient(135deg, var(--success-color) 0%, var(--success-color) 100%);
+    background: var(--success-color);
     color: white;
     border-color: var(--success-color);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
+}
+
+.btn-velocidad {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    border: 1.5px solid var(--border-color);
+    padding: 8px 12px;
+    border-radius: 8px;
+}
+
+.btn-velocidad:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.btn-velocidad.activo {
+    background: var(--info-color);
+    color: white;
+    border-color: var(--info-color);
+    box-shadow: 0 0 12px rgba(59, 130, 246, 0.4);
 }
 
 .btn-direccion {
     background: var(--bg-tertiary);
     color: var(--text-primary);
-    border: 2px solid var(--border-color);
+    border: 1.5px solid var(--border-color);
+    padding: 8px 12px;
+    border-radius: 8px;
+}
+
+.btn-direccion:hover {
+    background: rgba(255, 255, 255, 0.1);
 }
 
 .btn-direccion.activo {
-    background: linear-gradient(135deg, var(--info-color) 0%, var(--info-color) 100%);
+    background: var(--info-color);
     color: white;
     border-color: var(--info-color);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.btn-parar {
+    background: var(--danger-color);
+    color: white;
+    border-color: var(--danger-color);
+}
+
+.btn-parar:hover {
+    background: var(--danger-color) !important;
+    border-color: var(--danger-color) !important;
+}
+
+.btn-gps {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    border: 1.5px solid var(--border-color);
+    padding: 8px 12px;
+    border-radius: 8px;
+}
+
+.btn-gps:hover {
+    background: var(--primary-gradient);
+    color: white;
+    border-color: transparent;
+    box-shadow: 0 0 12px rgba(102, 126, 234, 0.4);
 }
 
 .btn-menu {
-    background: var(--bg-tertiary);
+    background: transparent;
     color: var(--text-primary);
-    border: 1px solid var(--border-color);
+    border: none;
     text-align: left;
-    padding: 6px 8px;
-    font-size: 11px;
+    padding: 8px 10px;
+    font-size: 12px;
     width: 100%;
 }
 
 .btn-menu:hover {
-    background: rgba(255, 255, 255, 0.18);
+    background: var(--bg-tertiary);
+    border-radius: 6px;
 }
 
 /* ==================== INDICADORES Y ESTADO ====================
@@ -328,23 +401,33 @@ input:focus, select:focus, textarea:focus {
  * Estilos para tarjetas, paneles y contenedores
  * ============================================================== */
 
-.card, .panel-controles, .vista-columna {
+.card, .panel-controles, .vista-columna, .seccion-control {
     background: var(--card-bg);
     color: var(--text-primary);
     border: 1px solid var(--border-color);
-    border-radius: 8px;
-    padding: 10px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    padding: 12px;
+    box-shadow: var(--shadow-sm);
 }
 
 .vista-titulo {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--primary-gradient);
     color: white;
     font-weight: 600;
-    padding: 6px 8px;
-    border-radius: 6px;
+    padding: 8px 12px;
+    border-radius: 8px;
     text-align: center;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
+    font-size: 13px;
+}
+
+/* Header mejorado */
+header {
+    background: var(--header-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 10px 14px;
+    box-shadow: var(--shadow-sm);
 }
 
 /* ==================== MAPAS ====================
@@ -352,20 +435,17 @@ input:focus, select:focus, textarea:focus {
  * ================================================= */
 
 #mapa {
-    border: 2px solid var(--border-color);
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: var(--shadow-sm);
 }
-
-/* ==================== DROPDOWN ====================
- * Estilos para menús dropdown
- * ================================================= */
 
 .dropdown-menu {
     background: var(--bg-secondary);
     border: 1px solid var(--border-color);
-    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
-    border-radius: 6px;
+    box-shadow: var(--shadow);
+    border-radius: 8px;
+    overflow: hidden;
 }
 
 .dropdown-menu button,
