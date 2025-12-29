@@ -540,7 +540,7 @@ def guardar_posicion_gps(recorrido_id=None):
 
     try:
         # Importación diferida para evitar ciclos
-        from base_datos import iniciar_recorrido, guardar_posicion_gps as guardar_posicion_bd
+        from base_de_datos.base_datos import iniciar_recorrido, guardar_posicion_gps as guardar_posicion_bd
     except Exception as e:  # pragma: no cover - protección en tiempo de ejecución
         logger.error(f"No se pudo importar base de datos: {e}")
         return False, "Error de base de datos"

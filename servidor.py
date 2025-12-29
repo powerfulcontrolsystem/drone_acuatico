@@ -33,7 +33,7 @@ from funciones import (
 )
 
 # Importar funciones de base de datos
-from base_datos import (
+from base_de_datos.base_datos import (
     inicializar_bd,
     obtener_configuracion,
     guardar_configuracion,
@@ -455,7 +455,7 @@ async def procesar_mensaje_ws(ws, datos):
     # Finalizar grabación de recorrido GPS
     elif tipo == 'finalizar_recorrido':
         if RECORRIDO_ACTIVO:
-            from base_datos import finalizar_recorrido
+            from base_de_datos.base_datos import finalizar_recorrido
             finalizar_recorrido(RECORRIDO_ACTIVO)
             RECORRIDO_ACTIVO = None
             
@@ -639,7 +639,7 @@ async def on_shutdown(app):
     
     # Finalizar recorrido GPS activo si existe
     if RECORRIDO_ACTIVO:
-        from base_datos import finalizar_recorrido
+        from base_de_datos.base_datos import finalizar_recorrido
         finalizar_recorrido(RECORRIDO_ACTIVO)
         logger.info(f"Recorrido GPS finalizado: ID={RECORRIDO_ACTIVO}")
     
