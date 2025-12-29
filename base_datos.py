@@ -56,6 +56,7 @@ def inicializar_bd():
                 password_hash TEXT,
                 tamano_mapa INTEGER DEFAULT 400,
                 guardar_recorrido INTEGER DEFAULT 1,
+                frecuencia_guardado INTEGER DEFAULT 30,
                 url_camara1_sd TEXT,
                 url_camara1_hd TEXT,
                 desactivar_camara1 INTEGER DEFAULT 0,
@@ -126,6 +127,7 @@ def inicializar_bd():
             "ALTER TABLE configuracion ADD COLUMN url_camara2_hd TEXT",
             "ALTER TABLE configuracion ADD COLUMN tema_oscuro INTEGER DEFAULT 1",
             "ALTER TABLE configuracion ADD COLUMN tamano_letra_datos INTEGER DEFAULT 12",
+            "ALTER TABLE configuracion ADD COLUMN frecuencia_guardado INTEGER DEFAULT 30",
         ]:
             try:
                 cursor.execute(stmt)
@@ -200,6 +202,7 @@ def obtener_configuracion():
                 'url_camara2_sd': fila['url_camara2_sd'] if 'url_camara2_sd' in fila.keys() else '',
                 'url_camara2_hd': fila['url_camara2_hd'] if 'url_camara2_hd' in fila.keys() else '',
                 'desactivar_camara2': bool(fila['desactivar_camara2']),
+                'tamano_letra_datos': int(fila['tamano_letra_datos']) if 'tamano_letra_datos' in fila.keys() else 12,
                 'reles': {
                     1: fila['nombre_rele1'],
                     2: fila['nombre_rele2'],
@@ -252,6 +255,7 @@ def guardar_configuracion(config):
                 solicitar_password = ?,
                 correo = ?,
                 tamano_mapa = ?,
+                tamano_letra_datos = ?,
                 guardar_recorrido = ?,
                 url_camara1_sd = ?,
                 url_camara1_hd = ?,
@@ -275,6 +279,7 @@ def guardar_configuracion(config):
             int(config.get('solicitar_password', False)),
             config.get('correo', ''),
             int(config.get('tamano_mapa', 400)),
+            int(config.get('tamano_letra_datos', 12)),
             int(config.get('guardar_recorrido', True)),
             config.get('url_camara1_sd', ''),
             config.get('url_camara1_hd', ''),

@@ -68,6 +68,7 @@ PUERTO = 8080
 VELOCIDAD_ACTUAL = 50
 CLIENTES_WS = set()
 RECORRIDO_ACTIVO = None  # ID del recorrido GPS actual
+TAREA_GUARDADO_GPS = None  # Tarea de guardado automático GPS
 
 # Cache de datos del sistema para evitar múltiples subprocesses
 DATOS_SISTEMA_CACHE = {
@@ -178,11 +179,51 @@ async def enviar_velocidad_red_periodica():
                 try:
                     await cliente.send_json(mensaje)
                 except Exception as e:
-                    logger.debug(f"Error enviando velocidad_red a cliente: {e}")
-                    CLIENTES_WS.discard(cliente)
+                    logger.debug(f"Error enviando velocidad de red a cliente: {e}")
         
         except Exception as e:
-            logger.error(f"Error obteniendo velocidad de red: {e}")
+            logger.error(f"Error en enviar_velocidad_red_periodica: {e}")
+
+
+async def guardar_gps_automatico():
+    """
+    Guarda la posición GPS automáticamente según la configuración.
+    Se ejecuta en segundo plano cuando está activado.
+    """
+    global RECORRIDO_ACTIVO
+    
+    while True:
+        try:
+            # Obtener configuración actual
+            loop = asyncio.get_event_loop()
+            config = await loop.run_in_executor(None, obtener_configuracion) or {}
+            
+            # Verificar si el guardado automático está activado
+            if not config.get('guardar_recorrido', False):
+                await asyncio.sleep(5)  # Verificar cada 5 segundos si se activó
+                continue
+            
+            # Obtener frecuencia de guardado (por defecto 30 segundos)
+            frecuencia = config.get('frecuencia_guardado', 30)
+            if frecuencia < 5:
+                frecuencia = 5  # Mínimo 5 segundos
+            
+            # Crear recorrido si no existe
+            if RECORRIDO_ACTIVO is None:
+                RECORRIDO_ACTIVO = iniciar_recorrido()
+                logger.info(f"Recorrido GPS automático iniciado: ID {RECORRIDO_ACTIVO}")
+            
+            # Guardar posición actual
+            exito, mensaje = guardar_posicion_gps(RECORRIDO_ACTIVO)
+            if exito:
+                logger.debug(f"GPS guardado automáticamente: {mensaje}")
+            
+            # Esperar según la frecuencia configurada
+            await asyncio.sleep(frecuencia)
+        
+        except Exception as e:
+            logger.error(f"Error en guardado automático GPS: {e}")
+            await asyncio.sleep(30)  # Esperar más tiempo si hay error
 
 
 async def websocket_handler(request):
@@ -580,7 +621,8 @@ async def on_startup(app):
     # Iniciar tarea de envío periódico de datos
     app['datos_task'] = asyncio.create_task(enviar_datos_periodicos())
     app['velocidad_red_task'] = asyncio.create_task(enviar_velocidad_red_periodica())
-    logger.info("Tareas de envío periódico iniciadas")
+    app['gps_auto_task'] = asyncio.create_task(guardar_gps_automatico())
+    logger.info("Tareas de envío periódico y guardado GPS automático iniciadas")
 
 
 async def on_shutdown(app):
@@ -592,6 +634,8 @@ async def on_shutdown(app):
         app['datos_task'].cancel()
     if 'velocidad_red_task' in app:
         app['velocidad_red_task'].cancel()
+    if 'gps_auto_task' in app:
+        app['gps_auto_task'].cancel()
     
     # Finalizar recorrido GPS activo si existe
     if RECORRIDO_ACTIVO:

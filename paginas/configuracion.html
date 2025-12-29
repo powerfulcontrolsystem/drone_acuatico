@@ -117,10 +117,15 @@
           <label for="tamanoMapa">Tamaño del mapa (px altura)</label>
           <input id="tamanoMapa" type="number" min="200" max="1200" step="10" placeholder="400" />
         </div>
-        <div class="row" style="margin-top: 18px;">
-          <input id="guardarRecorrido" type="checkbox" />
-          <label for="guardarRecorrido">Guardar recorrido automáticamente</label>
+        <div>
+          <label for="frecuenciaGuardado">Frecuencia de guardado (segundos)</label>
+          <input id="frecuenciaGuardado" type="number" min="5" max="300" step="1" placeholder="30" value="30" />
+          <small style="display: block; margin-top: 4px; opacity: 0.8;">Solo si el guardado automático está activado</small>
         </div>
+      </div>
+      <div class="row" style="margin-top: 12px;">
+        <input id="guardarRecorrido" type="checkbox" />
+        <label for="guardarRecorrido">✓ Guardar recorrido automáticamente</label>
       </div>
     </section>
 
@@ -236,6 +241,7 @@
         tamano_mapa: parseInt(document.getElementById('tamanoMapa').value || '400', 10),
         tamano_letra_datos: parseInt(document.getElementById('tamanoLetraDatos').value || '12', 10),
         guardar_recorrido: document.getElementById('guardarRecorrido').checked,
+        frecuencia_guardado: parseInt(document.getElementById('frecuenciaGuardado').value || '30', 10),
         url_camara1_sd: document.getElementById('urlCamara1SD').value.trim(),
         url_camara1_hd: document.getElementById('urlCamara1HD').value.trim(),
         desactivar_camara1: document.getElementById('desactivarCamara1').checked,
@@ -262,6 +268,7 @@
       document.getElementById('solicitarPassword').checked = !!cfg.solicitar_password;
       document.getElementById('correo').value = cfg.correo || '';
       document.getElementById('tamanoMapa').value = cfg.tamano_mapa || 400;      document.getElementById('tamanoLetraDatos').value = cfg.tamano_letra_datos || 12;      document.getElementById('guardarRecorrido').checked = !!cfg.guardar_recorrido;
+      document.getElementById('frecuenciaGuardado').value = cfg.frecuencia_guardado || 30;
       document.getElementById('urlCamara1SD').value = cfg.url_camara1_sd || '';
       document.getElementById('urlCamara1HD').value = cfg.url_camara1_hd || '';
       document.getElementById('desactivarCamara1').checked = !!cfg.desactivar_camara1;

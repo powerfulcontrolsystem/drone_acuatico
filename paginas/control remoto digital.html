@@ -185,40 +185,55 @@
         
         /* Panel de controles */
         .panel-controles {
-            background: rgba(0, 0, 0, 0.4);
-            border-radius: 5px;
-            padding: 4px;
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 4px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             flex-shrink: 0;
+            padding: 8px;
+        }
+        
+        .contenedor-controles {
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            padding: 12px;
+            display: grid;
+            grid-template-columns: auto auto auto auto;
+            gap: 12px;
+            align-items: start;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
         }
         
         .seccion-control {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 4px;
-            padding: 4px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.25);
+            border-radius: 8px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
         }
         
         .seccion-control h3 {
-            font-size: 9px;
-            margin: 0 0 3px 0;
+            font-size: 11px;
+            margin: 0 0 8px 0;
             text-align: center;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-            padding-bottom: 2px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+            padding-bottom: 4px;
+            color: #B2FF59;
+            font-weight: bold;
         }
         
         /* Relés */
         .grid-reles {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 3px;
+            gap: 6px;
         }
         
         button {
             padding: 4px;
             border: none;
-            border-radius: 4px;
+            border-radius: 6px;
             font-size: 9px;
             font-weight: bold;
             cursor: pointer;
@@ -231,104 +246,182 @@
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
         
-        .btn-rele {
-            background: #607D8B;
-            font-size: 11px;
-            padding: 8px 4px;
-            min-height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-        }
-        
-        .btn-rele.activo { background: #4CAF50; }
-        
         /* Control de movimiento */
         .control-movimiento {
             display: flex;
             flex-direction: column;
-            gap: 2px;
+            gap: 4px;
             align-items: center;
         }
         
         .btn-direccion {
-            background: #1a1a1a;
+            background: #2C3E50;
             color: white;
-            padding: 8px;
-            font-size: 12px;
-            border: 2px solid #333;
+            padding: 10px;
+            font-size: 13px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
+            width: 45px;
+            height: 45px;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
+            transition: all 0.3s;
         }
         
         .btn-direccion:hover {
-            background: #333;
-            transform: scale(1.05);
+            background: #34495E;
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: scale(1.08);
+            box-shadow: 0 4px 12px rgba(44, 62, 80, 0.5);
         }
         
         .btn-parar {
-            background: #f44336;
-            border-color: #d32f2f;
+            background: #E74C3C;
+            border-color: rgba(255, 255, 255, 0.3);
         }
         
         .btn-parar:hover {
-            background: #d32f2f;
+            background: #C0392B;
+            border-color: rgba(255, 255, 255, 0.5);
         }
         
         .btn-fila-lateral {
             display: flex;
-            gap: 2px;
+            gap: 4px;
             justify-content: center;
         }
         
         .columna-velocidad {
             display: flex;
             flex-direction: column;
-            gap: 2px;
-            margin-left: 5px;
-        }
-        
-        .btn-velocidad {
-            background: #2196F3;
-            border: 2px solid #1976D2;
-            padding: 6px 8px;
-            border-radius: 4px;
-            font-size: 9px;
-            font-weight: bold;
-            cursor: pointer;
-            min-width: 40px;
-        }
-        
-        .btn-velocidad:hover { background: #1976D2; }
-        .btn-velocidad.activo { background: #0D47A1; border-color: #0D47A1; }
-        
-        /* GPS */
-        .gps-actions {
-            display: flex;
             gap: 4px;
+        }
+        
+        /* Estilo profesional uniforme para botones */
+        .btn-rele,
+        .btn-velocidad,
+        .btn-gps {
+            background: #2C3E50;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: #FFFFFF;
+            font-size: 11px;
+            font-weight: bold;
+            padding: 8px 6px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .btn-rele,
+        .btn-velocidad,
+        .btn-gps {
+            min-height: 40px;
+            display: flex;
             align-items: center;
             justify-content: center;
-            flex-wrap: nowrap;
         }
-
+        
+        .btn-rele:hover,
+        .btn-velocidad:hover,
+        .btn-gps:hover {
+            background: #34495E;
+            box-shadow: 0 6px 16px rgba(44, 62, 80, 0.5);
+            transform: translateY(-2px);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .btn-rele.activo,
+        .btn-velocidad.activo {
+            background: #3498DB;
+            box-shadow: 0 6px 16px rgba(52, 152, 219, 0.5);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+        
+        .btn-rele.activo:hover,
+        .btn-velocidad.activo:hover {
+            background: #2980B9;
+            box-shadow: 0 8px 20px rgba(52, 152, 219, 0.6);
+        }
+        
         .btn-gps {
-            background: #FF9800;
-            margin-top: 0;
-            font-size: 11px;
-            padding: 6px 8px;
+            background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);
+        }
+        
+        .btn-gps:hover {
+            background: linear-gradient(135deg, #1E88E5 0%, #1976D2 100%);
+            box-shadow: 0 6px 16px rgba(25, 118, 210, 0.4);
+        }
+        
+        .control-movimiento {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            align-items: center;
         }
         
         .control-movimiento-wrapper {
             display: flex;
-            gap: 4px;
+            gap: 6px;
             align-items: center;
             justify-content: center;
+            flex-direction: column;
+        }
+        
+        .btn-velocidad {
+            background: #2C3E50;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            padding: 6px 8px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            min-width: 40px;
+            transition: all 0.3s ease;
+            color: #FFFFFF;
+        }
+        
+        .btn-velocidad:hover { 
+            background: #34495E;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(44, 62, 80, 0.5);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+        .btn-velocidad.activo { 
+            background: #3498DB;
+            border-color: rgba(255, 255, 255, 0.4);
+            box-shadow: 0 6px 16px rgba(52, 152, 219, 0.5);
+        }
+        
+        /* GPS */
+        .gps-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            align-items: stretch;
+            justify-content: center;
+        }
+
+        .btn-gps {
+            background: #2C3E50;
+            margin-top: 0;
+            font-size: 11px;
+            padding: 8px 10px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            color: #FFFFFF;
+        }
+        
+        .btn-gps:hover {
+            background: #34495E;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(44, 62, 80, 0.5);
+            border-color: rgba(255, 255, 255, 0.5);
         }
         /* Notificaciones no intrusivas */
         .toast { position: fixed; bottom: 12px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); color: #fff; padding: 8px 12px; border-radius: 6px; font-size: 12px; z-index: 9999; display: none; box-shadow: 0 4px 12px rgba(0,0,0,0.35); }
@@ -430,10 +523,10 @@
         </div>
 
         <div class="panel-controles">
-            <!-- Control de Movimiento -->
-            <div class="seccion-control">
-                <h3>🎮 MOVIMIENTO</h3>
-                <div class="control-movimiento-wrapper">
+            <div class="contenedor-controles">
+                <!-- Control de Movimiento -->
+                <div class="seccion-control">
+                    <h3>🎮 MOVIMIENTO</h3>
                     <div class="control-movimiento">
                         <button class="btn-direccion" onmousedown="moverDrone('adelante')" onmouseup="pararDrone()">▲</button>
                         <div class="btn-fila-lateral">
@@ -443,37 +536,42 @@
                         </div>
                         <button class="btn-direccion" onmousedown="moverDrone('atras')" onmouseup="pararDrone()">▼</button>
                     </div>
+                </div>
+
+                <!-- Control de Velocidad -->
+                <div class="seccion-control">
+                    <h3>⚡ VELOCIDAD</h3>
                     <div class="columna-velocidad">
                         <button class="btn-velocidad activo" onclick="setVelocidad(1)">V1</button>
                         <button class="btn-velocidad" onclick="setVelocidad(2)">V2</button>
                         <button class="btn-velocidad" onclick="setVelocidad(3)">V3</button>
                     </div>
                 </div>
-            </div>
 
-            <!-- Relés -->
-            <div class="seccion-control">
-                <h3>⚡ RELÉS</h3>
-                <div class="grid-reles">
-                    <button class="btn-rele" onclick="toggleRele(1)">R1</button>
-                    <button class="btn-rele" onclick="toggleRele(2)">R2</button>
-                    <button class="btn-rele" onclick="toggleRele(3)">R3</button>
-                    <button class="btn-rele" onclick="toggleRele(4)">R4</button>
-                    <button class="btn-rele" onclick="toggleRele(5)">R5</button>
-                    <button class="btn-rele" onclick="toggleRele(6)">R6</button>
-                    <button class="btn-rele" onclick="toggleRele(7)">R7</button>
-                    <button class="btn-rele" onclick="toggleRele(8)">R8</button>
-                    <button class="btn-rele" onclick="toggleRele(9)">R9</button>
+                <!-- Relés -->
+                <div class="seccion-control">
+                    <h3>⚡ RELÉS</h3>
+                    <div class="grid-reles">
+                        <button class="btn-rele" onclick="toggleRele(1)">R1</button>
+                        <button class="btn-rele" onclick="toggleRele(2)">R2</button>
+                        <button class="btn-rele" onclick="toggleRele(3)">R3</button>
+                        <button class="btn-rele" onclick="toggleRele(4)">R4</button>
+                        <button class="btn-rele" onclick="toggleRele(5)">R5</button>
+                        <button class="btn-rele" onclick="toggleRele(6)">R6</button>
+                        <button class="btn-rele" onclick="toggleRele(7)">R7</button>
+                        <button class="btn-rele" onclick="toggleRele(8)">R8</button>
+                        <button class="btn-rele" onclick="toggleRele(9)">R9</button>
+                    </div>
                 </div>
-            </div>
 
-            <!-- GPS -->
-            <div class="seccion-control">
-                <h3>🗺️ GPS</h3>
-                <div class="gps-actions">
-                    <button class="btn-gps" onclick="guardarUbicacion()">💾 Guardar Ubicación</button>
-                    <button class="btn-gps" onclick="irADestino()">📍 Ir a Destino</button>
-                    <button class="btn-gps" onclick="mostrarRuta()">🛣️ Ver Recorrido</button>
+                <!-- GPS -->
+                <div class="seccion-control">
+                    <h3>🗺️ GPS</h3>
+                    <div class="gps-actions">
+                        <button class="btn-gps" onclick="guardarUbicacion()">💾 Guardar Ubicación</button>
+                        <button class="btn-gps" onclick="irADestino()">📍 Ir a Destino</button>
+                        <button class="btn-gps" onclick="mostrarRuta()">🛣️ Ver Recorrido</button>
+                    </div>
                 </div>
             </div>
         </div>
