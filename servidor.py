@@ -42,9 +42,7 @@ from base_de_datos.base_datos import (
     restaurar_estados_reles,
     iniciar_recorrido,
     guardar_posicion_gps as guardar_posicion_bd,
-    obtener_todos_recorridos,
-    obtener_tema,
-    guardar_tema
+    obtener_todos_recorridos
 )
 from camera_stream import (
     asegurar_carpetas as hls_asegurar,
@@ -506,37 +504,6 @@ async def configuracion_handler(request):
     return web.FileResponse(archivo)
 
 
-async def api_tema_get_handler(request):
-    """Devuelve el tema guardado en BD."""
-    try:
-        loop = asyncio.get_event_loop()
-        tema = await loop.run_in_executor(None, obtener_tema)
-        return web.json_response({'tema': tema})
-    except Exception as e:
-        return web.json_response({'tema': 'oscuro'})
-
-
-async def api_tema_post_handler(request):
-    """Guarda tema en BD (oscuro, claro, negro)."""
-    try:
-        datos = await request.json()
-        tema = datos.get('tema', 'oscuro')
-        
-        # Validar que sea un tema válido
-        if tema not in ['oscuro', 'claro', 'negro']:
-            tema = 'oscuro'
-        
-        # Mapear tema a número: 0=claro, 1=oscuro, 2=negro
-        tema_numero = {'claro': 0, 'oscuro': 1, 'negro': 2}[tema]
-        
-        loop = asyncio.get_event_loop()
-        await loop.run_in_executor(None, guardar_tema, tema_numero)
-        
-        return web.json_response({'exito': True, 'tema': tema})
-    except Exception as e:
-        return web.json_response({'exito': False, 'error': str(e)}, status=500)
-
-
 async def api_config_handler(request):
     """
     API REST para obtener y guardar configuración.
@@ -662,8 +629,6 @@ def crear_app():
     app.router.add_get('/configuracion.html', configuracion_handler)
     app.router.add_get('/api/config', api_config_handler)
     app.router.add_post('/api/config', api_config_handler)
-    app.router.add_get('/api/tema', api_tema_get_handler)
-    app.router.add_post('/api/tema', api_tema_post_handler)
     app.router.add_get('/ws', websocket_handler)
     
     # Archivos estáticos (CSS, JS, imágenes)

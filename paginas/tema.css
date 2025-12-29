@@ -1,14 +1,13 @@
 /* ==================================================================================
-   SISTEMA DE 3 TEMAS - DRONE ACUÁTICO
-   Versión: 2025-12-29 - Oscuro (default), Claro, Negro
+   TEMA OSCURO UNIVERSAL - DRONE ACUÁTICO
+   Versión: 2025-12-29 - Solo tema oscuro
    ================================================================================== */
 
 /* ==================================================================================
-   1. VARIABLES CSS - TEMA OSCURO (Único y predeterminado)
+   1. VARIABLES CSS - TEMA OSCURO ÚNICO
    ================================================================================== */
 
-:root,
-body.tema-oscuro {
+:root {
     /* --- FONDOS OSCUROS --- */
     --color-bg-primary: #1A2332;
     --color-bg-secondary: #2A3748;
@@ -57,51 +56,7 @@ body.tema-oscuro {
 }
 
 /* ==================================================================================
-   2. TEMA CLARO
-   ================================================================================== */
-
-body.tema-claro {
-    --color-bg-primary: #E8ECEF;
-    --color-bg-secondary: #F5F7FA;
-    --color-bg-tertiary: #DFE3E7;
-    --color-bg-hover: #D0D5DB;
-    
-    --color-text-primary: #1A202C;
-    --color-text-secondary: #4A5568;
-    --color-text-tertiary: #718096;
-    
-    --color-border-primary: #CBD5E0;
-    --color-border-secondary: #E2E8F0;
-    --color-border-light: #A0AEC0;
-    
-    --color-accent: #3B82F6;
-    --color-accent-hover: #2563EB;
-}
-
-/* ==================================================================================
-   3. TEMA NEGRO (Puro negro para OLED)
-   ================================================================================== */
-
-body.tema-negro {
-    --color-bg-primary: #000000;
-    --color-bg-secondary: #0A0A0A;
-    --color-bg-tertiary: #1A1A1A;
-    --color-bg-hover: #252525;
-    
-    --color-text-primary: #FFFFFF;
-    --color-text-secondary: #B0B0B0;
-    --color-text-tertiary: #808080;
-    
-    --color-border-primary: #333333;
-    --color-border-secondary: #222222;
-    --color-border-light: #444444;
-    
-    --color-accent: #60A5FA;
-    --color-accent-hover: #3B82F6;
-}
-
-/* ==================================================================================
-   4. RESET Y BASE
+   2. RESET Y BASE
    ================================================================================== */
 
 * {
@@ -120,13 +75,6 @@ body {
     font-family: var(--font-family);
     font-size: 14px;
     line-height: 1.5;
-    transition: background var(--transition), color var(--transition);
-}
-
-/* Forzar tema oscuro - eliminar cualquier clase modo-claro */
-body.modo-claro {
-    background: var(--color-bg-primary) !important;
-    color: var(--color-text-primary) !important;
 }
 
 ::-webkit-scrollbar {
