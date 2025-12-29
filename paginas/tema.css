@@ -1,540 +1,133 @@
-/* ==================== SISTEMA DE TEMA OSCURO/CLARO CENTRALIZADO ====================
- * Estilos compartidos y modernos para todas las páginas del drone acuático
- * Proporciona dos temas completos: oscuro (por defecto) y claro
- * ==================================================================================== */
+/* ==================================================================================
+   SISTEMA DE 3 TEMAS - DRONE ACUÁTICO
+   Versión: 2025-12-29 - Oscuro (default), Claro, Negro
+   ================================================================================== */
 
-/* ==================== VARIABLES DE TEMAS ====================
- * Modo oscuro (por defecto) y modo claro para toda la aplicación
- * ================================================================ */
+/* ==================================================================================
+   1. VARIABLES CSS - TEMA OSCURO (Único y predeterminado)
+   ================================================================================== */
 
-:root {
-    /* TEMA OSCURO MODERNO (por defecto) */
-    --bg-primary: linear-gradient(135deg, #0f1419 0%, #1a2332 100%);
-    --bg-secondary: rgba(30, 35, 55, 0.6);
-    --bg-tertiary: rgba(255, 255, 255, 0.06);
-    --text-primary: #ffffff;
-    --text-secondary: rgba(255, 255, 255, 0.85);
-    --text-tertiary: rgba(255, 255, 255, 0.6);
-    --border-color: rgba(255, 255, 255, 0.1);
-    --header-bg: rgba(20, 25, 40, 0.8);
-    --card-bg: rgba(30, 35, 55, 0.5);
-    --input-bg: rgba(255, 255, 255, 0.08);
-    --input-border: rgba(255, 255, 255, 0.15);
-    --success-color: #10b981;
-    --danger-color: #ef4444;
-    --info-color: #3b82f6;
-    --warning-color: #f59e0b;
-    --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    --shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-    --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.15);
+:root,
+body.tema-oscuro {
+    /* --- FONDOS OSCUROS --- */
+    --color-bg-primary: #1A2332;
+    --color-bg-secondary: #2A3748;
+    --color-bg-tertiary: #364154;
+    --color-bg-hover: #3F4D5F;
+    
+    /* --- TEXTOS --- */
+    --color-text-primary: #E8EDEF;
+    --color-text-secondary: #B0B8C2;
+    --color-text-tertiary: #8A92A0;
+    
+    /* --- BORDES --- */
+    --color-border-primary: #4A5A6F;
+    --color-border-secondary: #3A4858;
+    --color-border-light: #5A7088;
+    
+    /* --- ACENTO --- */
+    --color-accent: #4A9EFF;
+    --color-accent-hover: #3A8AE5;
+    
+    /* --- SEMÁNTICOS --- */
+    --color-success: #4CAF50;
+    --color-warning: #FFA726;
+    --color-danger: #EF5350;
+    
+    /* --- ESPACIADO --- */
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 12px;
+    --space-lg: 16px;
+    
+    /* --- BORDER RADIUS --- */
+    --radius-sm: 4px;
+    --radius-md: 6px;
+    --radius-lg: 8px;
+    
+    /* --- SOMBRAS --- */
+    --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.4);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
+    
+    /* --- TRANSICIONES --- */
+    --transition: 180ms cubic-bezier(0.4, 0, 0.2, 1);
+    
+    /* --- TIPOGRAFÍA --- */
+    --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-body.modo-claro {
-    --bg-primary: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-    --bg-secondary: rgba(255, 255, 255, 0.95);
-    --bg-tertiary: rgba(0, 0, 0, 0.05);
-    --text-primary: #1e293b;
-    --text-secondary: #475569;
-    --text-tertiary: #64748b;
-    --border-color: rgba(0, 0, 0, 0.08);
-    --header-bg: rgba(255, 255, 255, 0.98);
-    --card-bg: rgba(255, 255, 255, 0.99);
-    --input-bg: #ffffff;
-    --input-border: #e2e8f0;
-    --success-color: #059669;
-    --danger-color: #dc2626;
-    --info-color: #2563eb;
-    --warning-color: #d97706;
-    --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    --shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
-    --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.05);
+/* ==================================================================================
+   2. TEMA CLARO
+   ================================================================================== */
+
+body.tema-claro {
+    --color-bg-primary: #E8ECEF;
+    --color-bg-secondary: #F5F7FA;
+    --color-bg-tertiary: #DFE3E7;
+    --color-bg-hover: #D0D5DB;
+    
+    --color-text-primary: #1A202C;
+    --color-text-secondary: #4A5568;
+    --color-text-tertiary: #718096;
+    
+    --color-border-primary: #CBD5E0;
+    --color-border-secondary: #E2E8F0;
+    --color-border-light: #A0AEC0;
+    
+    --color-accent: #3B82F6;
+    --color-accent-hover: #2563EB;
 }
 
-/* ==================== SWITCH MODERNO ====================
- * Switch con animación suave y estilos modernos
- * ============================================================ */
+/* ==================================================================================
+   3. TEMA NEGRO (Puro negro para OLED)
+   ================================================================================== */
 
-.theme-switch-wrapper {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+body.tema-negro {
+    --color-bg-primary: #000000;
+    --color-bg-secondary: #0A0A0A;
+    --color-bg-tertiary: #1A1A1A;
+    --color-bg-hover: #252525;
+    
+    --color-text-primary: #FFFFFF;
+    --color-text-secondary: #B0B0B0;
+    --color-text-tertiary: #808080;
+    
+    --color-border-primary: #333333;
+    --color-border-secondary: #222222;
+    --color-border-light: #444444;
+    
+    --color-accent: #60A5FA;
+    --color-accent-hover: #3B82F6;
 }
 
-.theme-switch-label {
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    user-select: none;
-    font-size: 12px;
-    font-weight: 500;
-}
-
-/* Switch Toggle */
-.switch-checkbox {
-    display: none;
-}
-
-.switch-label {
-    position: relative;
-    display: inline-block;
-    width: 50px;
-    height: 26px;
-    background-color: #ccc;
-    border-radius: 26px;
-    cursor: pointer;
-    transition: background-color 0.3s ease, box-shadow 0.3s ease;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.switch-label::before {
-    content: '';
-    position: absolute;
-    width: 22px;
-    height: 22px;
-    border-radius: 50%;
-    background-color: white;
-    top: 2px;
-    left: 2px;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.switch-checkbox:checked + .switch-label {
-    background: var(--primary-gradient);
-    box-shadow: 0 0 15px rgba(102, 126, 234, 0.4);
-}
-
-.switch-checkbox:checked + .switch-label::before {
-    transform: translateX(24px);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
-}
-
-.switch-checkbox:focus + .switch-label {
-    outline: 2px solid var(--info-color);
-    outline-offset: 2px;
-}
-
-/* Iconos del switch */
-.switch-icon {
-    position: absolute;
-    font-size: 12px;
-    font-weight: bold;
-    top: 50%;
-    transform: translateY(-50%);
-    color: rgba(255, 255, 255, 0.8);
-}
-
-.switch-icon.moon {
-    left: 6px;
-}
-
-.switch-icon.sun {
-    right: 6px;
-    color: #FFB800;
-}
-
-.switch-checkbox:checked + .switch-label .moon {
-    opacity: 0;
-}
-
-.switch-checkbox:checked + .switch-label .sun {
-    opacity: 1;
-}
-
-.switch-checkbox + .switch-label .moon {
-    opacity: 1;
-}
-
-.switch-checkbox + .switch-label .sun {
-    opacity: 0;
-}
-
-/* Transiciones suaves para cambio de tema */
-body {
-    transition: background 0.3s ease, color 0.3s ease;
-}
-
-/* ==================== ESTILOS GENERALES CON VARIABLES ====================
- * Aplicar variables de tema a todos los elementos
- * ========================================================================== */
+/* ==================================================================================
+   4. RESET Y BASE
+   ================================================================================== */
 
 * {
-    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 16px;
 }
 
 body {
-    background: var(--bg-primary);
-    color: var(--text-primary);
-}
-
-header, .card, .panel-controles, .vista-columna {
-    background: var(--bg-secondary);
-    color: var(--text-primary);
-    border-color: var(--border-color);
-}
-
-h1, h2, h3, h4, h5, h6 {
-    color: var(--text-primary);
-}
-
-label {
-    color: var(--text-secondary);
-}
-
-input, select, textarea {
-    background: var(--input-bg);
-    color: var(--text-primary);
-    border: 1.5px solid var(--input-border);
-    border-radius: 6px;
-    padding: 8px;
-    font-family: inherit;
+    background: var(--color-bg-primary) !important;
+    color: var(--color-text-primary) !important;
+    font-family: var(--font-family);
     font-size: 14px;
+    line-height: 1.5;
+    transition: background var(--transition), color var(--transition);
 }
 
-input::placeholder, textarea::placeholder {
-    color: var(--text-tertiary);
+/* Forzar tema oscuro - eliminar cualquier clase modo-claro */
+body.modo-claro {
+    background: var(--color-bg-primary) !important;
+    color: var(--color-text-primary) !important;
 }
-
-input:focus, select:focus, textarea:focus {
-    border-color: var(--info-color);
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-/* ==================== BOTONES ====================
- * Estilos para botones consistentes
- * ================================================== */
-
-.btn, .btn-header, .btn-volver, .btn-guardar, .btn-cargar, .btn-rele, .btn-direccion, .btn-menu {
-    background: var(--info-color);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 10px 14px;
-    cursor: pointer;
-    font-weight: 600;
-    font-size: 13px;
-    transition: all 0.2s ease;
-}
-
-.btn:hover, .btn-header:hover, .btn-volver:hover, .btn-guardar:hover, .btn-cargar:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-sm);
-    filter: brightness(1.1);
-}
-
-.btn:active {
-    transform: translateY(0);
-}
-
-.btn-guardar {
-    background: var(--success-color);
-}
-
-.btn-volver {
-    background: var(--info-color);
-}
-
-.btn-cargar {
-    background: var(--warning-color);
-}
-
-.btn-rele {
-    background: var(--bg-tertiary);
-    color: var(--text-primary);
-    border: 1.5px solid var(--border-color);
-    padding: 8px 12px;
-}
-
-.btn-rele:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: var(--text-primary);
-}
-
-.btn-rele.activo {
-    background: var(--success-color);
-    color: white;
-    border-color: var(--success-color);
-    box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
-}
-
-.btn-velocidad {
-    background: var(--bg-tertiary);
-    color: var(--text-primary);
-    border: 1.5px solid var(--border-color);
-    padding: 8px 12px;
-    border-radius: 8px;
-}
-
-.btn-velocidad:hover {
-    background: rgba(255, 255, 255, 0.1);
-}
-
-.btn-velocidad.activo {
-    background: var(--info-color);
-    color: white;
-    border-color: var(--info-color);
-    box-shadow: 0 0 12px rgba(59, 130, 246, 0.4);
-}
-
-.btn-direccion {
-    background: var(--bg-tertiary);
-    color: var(--text-primary);
-    border: 1.5px solid var(--border-color);
-    padding: 8px 12px;
-    border-radius: 8px;
-}
-
-.btn-direccion:hover {
-    background: rgba(255, 255, 255, 0.1);
-}
-
-.btn-direccion.activo {
-    background: var(--info-color);
-    color: white;
-    border-color: var(--info-color);
-}
-
-.btn-parar {
-    background: var(--danger-color);
-    color: white;
-    border-color: var(--danger-color);
-}
-
-.btn-parar:hover {
-    background: var(--danger-color) !important;
-    border-color: var(--danger-color) !important;
-}
-
-.btn-gps {
-    background: var(--bg-tertiary);
-    color: var(--text-primary);
-    border: 1.5px solid var(--border-color);
-    padding: 8px 12px;
-    border-radius: 8px;
-}
-
-.btn-gps:hover {
-    background: var(--primary-gradient);
-    color: white;
-    border-color: transparent;
-    box-shadow: 0 0 12px rgba(102, 126, 234, 0.4);
-}
-
-.btn-menu {
-    background: transparent;
-    color: var(--text-primary);
-    border: none;
-    text-align: left;
-    padding: 8px 10px;
-    font-size: 12px;
-    width: 100%;
-}
-
-.btn-menu:hover {
-    background: var(--bg-tertiary);
-    border-radius: 6px;
-}
-
-/* ==================== INDICADORES Y ESTADO ====================
- * Estilos para indicadores de sistema y estado
- * ================================================================== */
-
-.estado-conexion {
-    padding: 4px 8px;
-    border-radius: 10px;
-    font-size: 12px;
-    background: var(--bg-tertiary);
-    border: 1px solid var(--border-color);
-    font-weight: 600;
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-}
-
-.conectado {
-    background: var(--success-color) !important;
-    color: white !important;
-    border-color: var(--success-color) !important;
-}
-
-.desconectado {
-    background: var(--danger-color) !important;
-    color: white !important;
-    border-color: var(--danger-color) !important;
-}
-
-.indicador-bat, .indicador-peso, .indicador-ram, .indicador-temp, .indicador-red, .indicador-solar {
-    padding: 4px 8px;
-    border-radius: 8px;
-    font-size: 11px;
-    background: var(--bg-tertiary);
-    color: var(--text-primary);
-    border: 1px solid var(--border-color);
-    font-weight: 600;
-    display: inline-block;
-}
-
-/* Estados de indicadores */
-.ram-ok, .temp-ok, .bat-ok {
-    background: rgba(76, 175, 80, 0.2);
-    border-color: var(--success-color);
-}
-
-.ram-warning, .temp-warning, .bat-warning {
-    background: rgba(255, 152, 0, 0.2);
-    border-color: var(--warning-color);
-}
-
-.ram-critical, .temp-critical, .bat-critical {
-    background: rgba(244, 67, 54, 0.2);
-    border-color: var(--danger-color);
-    animation: parpadeo 1s infinite;
-}
-
-@keyframes parpadeo {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
-}
-
-/* ==================== TARJETAS Y PANELES ====================
- * Estilos para tarjetas, paneles y contenedores
- * ============================================================== */
-
-.card, .panel-controles, .vista-columna, .seccion-control {
-    background: var(--card-bg);
-    color: var(--text-primary);
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-    padding: 12px;
-    box-shadow: var(--shadow-sm);
-}
-
-.vista-titulo {
-    background: var(--primary-gradient);
-    color: white;
-    font-weight: 600;
-    padding: 8px 12px;
-    border-radius: 8px;
-    text-align: center;
-    margin-bottom: 10px;
-    font-size: 13px;
-}
-
-/* Header mejorado */
-header {
-    background: var(--header-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-    padding: 10px 14px;
-    box-shadow: var(--shadow-sm);
-}
-
-/* ==================== MAPAS ====================
- * Estilos para elementos de mapas
- * ================================================= */
-
-#mapa {
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-    box-shadow: var(--shadow-sm);
-}
-
-.dropdown-menu {
-    background: var(--bg-secondary);
-    border: 1px solid var(--border-color);
-    box-shadow: var(--shadow);
-    border-radius: 8px;
-    overflow: hidden;
-}
-
-.dropdown-menu button,
-.dropdown-menu a {
-    color: var(--text-primary);
-}
-
-.dropdown-menu button:hover,
-.dropdown-menu a:hover {
-    background: var(--bg-tertiary);
-}
-
-/* ==================== CONTROLES ESPECIALES ====================
- * Estilos para controles específicos del drone
- * ================================================================ */
-
-.controles-direccion {
-    background: var(--bg-secondary);
-    border: 2px solid var(--border-color);
-    border-radius: 8px;
-    padding: 8px;
-}
-
-.velocidad {
-    color: var(--text-primary);
-    font-weight: 600;
-}
-
-.camara {
-    background: var(--card-bg);
-    border: 2px solid var(--border-color);
-    border-radius: 8px;
-}
-
-.camara-placeholder {
-    background: var(--bg-tertiary);
-    color: var(--text-secondary);
-    text-align: center;
-    padding: 20px;
-}
-
-/* ==================== MENSAJES Y NOTIFICACIONES ====================
- * Estilos para mensajes, toasts y notificaciones
- * ====================================================================== */
-
-.msg, .toast {
-    background: var(--card-bg);
-    color: var(--text-primary);
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-    padding: 8px;
-    font-weight: 500;
-}
-
-.msg-error {
-    border-color: var(--danger-color);
-    background: rgba(244, 67, 54, 0.1);
-    color: var(--danger-color);
-}
-
-.msg-success {
-    border-color: var(--success-color);
-    background: rgba(76, 175, 80, 0.1);
-    color: var(--success-color);
-}
-
-.msg-warning {
-    border-color: var(--warning-color);
-    background: rgba(255, 152, 0, 0.1);
-    color: var(--warning-color);
-}
-
-.msg-info {
-    border-color: var(--info-color);
-    background: rgba(33, 150, 243, 0.1);
-    color: var(--info-color);
-}
-
-/* ==================== GRID Y LAYOUT ====================
- * Estilos para grids y layouts
- * ================================================ */
-
-.grid-vistas {
-    gap: 8px;
-}
-
-/* ==================== SCROLLBAR ====================
- * Estilos para scrollbar personalizada
- * ================================================ */
 
 ::-webkit-scrollbar {
     width: 8px;
@@ -542,56 +135,350 @@ header {
 }
 
 ::-webkit-scrollbar-track {
-    background: var(--bg-tertiary);
+    background: var(--color-bg-secondary);
 }
 
 ::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.3);
+    background: var(--color-border-primary);
     border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 0, 0, 0.5);
+    background: var(--color-border-light);
 }
 
-body.modo-claro ::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.2);
+/* ==================================================================================
+   7. TIPOGRAFÍA
+   ================================================================================== */
+
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    margin-bottom: var(--space-md);
 }
 
-body.modo-claro ::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 0, 0, 0.4);
+h1 { font-size: 20px; }
+h2 { font-size: 18px; }
+h3 { font-size: 16px; }
+h4 { font-size: 14px; }
+
+p {
+    margin-bottom: var(--space-md);
+    color: var(--color-text-secondary);
 }
 
-/* ==================== ANIMACIONES ====================
- * Animaciones suaves de transición
- * ================================================= */
+/* ==================================================================================
+   8. COMPONENTES BASE
+   ================================================================================== */
 
-@media (prefers-reduced-motion: no-preference) {
-    * {
-        transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
-    }
+header {
+    background: var(--color-bg-secondary);
+    border-bottom: 1px solid var(--color-border-primary);
+    transition: background var(--transition), border-color var(--transition);
 }
 
-/* ==================== RESPONSIVE ====================
- * Ajustes para dispositivos móviles
- * ================================================ */
+.card,
+.panel,
+.section,
+.vista-columna,
+.seccion-control,
+.contenedor-controles,
+.panel-controles {
+    background: var(--color-bg-secondary);
+    border: 2px solid var(--color-border-light);
+    border-radius: var(--radius-lg);
+    transition: all var(--transition);
+}
+
+.vista-titulo {
+    background: var(--color-bg-tertiary);
+    border-bottom: 1px solid var(--color-border-primary);
+    transition: background var(--transition), border-color var(--transition);
+}
+
+.camara {
+    background: var(--color-bg-tertiary);
+    border: 1px solid var(--color-border-secondary);
+    transition: background var(--transition), border-color var(--transition);
+}
+
+/* ==================================================================================
+   9. BOTONES - ESTILO UNIFICADO
+   ================================================================================== */
+
+button,
+.btn,
+.btn-rele,
+.btn-velocidad,
+.btn-gps,
+.btn-direccion,
+.btn-header,
+.btn-menu,
+input[type="button"],
+input[type="submit"] {
+    font-family: var(--font-family);
+    font-size: 13px;
+    font-weight: 500;
+    padding: var(--space-md) var(--space-lg);
+    border: 1px solid transparent;
+    border-radius: var(--radius-md);
+    background: var(--color-accent);
+    color: white;
+    cursor: pointer;
+    transition: all var(--transition);
+    user-select: none;
+}
+
+button:hover,
+.btn:hover,
+.btn-rele:hover,
+.btn-velocidad:hover,
+.btn-gps:hover,
+.btn-direccion:hover,
+.btn-header:hover,
+.btn-menu:hover {
+    background: var(--color-accent-hover);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+button:active,
+.btn:active {
+    transform: translateY(0);
+}
+
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Botón activo */
+.btn-rele.activo,
+.btn-velocidad.activo,
+button.activo {
+    background: var(--color-success);
+}
+
+.btn-rele.activo:hover,
+.btn-velocidad.activo:hover {
+    background: #45a049;
+}
+
+/* Botón secundario */
+.btn-secondary,
+.btn-header {
+    background: var(--color-bg-tertiary);
+    color: var(--color-text-primary);
+    border: 1px solid var(--color-border-primary);
+}
+
+.btn-secondary:hover,
+.btn-header:hover {
+    background: var(--color-bg-hover);
+    border-color: var(--color-accent);
+}
+
+/* Botón peligro */
+.btn-danger {
+    background: var(--color-danger);
+}
+
+.btn-danger:hover {
+    background: #d32f2f;
+}
+
+/* ==================================================================================
+   10. INPUTS Y FORMULARIOS
+   ================================================================================== */
+
+label {
+    display: block;
+    margin-bottom: var(--space-sm);
+    font-weight: 500;
+    font-size: 13px;
+    color: var(--color-text-primary);
+}
+
+input,
+select,
+textarea {
+    width: 100%;
+    padding: var(--space-md);
+    font-family: var(--font-family);
+    font-size: 14px;
+    background: var(--color-bg-secondary);
+    color: var(--color-text-primary);
+    border: 2px solid var(--color-border-light);
+    border-radius: var(--radius-md);
+    transition: all var(--transition);
+}
+
+input:hover,
+select:hover,
+textarea:hover {
+    border-color: var(--color-border-primary);
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px rgba(74, 158, 255, 0.15);
+}
+
+input::placeholder,
+textarea::placeholder {
+    color: var(--color-text-tertiary);
+}
+
+/* ==================================================================================
+   11. INDICADORES DE ESTADO
+   ================================================================================== */
+
+.estado-conexion {
+    background: var(--color-bg-tertiary);
+    border: 1px solid var(--color-border-primary);
+    transition: all var(--transition);
+}
+
+.estado-conexion.conectado {
+    background: var(--color-success);
+    color: white;
+    border-color: var(--color-success);
+}
+
+.estado-conexion.desconectado {
+    background: var(--color-danger);
+    color: white;
+    border-color: var(--color-danger);
+}
+
+.indicador-bat,
+.indicador-peso,
+.indicador-ram,
+.indicador-temp,
+.indicador-red,
+.indicador-vel {
+    background: var(--color-bg-tertiary);
+    border: 1px solid var(--color-border-primary);
+    transition: all var(--transition);
+}
+
+/* ==================================================================================
+   8. DROPDOWN MENU
+   ================================================================================== */
+
+.dropdown-menu {
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border-primary);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-menu {
+    background: transparent;
+    color: var(--color-text-primary);
+}
+
+.btn-menu:hover {
+    background: var(--color-bg-hover);
+}
+
+/* ==================================================================================
+   9. TABLAS
+   ================================================================================== */
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+thead {
+    background: var(--color-bg-tertiary);
+}
+
+th {
+    padding: var(--space-md);
+    text-align: left;
+    font-weight: 600;
+    border-bottom: 2px solid var(--color-border-light);
+    color: var(--color-text-primary);
+}
+
+td {
+    padding: var(--space-md);
+    border-bottom: 1px solid var(--color-border-secondary);
+}
+
+tbody tr:hover {
+    background: var(--color-bg-tertiary);
+}
+
+/* ==================================================================================
+   10. NOTIFICACIONES / TOASTS
+   ================================================================================== */
+
+.toast {
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+}
+
+.toast.ok {
+    background: var(--color-success);
+    color: white;
+}
+
+.toast.warn {
+    background: var(--color-warning);
+    color: white;
+}
+
+.toast.err {
+    background: var(--color-danger);
+    color: white;
+}
+
+.msg {
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border-primary);
+}
+
+/* ==================================================================================
+   11. UTILIDADES
+   ================================================================================== */
+
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+.text-muted { color: var(--color-text-secondary); }
+.hidden { display: none !important; }
+.cursor-pointer { cursor: pointer; }
+
+/* ==================================================================================
+   12. RESPONSIVE
+   ================================================================================== */
 
 @media (max-width: 768px) {
-    .switch-label {
-        width: 45px;
-        height: 24px;
+    button, .btn {
+        padding: var(--space-sm) var(--space-md);
+        font-size: 12px;
     }
+}
 
-    .switch-label::before {
-        width: 20px;
-        height: 20px;
-    }
+/* ==================================================================================
+   13. ACCESIBILIDAD
+   ================================================================================== */
 
-    .switch-checkbox:checked + .switch-label::before {
-        transform: translateX(21px);
-    }
+:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+}
 
-    .btn, .btn-header {
-        padding: 6px 8px;
-        font-size: 11px;
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
     }
+}
+
+/* ==================================================================================
+   FIN - SOLO TEMA OSCURO
+   ================================================================================== */

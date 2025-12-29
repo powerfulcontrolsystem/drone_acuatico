@@ -654,7 +654,7 @@ def obtener_tema():
     Obtiene el tema guardado en la configuración.
     
     Returns:
-        str: 'oscuro' o 'claro'
+        str: 'oscuro', 'claro' o 'negro'
     """
     conexion = obtener_conexion()
     if not conexion:
@@ -666,7 +666,14 @@ def obtener_tema():
         resultado = cursor.fetchone()
         
         if resultado:
-            return 'oscuro' if resultado['tema_oscuro'] else 'claro'
+            # Mapeo: 0=claro, 1=oscuro, 2=negro
+            valor = resultado['tema_oscuro']
+            if valor == 0:
+                return 'claro'
+            elif valor == 2:
+                return 'negro'
+            else:
+                return 'oscuro'
         return 'oscuro'
     
     except sqlite3.Error as e:
@@ -682,7 +689,7 @@ def guardar_tema(tema_oscuro):
     Guarda el tema en la configuración.
     
     Args:
-        tema_oscuro (bool): True para modo oscuro, False para modo claro
+        tema_oscuro (int o bool): 0=claro, 1=oscuro, 2=negro
     
     Returns:
         bool: True si se guardó correctamente
@@ -693,13 +700,18 @@ def guardar_tema(tema_oscuro):
     
     try:
         cursor = conexion.cursor()
+        # Convertir bool a int si es necesario
+        valor = int(tema_oscuro) if isinstance(tema_oscuro, (bool, int)) else 1
+        
         cursor.execute('''
             UPDATE configuracion
             SET tema_oscuro = ?, fecha_actualizacion = CURRENT_TIMESTAMP
             WHERE id = 1
-        ''', (1 if tema_oscuro else 0,))
+        ''', (valor,))
         conexion.commit()
-        logger.info(f"Tema guardado: {'oscuro' if tema_oscuro else 'claro'}")
+        
+        temas = {0: 'claro', 1: 'oscuro', 2: 'negro'}
+        logger.info(f"Tema guardado: {temas.get(valor, 'oscuro')}")
         return True
     
     except sqlite3.Error as e:

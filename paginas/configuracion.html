@@ -4,124 +4,36 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Configuración - Drone Acuático</title>
-  <link rel="stylesheet" href="tema.css">
+  <link rel="stylesheet" href="tema.css?v=20251229b">
   <style>
-    * { box-sizing: border-box; }
-    
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      margin: 0;
-      padding: 16px;
-    }
-    
-    header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 14px 16px;
-      margin-bottom: 16px;
-      border-radius: 12px;
-    }
-    
-    h1 { 
-      font-size: 18px; 
-      margin: 0;
-      font-weight: 700;
-    }
-    
-    h2 {
-      font-size: 14px;
-      margin: 0 0 12px 0;
-      padding-bottom: 8px;
-      border-bottom: 2px solid var(--border-color);
-      font-weight: 700;
-    }
-    
-    main {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-    }
-    
-    @media (max-width: 900px) {
-      main { grid-template-columns: 1fr; }
-    }
-    
-    .card {
-      border-radius: 12px;
-      padding: 14px;
-    }
-    
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-    
+    /* SOLO LAYOUT - SIN COLORES */
+    body { margin: 0; padding: 16px; }
+    header { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; margin-bottom: 16px; }
+    h1 { font-size: 18px; margin: 0; font-weight: 700; }
+    h2 { font-size: 14px; margin: 0 0 12px 0; padding-bottom: 8px; font-weight: 700; }
+    main { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 900px) { main { grid-template-columns: 1fr; } }
+    .card { padding: 14px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .grid-uno { grid-template-columns: 1fr; }
-    
-    label { 
-      font-size: 12px; 
-      display: block; 
-      margin-bottom: 6px;
-      font-weight: 500;
-    }
-    
-    input, select {
-      width: 100%; 
-      padding: 10px 12px; 
-      border-radius: 8px;
-      font-size: 13px; 
-      outline: none;
-    }
-    
+    label { font-size: 12px; display: block; margin-bottom: 6px; font-weight: 500; }
+    input, select { width: 100%; padding: 10px 12px; font-size: 13px; outline: none; }
     input[type="checkbox"] { width: auto; margin-right: 6px; }
-    
-    small {
-      display: block;
-      margin-top: 4px;
-      font-size: 11px;
-      opacity: 0.75;
-    }
-    
-    .row { 
-      display: flex; 
-      align-items: center; 
-      gap: 8px;
-      margin-top: 10px;
-    }
-    
+    small { display: block; margin-top: 4px; font-size: 11px; opacity: 0.75; }
+    .row { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
     .row label { margin: 0; }
-    
-    footer {
-      margin-top: 20px;
-      display: flex;
-      gap: 10px;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-    
-    .msg { 
-      text-align: center; 
-      font-size: 12px; 
-      margin-top: 8px;
-      padding: 8px;
-      border-radius: 6px;
-    }
+    footer { margin-top: 20px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+    .msg { text-align: center; font-size: 12px; margin-top: 8px; padding: 8px; }
+    .btn { font-size: 13px; padding: 10px 16px; }
   </style>
 </head>
 <body>
+  <!-- Botón flotante para cambiar tema -->
+  <button id="btn-cambiar-tema" class="btn-tema-flotante" onclick="cambiarTema()" title="Cambiar tema">🌙</button>
+  
   <header>
     <h1>⚙️ Configuración del Drone Acuático</h1>
     <div style="display: flex; gap: 12px; align-items: center;">
-      <!-- Switch moderno de tema -->
-      <label class="theme-switch-label" title="Cambiar tema">
-        <input type="checkbox" id="toggle-tema" class="switch-checkbox" aria-label="Cambiar tema">
-        <label for="toggle-tema" class="switch-label">
-          <span class="switch-icon moon">🌙</span>
-          <span class="switch-icon sun">☀️</span>
-        </label>
-      </label>
       <button class="btn btn-volver" onclick="volverAlControl()">⟵ Volver al Control</button>
     </div>
   </header>

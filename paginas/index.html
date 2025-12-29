@@ -5,284 +5,48 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Control Remoto Digital - Drone Acuático</title>
     
-    <!-- Leaflet para el mapa -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <link rel="stylesheet" href="tema.css">
+    <link rel="stylesheet" href="tema.css?v=20251229b">
     
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            color: #fff;
-            padding: 5px;
-            overflow: hidden;
-            height: 100vh;
-            transition: background 0.3s ease, color 0.3s ease;
-        }
-
-        body.modo-claro {
-            background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);
-            color: #333;
-        }
-
-        .container {
-            max-width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* Header */
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 12px;
-            background: rgba(0, 0, 0, 0.4);
-            border-radius: 6px;
-            margin-bottom: 5px;
-            flex-shrink: 0;
-            transition: background 0.3s ease;
-        }
-
-        body.modo-claro header {
-            background: rgba(0, 0, 0, 0.1);
-        }
-
-        .header-right {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-        }
-
-        h1 {
-            font-size: 16px;
-            margin: 0;
-            color: white;
-            flex: 1;
-        }
-
-        body.modo-claro h1 {
-            color: #333;
-        }
-
-        .estado-conexion {
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-size: 12px;
-            background: rgba(255, 255, 255, 0.15);
-            transition: background 0.3s ease;
-        }
-
-        .conectado {
-            background: #4CAF50;
-        }
-
-        .desconectado {
-            background: #f44336;
-        }
-
-        /* Indicadores de sistema */
-        .info-sistema {
-            display: flex;
-            gap: 6px;
-            align-items: center;
-            font-size: 11px;
-        }
-
-        .indicador-bat, .indicador-peso {
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-size: 11px;
-            background: rgba(255, 255, 255, 0.15);
-            font-family: monospace;
-            transition: background 0.3s ease;
-        }
-
-        body.modo-claro .indicador-bat,
-        body.modo-claro .indicador-peso {
-            background: rgba(0, 0, 0, 0.1);
-        }
-
-        .bat-ok { background: rgba(76, 175, 80, 0.3); }
-        .bat-warning { background: rgba(255, 152, 0, 0.3); }
-        .bat-critical { background: rgba(244, 67, 54, 0.3); }
-        .peso-ok { background: rgba(76, 175, 80, 0.3); }
-        .peso-warning { background: rgba(255, 152, 0, 0.3); }
-        .peso-critical { background: rgba(244, 67, 54, 0.3); }
-
-        /* Switch de tema: estilos centralizados en tema.css */
-
-        /* Grid de 3 columnas: Cámara 1, Cámara 2, Mapa */
-        .grid-vistas {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            margin-bottom: 5px;
-            flex: 1;
-            min-height: 0;
-            gap: 5px;
-        }
-
-        .vista-columna {
-            background: rgba(0, 0, 0, 0.4);
-            border-radius: 8px;
-            padding: 8px;
-            display: flex;
-            flex-direction: column;
-            min-height: 0;
-            transition: background 0.3s ease;
-        }
-
-        body.modo-claro .vista-columna {
-            background: rgba(0, 0, 0, 0.05);
-        }
-
-        .vista-titulo {
-            font-size: 12px;
-            font-weight: bold;
-            text-align: center;
-            margin-bottom: 5px;
-            padding: 4px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 4px;
-            flex-shrink: 0;
-            transition: background 0.3s ease;
-        }
-
-        body.modo-claro .vista-titulo {
-            background: rgba(0, 0, 0, 0.1);
-        }
-
-        /* Cámaras */
-        .camara {
-            background: #263238;
-            border-radius: 6px;
-            overflow: hidden;
-            flex: 1;
-            min-height: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background 0.3s ease;
-        }
-
-        body.modo-claro .camara {
-            background: #f5f5f5;
-        }
-
-        .camara img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .camara-placeholder {
-            font-size: 11px;
-            color: rgba(255, 255, 255, 0.5);
-        }
-
-        body.modo-claro .camara-placeholder {
-            color: rgba(0, 0, 0, 0.5);
-        }
-
-        /* Mapa */
-        #mapa {
-            width: 100%;
-            height: 100%;
-            border-radius: 6px;
-        }
-
-        /* Panel de controles de relés */
-        .panel-controles {
-            background: rgba(0, 0, 0, 0.4);
-            border-radius: 8px;
-            padding: 10px;
-            flex-shrink: 0;
-            transition: background 0.3s ease;
-        }
-
-        body.modo-claro .panel-controles {
-            background: rgba(0, 0, 0, 0.05);
-        }
-
-        .panel-controles h3 {
-            font-size: 14px;
-            margin: 0 0 10px 0;
-            text-align: center;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-            padding-bottom: 8px;
-            color: white;
-        }
-
-        body.modo-claro .panel-controles h3 {
-            border-bottom-color: rgba(0, 0, 0, 0.2);
-            color: #333;
-        }
-
-        /* Grid de relés 3x3 */
-        .grid-reles {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-        }
-
-        .btn-rele {
-            background: #607D8B;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            padding: 12px;
-            font-size: 14px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        body.modo-claro .btn-rele {
-            background: #757575;
-            color: white;
-        }
-
-        .btn-rele:hover {
-            transform: scale(1.05);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-        }
-
-        .btn-rele:active {
-            transform: scale(0.95);
-        }
-
-        .btn-rele.activo {
-            background: #4CAF50;
-            box-shadow: 0 0 15px rgba(76, 175, 80, 0.6);
-        }
-
-        /* Responsivo */
-        @media (orientation: portrait) {
-            .grid-vistas {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 14px;
-            }
-
-            .btn-rele {
-                padding: 10px;
-                font-size: 12px;
-            }
-        }
+        /* SOLO LAYOUT - SIN COLORES */
+        body { padding: 5px; overflow: hidden; height: 100vh; }
+        .container { max-width: 100%; height: 100%; display: flex; flex-direction: column; }
+        header { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; margin-bottom: 5px; flex-shrink: 0; }
+        .header-right { display: flex; gap: 12px; align-items: center; }
+        h1 { font-size: 16px; margin: 0; flex: 1; }
+        .estado-conexion { padding: 2px 8px; border-radius: 10px; font-size: 12px; }
+        .conectado { }
+        .desconectado { }
+        .info-sistema { display: flex; gap: 6px; align-items: center; font-size: 11px; }
+        .indicador-bat, .indicador-peso { padding: 2px 8px; border-radius: 10px; font-size: 11px; font-family: monospace; }
+        .bat-ok {  }
+        .bat-warning {  }
+        .bat-critical {  }
+        .peso-ok {  }
+        .peso-warning {  }
+        .peso-critical {  }
+        .grid-vistas { display: grid; grid-template-columns: 1fr 1fr 1fr; margin-bottom: 5px; flex: 1; min-height: 0; gap: 5px; }
+        .vista-columna { padding: 8px; display: flex; flex-direction: column; min-height: 0; }
+        .vista-titulo { font-size: 12px; font-weight: bold; text-align: center; margin-bottom: 5px; padding: 4px; flex-shrink: 0; }
+        .camara { overflow: hidden; flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; }
+        .camara img { width: 100%; height: 100%; object-fit: cover; }
+        .camara-placeholder { font-size: 11px; }
+        #mapa { width: 100%; height: 100%; }
+        .panel-controles { padding: 10px; flex-shrink: 0; }
+        .panel-controles h3 { font-size: 14px; margin: 0 0 10px 0; text-align: center; padding-bottom: 8px; }
+        .grid-reles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        .btn-rele { border: none; padding: 12px; font-size: 14px; font-weight: bold; cursor: pointer; }
+        .btn-rele:hover { transform: scale(1.05); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); }
+        .btn-rele:active { transform: scale(0.95); }
+        .btn-rele.activo { }
+        @media (orientation: portrait) { .grid-vistas { grid-template-columns: 1fr; } }
+        @media (max-width: 768px) { h1 { font-size: 14px; } .btn-rele { padding: 10px; font-size: 12px; } }
     </style>
 </head>
 <body>
+    <!-- Botón flotante para cambiar tema -->
+    <button id="btn-cambiar-tema" class="btn-tema-flotante" onclick="cambiarTema()" title="Cambiar tema">🌙</button>
+    
     <div class="container">
         <!-- Header -->
         <header>
@@ -293,14 +57,6 @@
                     <span id="indicador-bat" class="indicador-bat">🔋 --%</span>
                     <span id="indicador-peso" class="indicador-peso">⚖️ -- kg</span>
                 </div>
-                <!-- Switch moderno de tema -->
-                <label class="theme-switch-label" title="Cambiar tema">
-                    <input type="checkbox" id="toggle-tema" class="switch-checkbox" aria-label="Cambiar tema">
-                    <label for="toggle-tema" class="switch-label">
-                        <span class="switch-icon moon">🌙</span>
-                        <span class="switch-icon sun">☀️</span>
-                    </label>
-                </label>
             </div>
         </header>
 

@@ -507,42 +507,33 @@ async def configuracion_handler(request):
 
 
 async def api_tema_get_handler(request):
-    """Obtiene el tema guardado en la BD (sin bloquear el event loop)."""
+    """Devuelve el tema guardado en BD."""
     try:
-        # Ejecutar operación de BD en executor para no bloquear
         loop = asyncio.get_event_loop()
         tema = await loop.run_in_executor(None, obtener_tema)
         return web.json_response({'tema': tema})
     except Exception as e:
-        logger.error(f"Error obteniendo tema: {e}")
-        return web.json_response({'tema': 'oscuro', 'error': str(e)}, status=500)
+        return web.json_response({'tema': 'oscuro'})
 
 
 async def api_tema_post_handler(request):
-    """Guarda el tema en la BD (sin bloquear el event loop)."""
+    """Guarda tema en BD (oscuro, claro, negro)."""
     try:
         datos = await request.json()
         tema = datos.get('tema', 'oscuro')
-        tema_oscuro = (tema == 'oscuro')
         
-        # Ejecutar operación de BD en executor para no bloquear
+        # Validar que sea un tema válido
+        if tema not in ['oscuro', 'claro', 'negro']:
+            tema = 'oscuro'
+        
+        # Mapear tema a número: 0=claro, 1=oscuro, 2=negro
+        tema_numero = {'claro': 0, 'oscuro': 1, 'negro': 2}[tema]
+        
         loop = asyncio.get_event_loop()
-        exito = await asyncio.wait_for(
-            loop.run_in_executor(None, guardar_tema, tema_oscuro),
-            timeout=5.0  # Timeout de 5 segundos
-        )
+        await loop.run_in_executor(None, guardar_tema, tema_numero)
         
-        if exito:
-            logger.info(f"Tema cambiado a {tema} exitosamente")
-            return web.json_response({'exito': True, 'tema': tema})
-        else:
-            return web.json_response({'exito': False, 'error': 'No se pudo guardar el tema'}, status=500)
-    
-    except asyncio.TimeoutError:
-        logger.error("Timeout al guardar tema (5s)")
-        return web.json_response({'exito': False, 'error': 'Timeout al guardar tema'}, status=504)
+        return web.json_response({'exito': True, 'tema': tema})
     except Exception as e:
-        logger.error(f"Error guardando tema: {e}")
         return web.json_response({'exito': False, 'error': str(e)}, status=500)
 
 
@@ -747,12 +738,14 @@ def main():
     # Configuración optimizada para conexión Ethernet (cable)
     # keepalive_timeout: 75s mantiene conexiones idle activas
     # access_log: None reduce I/O y mejora performance
+    # print=None evita que VS Code abra navegador automáticamente
     web.run_app(
         app, 
         host=HOST, 
         port=PUERTO,
         keepalive_timeout=75,  # Mantener conexiones TCP vivas
-        access_log=None  # Desactivar logs HTTP para mejor performance
+        access_log=None,  # Desactivar logs HTTP para mejor performance
+        print=None  # No imprimir URL (evita apertura automática en VS Code)
     )
 
 
