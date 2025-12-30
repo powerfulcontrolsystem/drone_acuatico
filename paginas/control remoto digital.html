@@ -173,12 +173,14 @@
             .columna-velocidad { display: flex; flex-direction: column; gap: 10px; }
             .gps-actions { display: flex; flex-direction: column; gap: 10px; align-items: stretch; }
             .btn-gps {
-                min-width: 0;
-                width: 60px;
+                /* Unificar con .btn-rele */
+                width: auto;
+                min-width: 80px;
                 max-width: 100%;
                 box-sizing: border-box;
-                padding-left: 0;
-                padding-right: 0;
+                padding: var(--space-md) var(--space-lg);
+                font-size: 13px;
+                border-radius: var(--radius-md);
                 text-align: center;
             }
             .btn-header { font-size: 13px; padding: 8px 14px; border-radius: 999px; background: linear-gradient(90deg, #4a9eff 60%, #6a8cff 100%); color: #fff; border: none; font-weight: 600; box-shadow: 0 2px 8px rgba(74,158,255,0.10); cursor: pointer; transition: background 0.18s, box-shadow 0.18s, transform 0.12s; outline: none; letter-spacing: 0.02em; position: relative; z-index: 1; }
@@ -313,25 +315,37 @@
                 <div class="seccion-control">
                     <h3>⚡ RELÉS</h3>
                     <div class="grid-reles">
-                        <button class="btn btn-header" onclick="toggleRele(1)">R1</button>
-                        <button class="btn btn-header" onclick="toggleRele(2)">R2</button>
-                        <button class="btn btn-header" onclick="toggleRele(3)">R3</button>
-                        <button class="btn btn-header" onclick="toggleRele(4)">R4</button>
-                        <button class="btn btn-header" onclick="toggleRele(5)">R5</button>
-                        <button class="btn btn-header" onclick="toggleRele(6)">R6</button>
-                        <button class="btn btn-header" onclick="toggleRele(7)">R7</button>
-                        <button class="btn btn-header" onclick="toggleRele(8)">R8</button>
-                        <button class="btn btn-header" onclick="toggleRele(9)">R9</button>
+                        <button class="btn btn-header btn-rele" onclick="toggleRele(1)">R1</button>
+                        <button class="btn btn-header btn-rele" onclick="toggleRele(2)">R2</button>
+                        <button class="btn btn-header btn-rele" onclick="toggleRele(3)">R3</button>
+                        <button class="btn btn-header btn-rele" onclick="toggleRele(4)">R4</button>
+                        <button class="btn btn-header btn-rele" onclick="toggleRele(5)">R5</button>
+                        <button class="btn btn-header btn-rele" onclick="toggleRele(6)">R6</button>
+                        <button class="btn btn-header btn-rele" onclick="toggleRele(7)">R7</button>
+                        <button class="btn btn-header btn-rele" onclick="toggleRele(8)">R8</button>
+                        <button class="btn btn-header btn-rele" onclick="toggleRele(9)">R9</button>
                     </div>
                 </div>
 
                 <!-- GPS -->
-                <div class="seccion-control">
-                    <h3>🗺️ GPS</h3>
-                    <div class="gps-actions">
-                        <button class="btn btn-header" onclick="guardarUbicacion()">💾 Guardar Ubicación</button>
-                        <button class="btn btn-header" onclick="irADestino()">📍 Ir a Destino</button>
-                        <button class="btn btn-header" onclick="mostrarRuta()">🛣️ Ver Recorrido</button>
+                <div style="display: flex; gap: 18px;">
+                    <div class="seccion-control">
+                        <h3>🗺️ GPS</h3>
+                        <div class="gps-actions">
+                            <button class="btn btn-header btn-gps" onclick="guardarUbicacion()">💾 Guardar Ubicación</button>
+                            <button class="btn btn-header btn-gps" onclick="irADestino()">📍 Ir a Destino</button>
+                            <button class="btn btn-header btn-gps" onclick="mostrarRuta()">🛣️ Ver Recorrido</button>
+                        </div>
+                    </div>
+                    <div class="seccion-control">
+                        <h3>📊 Indicadores</h3>
+                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                            <span id="indicador-ram" class="indicador-ram">RAM: --</span>
+                            <span id="indicador-temp" class="indicador-temp">Temp: --</span>
+                            <span id="indicador-vel" class="indicador-vel">Vel: -- km/h</span>
+                            <span id="indicador-bat" class="indicador-bat">Bat: --</span>
+                            <span id="indicador-red" class="indicador-red">Red: --</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -585,7 +599,13 @@
                 const btn = botones[i - 1];
                 if (btn) {
                     const nombre = nombresDict[i] || `R${i}`;
-                    btn.textContent = nombre;
+                    btn.dataset.nombre = nombre;
+                    // Mantener el icono de estado si ya está aplicado
+                    if (btn.classList.contains('activo')) {
+                        btn.innerHTML = `💡 ${nombre}`;
+                    } else {
+                        btn.innerHTML = `🔌 ${nombre}`;
+                    }
                     btn.title = `Relé ${i}: ${nombre}`;
                 }
             }
@@ -598,10 +618,13 @@
                 const btn = botones[i - 1];
                 if (btn && estadosDict[i] !== undefined) {
                     estadoReles[i] = estadosDict[i];
+                    const nombre = btn.dataset.nombre || btn.textContent.replace(/^💡 |^🔌 /, '');
                     if (estadosDict[i]) {
                         btn.classList.add('activo');
+                        btn.innerHTML = `💡 ${nombre}`;
                     } else {
                         btn.classList.remove('activo');
+                        btn.innerHTML = `🔌 ${nombre}`;
                     }
                 }
             }

@@ -200,15 +200,20 @@ button:disabled {
 }
 
 /* Botón activo */
+
 .btn-rele.activo,
 .btn-velocidad.activo,
 button.activo {
-    background: var(--color-success);
+    background: var(--color-success) !important;
+    color: #fff !important;
+    border-color: var(--color-success) !important;
 }
 
 .btn-rele.activo:hover,
 .btn-velocidad.activo:hover {
-    background: #45a049;
+    background: #45a049 !important;
+    color: #fff !important;
+    border-color: #45a049 !important;
 }
 
 /* Botón secundario */
@@ -290,15 +295,15 @@ textarea::placeholder {
 }
 
 .estado-conexion.conectado {
-    background: var(--color-success);
-    color: white;
-    border-color: var(--color-success);
+    background: #4CAF50 !important; /* verde fuerte */
+    color: #fff !important;
+    border-color: #388E3C !important;
 }
 
 .estado-conexion.desconectado {
-    background: var(--color-danger);
-    color: white;
-    border-color: var(--color-danger);
+    background: #EF5350 !important; /* rojo fuerte */
+    color: #fff !important;
+    border-color: #B71C1C !important;
 }
 
 .indicador-bat,
