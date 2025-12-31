@@ -207,11 +207,6 @@
             <h1>🚤 Control Remoto Digital</h1>
             <div class="info-sistema">
                 <span id="estado-conexion" class="estado-conexion desconectado">● Desconectado</span>
-                <span id="indicador-ram" class="indicador-ram">RAM: --</span>
-                <span id="indicador-temp" class="indicador-temp">Temp: --</span>
-                <span id="indicador-red" class="indicador-red">Red: --</span>
-                <span id="indicador-bat" class="indicador-bat">Bat: --</span>
-                <span id="indicador-vel" class="indicador-vel">Vel: -- km/h</span>
             </div>
             <div style="display: flex; gap: 6px; align-items: center;">
                 <button class="btn-header" onclick="toggleFullScreen()" title="Pantalla completa">⛶</button>
@@ -339,7 +334,8 @@
                     </div>
                     <div class="seccion-control">
                         <h3>📊 Indicadores</h3>
-                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: repeat(4, auto); gap: 10px;">
+                            <span id="indicador-estado-sec" class="estado-conexion desconectado">● Desconectado</span>
                             <span id="indicador-ram-sec" class="indicador-ram">RAM: --</span>
                             <span id="indicador-temp-sec" class="indicador-temp">Temp: --</span>
                             <span id="indicador-vel-sec" class="indicador-vel">Vel: -- km/h</span>
@@ -408,15 +404,17 @@
 
             ws.onopen = function() {
                 console.log('WebSocket conectado');
-                document.getElementById('estado-conexion').textContent = '● Conectado';
-                document.getElementById('estado-conexion').className = 'estado-conexion conectado';
-                
+                [document.getElementById('estado-conexion'), document.getElementById('indicador-estado-sec')].forEach(elem => {
+                    if (elem) {
+                        elem.textContent = '● Conectado';
+                        elem.className = 'estado-conexion conectado';
+                    }
+                });
                 // Detener pitido periódico si existía
                 if (intervaloPitidoDesconectado) {
                     clearInterval(intervaloPitidoDesconectado);
                     intervaloPitidoDesconectado = null;
                 }
-                
                 // Sonido: beep LARGO al conectar (500ms)
                 if (wasDesconectado) {
                     // Reconexión: doble beep largo y fuerte
@@ -428,7 +426,6 @@
                     // Conexión inicial: beep largo
                     reproducirBeep(960, 500, 'triangle');
                 }
-                
                 enviarMensaje({ tipo: 'obtener_datos' });
                 enviarMensaje({ tipo: 'obtener_config' });
             };
@@ -442,12 +439,14 @@
                 console.log('WebSocket desconectado');
                 // Sonido LARGO de desconexión (600ms)
                 reproducirBeep(360, 600, 'sawtooth');
-                
-                document.getElementById('estado-conexion').textContent = '● Desconectado';
-                document.getElementById('estado-conexion').className = 'estado-conexion desconectado';
+                [document.getElementById('estado-conexion'), document.getElementById('indicador-estado-sec')].forEach(elem => {
+                    if (elem) {
+                        elem.textContent = '● Desconectado';
+                        elem.className = 'estado-conexion desconectado';
+                    }
+                });
                 wasDesconectado = true;
                 mostrarToast('✗ Desconectado, reintentando...', 'warn');
-                
                 // Iniciar pitido periódico cada 5 segundos mientras esté desconectado
                 if (!intervaloPitidoDesconectado) {
                     intervaloPitidoDesconectado = setInterval(() => {
@@ -455,7 +454,6 @@
                         reproducirBeep(440, 200, 'square');
                     }, 5000);
                 }
-                
                 setTimeout(conectarWebSocket, 3000);
             };
 
