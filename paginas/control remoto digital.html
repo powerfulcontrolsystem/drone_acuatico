@@ -340,11 +340,11 @@
                     <div class="seccion-control">
                         <h3>📊 Indicadores</h3>
                         <div style="display: flex; flex-direction: column; gap: 10px;">
-                            <span id="indicador-ram" class="indicador-ram">RAM: --</span>
-                            <span id="indicador-temp" class="indicador-temp">Temp: --</span>
-                            <span id="indicador-vel" class="indicador-vel">Vel: -- km/h</span>
-                            <span id="indicador-bat" class="indicador-bat">Bat: --</span>
-                            <span id="indicador-red" class="indicador-red">Red: --</span>
+                            <span id="indicador-ram-sec" class="indicador-ram">RAM: --</span>
+                            <span id="indicador-temp-sec" class="indicador-temp">Temp: --</span>
+                            <span id="indicador-vel-sec" class="indicador-vel">Vel: -- km/h</span>
+                            <span id="indicador-bat-sec" class="indicador-bat">Bat: --</span>
+                            <span id="indicador-red-sec" class="indicador-red">Red: --</span>
                         </div>
                     </div>
                 </div>
@@ -542,54 +542,78 @@
         }
 
         function actualizarRAM(datos) {
-            const elem = document.getElementById('indicador-ram');
-            elem.textContent = `💾 ${datos.used}/${datos.total}MB (${datos.percent}%)`;
-            elem.className = 'indicador-ram';
-            if (datos.percent < 70) elem.classList.add('ram-ok');
-            else if (datos.percent < 85) elem.classList.add('ram-warning');
-            else elem.classList.add('ram-critical');
+            const elems = [
+                document.getElementById('indicador-ram'),
+                document.getElementById('indicador-ram-sec')
+            ];
+            elems.forEach(elem => {
+                if (!elem) return;
+                elem.textContent = `💾 ${datos.used}/${datos.total}MB (${datos.percent}%)`;
+                elem.className = 'indicador-ram';
+                if (datos.percent < 70) elem.classList.add('ram-ok');
+                else if (datos.percent < 85) elem.classList.add('ram-warning');
+                else elem.classList.add('ram-critical');
+            });
         }
 
         function actualizarTemperatura(datos) {
-            const elem = document.getElementById('indicador-temp');
-            elem.textContent = `🌡️ ${datos.temperatura}°C`;
-            elem.className = 'indicador-temp';
-            if (datos.temperatura < 60) elem.classList.add('temp-ok');
-            else if (datos.temperatura < 75) elem.classList.add('temp-warning');
-            else elem.classList.add('temp-critical');
+            const elems = [
+                document.getElementById('indicador-temp'),
+                document.getElementById('indicador-temp-sec')
+            ];
+            elems.forEach(elem => {
+                if (!elem) return;
+                elem.textContent = `🌡️ ${datos.temperatura}°C`;
+                elem.className = 'indicador-temp';
+                if (datos.temperatura < 60) elem.classList.add('temp-ok');
+                else if (datos.temperatura < 75) elem.classList.add('temp-warning');
+                else elem.classList.add('temp-critical');
+            });
         }
 
         function actualizarBateria(datos) {
-            const elem = document.getElementById('indicador-bat');
+            const elems = [
+                document.getElementById('indicador-bat'),
+                document.getElementById('indicador-bat-sec')
+            ];
             const icono = datos.estado === "cargando" ? '🔌' : '🔋';
-            elem.textContent = `${icono} ${datos.porcentaje}%`;
-            elem.className = 'indicador-bat';
-            if (datos.porcentaje > 50) elem.classList.add('bat-ok');
-            else if (datos.porcentaje > 20) elem.classList.add('bat-warning');
-            else elem.classList.add('bat-critical');
+            elems.forEach(elem => {
+                if (!elem) return;
+                elem.textContent = `${icono} ${datos.porcentaje}%`;
+                elem.className = 'indicador-bat';
+                if (datos.porcentaje > 50) elem.classList.add('bat-ok');
+                else if (datos.porcentaje > 20) elem.classList.add('bat-warning');
+                else elem.classList.add('bat-critical');
+            });
         }
 
         function actualizarVelocidadRed(datos) {
-            const elem = document.getElementById('indicador-red');
+            const elems = [
+                document.getElementById('indicador-red'),
+                document.getElementById('indicador-red-sec')
+            ];
             const velocidad = datos && typeof datos.velocidad === 'number' ? datos.velocidad : null;
-            if (velocidad === null) {
-                elem.textContent = '🌐 Red: sin datos';
+            elems.forEach(elem => {
+                if (!elem) return;
+                if (velocidad === null) {
+                    elem.textContent = '🌐 Red: sin datos';
+                    elem.className = 'indicador-red';
+                    return;
+                }
+                if (velocidad <= 0) {
+                    elem.textContent = '🌐 Red: sin datos';
+                    elem.className = 'indicador-red ram-critical';
+                    return;
+                }
+                const unidad = velocidad >= 1000 ? 'Mbps' : 'Kbps';
+                const valor = velocidad >= 1000 ? (velocidad / 1000).toFixed(1) : velocidad.toFixed(0);
+                elem.textContent = `🌐 ${valor} ${unidad}`;
                 elem.className = 'indicador-red';
-                return;
-            }
-            if (velocidad <= 0) {
-                elem.textContent = '🌐 Red: sin datos';
-                elem.className = 'indicador-red ram-critical';
-                return;
-            }
-            const unidad = velocidad >= 1000 ? 'Mbps' : 'Kbps';
-            const valor = velocidad >= 1000 ? (velocidad / 1000).toFixed(1) : velocidad.toFixed(0);
-            elem.textContent = `🌐 ${valor} ${unidad}`;
-            elem.className = 'indicador-red';
-            // Colorear según velocidad: > 10 Mbps = verde, > 5 Mbps = amarillo, < 5 Mbps = rojo
-            if (velocidad >= 10000) elem.classList.add('ram-ok');
-            else if (velocidad >= 5000) elem.classList.add('ram-warning');
-            else elem.classList.add('ram-critical');
+                // Colorear según velocidad: > 10 Mbps = verde, > 5 Mbps = amarillo, < 5 Mbps = rojo
+                if (velocidad >= 10000) elem.classList.add('ram-ok');
+                else if (velocidad >= 5000) elem.classList.add('ram-warning');
+                else elem.classList.add('ram-critical');
+            });
         }
 
         function aplicarNombresReles(nombresDict) {
@@ -749,10 +773,13 @@
                 lonEl.textContent = isFinite(lon) ? lon.toFixed(6) : '---';
             }
 
-            const velEl = document.getElementById('indicador-vel');
-            if (velEl) {
-                velEl.textContent = `🚀 ${velGPS.toFixed(1)} km/h`;
-            }
+            const velEls = [
+                document.getElementById('indicador-vel'),
+                document.getElementById('indicador-vel-sec')
+            ];
+            velEls.forEach(velEl => {
+                if (velEl) velEl.textContent = `🚀 ${velGPS.toFixed(1)} km/h`;
+            });
 
             if (!isFinite(lat) || !isFinite(lon)) return;
             
