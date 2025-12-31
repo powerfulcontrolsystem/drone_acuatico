@@ -204,15 +204,12 @@
 <body>
     <div class="container">
         <header>
-            <h1>🚤 Control Remoto Digital</h1>
-            <div class="info-sistema">
-                <span id="estado-conexion" class="estado-conexion desconectado">● Desconectado</span>
-            </div>
+            <!-- Eliminado el nombre y el estado de conexión de la barra superior -->
             <div style="display: flex; gap: 6px; align-items: center;">
-                <button class="btn-header" onclick="toggleFullScreen()" title="Pantalla completa">⛶</button>
                 <div class="dropdown" id="power-dropdown">
                     <button class="btn-header" onclick="togglePowerMenu(event)" title="Opciones">⚙️</button>
                     <div class="dropdown-menu" id="menu-power">
+                        <button class="btn-menu" onclick="toggleFullScreen()">⛶ Pantalla completa</button>
                         <button class="btn-menu" onclick="irConfiguracion()">⚙️ Configuración</button>
                         <button class="btn-menu" onclick="reiniciarRaspberry()">🔄 Reiniciar</button>
                         <button class="btn-menu" onclick="apagarRaspberry()">🔴 Apagar</button>
@@ -270,11 +267,21 @@
 
             <div class="vista-columna">
                 <div class="vista-titulo">
-                    <span style="float: left;">🗺️ Mapa</span>
-                    <span style="float: right; font-size: 7px;">
-                        Lat: <span id="latitud">---</span> | Lon: <span id="longitud">---</span>
-                    </span>
-                    <div style="clear: both;"></div>
+                    <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                        <span>🗺️ Mapa</span>
+                        <span style="font-size: 11px; display: flex; align-items: center; gap: 8px;">
+                            Lat: <span id="latitud">---</span> | Lon: <span id="longitud">---</span>
+                            <div class="dropdown" id="power-dropdown" style="position: static;">
+                                <button class="btn-header" onclick="togglePowerMenu(event)" title="Opciones">⚙️</button>
+                                <div class="dropdown-menu" id="menu-power">
+                                    <button class="btn-menu" onclick="toggleFullScreen()">⛶ Pantalla completa</button>
+                                    <button class="btn-menu" onclick="irConfiguracion()">⚙️ Configuración</button>
+                                    <button class="btn-menu" onclick="reiniciarRaspberry()">🔄 Reiniciar</button>
+                                    <button class="btn-menu" onclick="apagarRaspberry()">🔴 Apagar</button>
+                                </div>
+                            </div>
+                        </span>
+                    </div>
                 </div>
                 <div id="mapa"></div>
             </div>
