@@ -7,6 +7,46 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="tema.css?v=20251229b">
         <style>
+                                    /* Botón flotante de tuerca grande */
+                                    .btn-flotante-tuerca {
+                                        position: fixed;
+                                        top: 24px;
+                                        right: 24px;
+                                        z-index: 4000;
+                                        background: #232e43;
+                                        color: #4a9eff;
+                                        border: none;
+                                        border-radius: 50%;
+                                        width: 64px;
+                                        height: 64px;
+                                        font-size: 2.2rem;
+                                        box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+                                        display: flex;
+                                        align-items: center;
+                                        justify-content: center;
+                                        cursor: pointer;
+                                        transition: background 0.18s, color 0.18s, transform 0.12s;
+                                    }
+                                    .btn-flotante-tuerca:hover {
+                                        background: #4a9eff;
+                                        color: #fff;
+                                        transform: scale(1.08);
+                                    }
+                        /* Ajuste para que el menú de la tuerca salga sobre el mapa */
+                        .vista-titulo .dropdown {
+                            position: relative;
+                        }
+                        .vista-titulo .dropdown-menu {
+                            position: absolute !important;
+                            right: 0;
+                            top: 100%;
+                            min-width: 160px;
+                            z-index: 3000;
+                            background: #232e43;
+                            box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+                            border-radius: 8px;
+                            margin-top: 4px;
+                        }
             body {
                 margin: 0;
                 padding: 0;
@@ -203,20 +243,8 @@
 </head>
 <body>
     <div class="container">
-        <header>
-            <!-- Eliminado el nombre y el estado de conexión de la barra superior -->
-            <div style="display: flex; gap: 6px; align-items: center;">
-                <div class="dropdown" id="power-dropdown">
-                    <button class="btn-header" onclick="togglePowerMenu(event)" title="Opciones">⚙️</button>
-                    <div class="dropdown-menu" id="menu-power">
-                        <button class="btn-menu" onclick="toggleFullScreen()">⛶ Pantalla completa</button>
-                        <button class="btn-menu" onclick="irConfiguracion()">⚙️ Configuración</button>
-                        <button class="btn-menu" onclick="reiniciarRaspberry()">🔄 Reiniciar</button>
-                        <button class="btn-menu" onclick="apagarRaspberry()">🔴 Apagar</button>
-                    </div>
-                </div>
-            </div>
-        </header>
+    <!-- Botón flotante de tuerca grande -->
+    <button class="btn-flotante-tuerca" onclick="togglePowerMenu(event)" title="Opciones" id="btnTuercaFlotante">⚙️</button>
 
         <div class="grid-vistas">
             <div class="vista-columna">
