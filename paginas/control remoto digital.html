@@ -7,6 +7,25 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="tema.css?v=20251229b">
         <style>
+                                                                        .estado-conexion.conectado, .estado-conexion.desconectado {
+                                                                            font-size: 13px !important;
+                                                                            font-weight: bold;
+                                                                            display: flex;
+                                                                            align-items: center;
+                                                                            gap: 4px;
+                                                                        }
+                                                                        .estado-conexion.conectado .icono-estado,
+                                                                        .estado-conexion.desconectado .icono-estado {
+                                                                            font-size: 2.1rem;
+                                                                            line-height: 1;
+                                                                            margin-right: 6px;
+                                                                        }
+                                                            .estado-conexion.conectado {
+                                                                color: #3be97a !important;
+                                                            }
+                                                            .estado-conexion.desconectado {
+                                                                color: #ff4a4a !important;
+                                                            }
                                                 /* Menú de la tuerca flotante arriba a la derecha */
                                                 .menu-flotante-tuerca {
                                                     position: fixed !important;
@@ -350,9 +369,11 @@
             <div class="vista-columna">
                 <div class="vista-titulo">
                     <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
-                        <span>🗺️ Mapa</span>
-                        <span style="font-size: 11px; display: flex; align-items: center; gap: 8px;">
-                            Lat: <span id="latitud">---</span> | Lon: <span id="longitud">---</span>
+                        <span style="display: flex; align-items: center; gap: 16px;">
+                            <span>🗺️ Mapa</span>
+                            <span style="font-size: 12px; color: #4a9eff; background: #181f2a; border-radius: 6px; padding: 2px 10px; font-weight: 600;">
+                                Lat: <span id="latitud">---</span> | Lon: <span id="longitud">---</span>
+                            </span>
                         </span>
                     </div>
                 </div>
@@ -486,7 +507,7 @@
                 console.log('WebSocket conectado');
                 [document.getElementById('estado-conexion'), document.getElementById('indicador-estado-sec')].forEach(elem => {
                     if (elem) {
-                        elem.textContent = '● Conectado';
+                        elem.innerHTML = '<span style="font-size:1.1em;vertical-align:middle;">📶</span> <span>Conectado</span>';
                         elem.className = 'estado-conexion conectado';
                     }
                 });
@@ -521,7 +542,7 @@
                 reproducirBeep(360, 600, 'sawtooth');
                 [document.getElementById('estado-conexion'), document.getElementById('indicador-estado-sec')].forEach(elem => {
                     if (elem) {
-                        elem.textContent = '● Desconectado';
+                        elem.innerHTML = '<span style="font-size:1.1em;vertical-align:middle;">📡</span> <span>Desconectado</span>';
                         elem.className = 'estado-conexion desconectado';
                     }
                 });
