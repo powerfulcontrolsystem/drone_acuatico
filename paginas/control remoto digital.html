@@ -7,6 +7,18 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="tema.css?v=20251229b">
         <style>
+                                                /* Menú de la tuerca flotante arriba a la derecha */
+                                                .menu-flotante-tuerca {
+                                                    position: fixed !important;
+                                                    top: 32px;
+                                                    right: 96px;
+                                                    min-width: 180px;
+                                                    z-index: 5000;
+                                                    background: #232e43;
+                                                    box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+                                                    border-radius: 10px;
+                                                    margin-top: 0;
+                                                }
                                     /* Botón flotante de tuerca grande */
                                     .btn-flotante-tuerca {
                                         position: fixed;
@@ -245,6 +257,48 @@
     <div class="container">
     <!-- Botón flotante de tuerca grande -->
     <button class="btn-flotante-tuerca" onclick="togglePowerMenu(event)" title="Opciones" id="btnTuercaFlotante">⚙️</button>
+    <div class="dropdown-menu menu-flotante-tuerca" id="menu-power-flotante" style="display:none;">
+        <button class="btn-menu" onclick="toggleFullScreen()">⛶ Pantalla completa</button>
+        <button class="btn-menu" onclick="irConfiguracion()">⚙️ Configuración</button>
+        <button class="btn-menu" onclick="reiniciarRaspberry()">🔄 Reiniciar</button>
+        <button class="btn-menu" onclick="apagarRaspberry()">🔴 Apagar</button>
+        <style>
+            #menu-power-flotante {
+                position: fixed !important;
+                top: 90px;
+                right: 40px;
+                min-width: 180px;
+                z-index: 9999 !important;
+                background: #232e43;
+                box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+                border-radius: 10px;
+                margin-top: 0;
+                padding: 12px 0 8px 0;
+                animation: fadeInMenu 0.18s;
+            }
+            @keyframes fadeInMenu {
+                from { opacity: 0; transform: translateY(-10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            #menu-power-flotante .btn-menu {
+                width: 100%;
+                padding: 10px 18px;
+                border-radius: 6px;
+                font-size: 15px;
+                cursor: pointer;
+                text-align: left;
+                border: none;
+                font-weight: 500;
+                background: none;
+                color: #e8edef;
+                transition: background 0.18s, color 0.18s;
+            }
+            #menu-power-flotante .btn-menu:hover {
+                background: #4a9eff;
+                color: #fff;
+            }
+        </style>
+    </div>
 
         <div class="grid-vistas">
             <div class="vista-columna">
@@ -299,15 +353,6 @@
                         <span>🗺️ Mapa</span>
                         <span style="font-size: 11px; display: flex; align-items: center; gap: 8px;">
                             Lat: <span id="latitud">---</span> | Lon: <span id="longitud">---</span>
-                            <div class="dropdown" id="power-dropdown" style="position: static;">
-                                <button class="btn-header" onclick="togglePowerMenu(event)" title="Opciones">⚙️</button>
-                                <div class="dropdown-menu" id="menu-power">
-                                    <button class="btn-menu" onclick="toggleFullScreen()">⛶ Pantalla completa</button>
-                                    <button class="btn-menu" onclick="irConfiguracion()">⚙️ Configuración</button>
-                                    <button class="btn-menu" onclick="reiniciarRaspberry()">🔄 Reiniciar</button>
-                                    <button class="btn-menu" onclick="apagarRaspberry()">🔴 Apagar</button>
-                                </div>
-                            </div>
                         </span>
                     </div>
                 </div>
@@ -499,11 +544,26 @@
 
         function togglePowerMenu(event) {
             event.stopPropagation();
-            const dd = document.getElementById('power-dropdown');
-            if (!dd) return;
-            const abierto = dd.classList.toggle('open');
-            menuPowerAbierto = abierto;
+            const menu = document.getElementById('menu-power-flotante');
+            if (!menu) return;
+            if (menu.style.display === 'block') {
+                menu.style.display = 'none';
+                menuPowerAbierto = false;
+            } else {
+                menu.style.display = 'block';
+                menuPowerAbierto = true;
+            }
         }
+        // Cerrar menú si se hace click fuera
+        document.addEventListener('click', function(e) {
+            const menu = document.getElementById('menu-power-flotante');
+            const btn = document.getElementById('btnTuercaFlotante');
+            if (!menu || !btn) return;
+            if (!menu.contains(e.target) && !btn.contains(e.target)) {
+                menu.style.display = 'none';
+                menuPowerAbierto = false;
+            }
+        });
 
         function cerrarPowerMenu() {
             const dd = document.getElementById('power-dropdown');
