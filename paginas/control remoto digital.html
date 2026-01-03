@@ -243,22 +243,9 @@
             .btn-fila-lateral { display: flex; gap: 10px; justify-content: center; }
             .columna-velocidad { display: flex; flex-direction: column; gap: 10px; }
             .gps-actions { display: flex; flex-direction: column; gap: 10px; align-items: stretch; }
-            .btn-gps {
-                /* Unificar con .btn-rele */
-                width: auto;
-                min-width: 80px;
-                max-width: 100%;
-                box-sizing: border-box;
-                padding: var(--space-md) var(--space-lg);
-                font-size: 13px;
-                border-radius: var(--radius-md);
-                text-align: center;
-            }
-            .btn-header { font-size: 13px; padding: 8px 14px; border-radius: 999px; background: linear-gradient(90deg, #4a9eff 60%, #6a8cff 100%); color: #fff; border: none; font-weight: 600; box-shadow: 0 2px 8px rgba(74,158,255,0.10); cursor: pointer; transition: background 0.18s, box-shadow 0.18s, transform 0.12s; outline: none; letter-spacing: 0.02em; position: relative; z-index: 1; }
-            .btn-header:hover { background: linear-gradient(90deg, #3a8ae5 60%, #4a9eff 100%); box-shadow: 0 4px 16px rgba(74,158,255,0.18); transform: translateY(-2px) scale(1.04); }
-            .btn-header:active { transform: scale(0.98); box-shadow: 0 1px 3px rgba(74,158,255,0.10); }
-            button { transition: all 0.2s ease; }
-            button:active { transform: translateY(1px); }
+            /* El estilo de .btn-gps se define en tema.css para unificar botones */
+            /* El estilo de .btn-header se define en tema.css para unificar botones */
+            /* Elimina estilos locales de botones para que se aplique el tema global rojo cuadrado 3D */
             .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); padding: 12px 16px; font-size: 13px; z-index: 9999; display: none; font-weight: 500; background: #232e43; color: #4a9eff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.10); }
             .toast.show { display: block; }
             @media (max-width: 900px) {
@@ -335,8 +322,7 @@
                             <video id="videoCam1" controls muted playsinline style="max-height:180px; width:100%; background:#000; border-radius:4px"></video>
                         </div>
                         <div style="display:flex; gap:4px; margin-top:6px; justify-content:center;">
-                            <button class="btn-header" onclick="iniciarCamara(1)">▶️ Iniciar</button>
-                            <button class="btn-header" onclick="detenerCamara(1)">⏹️ Detener</button>
+                            <button class="btn-header" id="btnCamara1" onclick="toggleCamara(1)">▶️ Iniciar</button>
                         </div>
                     </div>
                 </div>
@@ -357,8 +343,7 @@
                             <video id="videoCam2" controls muted playsinline style="max-height:180px; width:100%; background:#000; border-radius:4px"></video>
                         </div>
                         <div style="display:flex; gap:4px; margin-top:6px; justify-content:center;">
-                            <button class="btn-header" onclick="iniciarCamara(2)">▶️ Iniciar</button>
-                            <button class="btn-header" onclick="detenerCamara(2)">⏹️ Detener</button>
+                            <button class="btn-header" id="btnCamara2" onclick="toggleCamara(2)">▶️ Iniciar</button>
                         </div>
                     </div>
                 </div>
@@ -431,7 +416,10 @@
                             <span id="indicador-vel-sec" class="indicador-vel">Vel: -- km/h</span>
                             <span id="indicador-bat-sec" class="indicador-bat">Bat: --</span>
                             <span id="indicador-red-sec" class="indicador-red">Red: --</span>
-                            <span id="indicador-gps-sec" class="indicador-gps">Lat: <span id="latitud">---</span> | Lon: <span id="longitud">---</span></span>
+                               <span style="font-size:12px;">
+                                   <span style="font-size:13px;vertical-align:middle;">🧭</span> <span style="font-size:11px;">Lat:</span> <span id="latitud" style="font-size:11px;">---</span> | <span style="font-size:11px;">Lon:</span> <span id="longitud" style="font-size:11px;">---</span>
+                               </span>
+                             <span id="indicador-voltaje-sec" class="indicador-voltaje">⚡ Voltaje: --</span>
                         </div>
                     </div>
                 </div>
@@ -442,6 +430,39 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <script>
+                function actualizarVoltaje(datos) {
+                    const elems = [
+                        document.getElementById('indicador-voltaje-sec')
+                    ];
+                    let esAlerta = false;
+                    let texto = '⚡ Voltaje: --';
+                    if (datos && typeof datos.voltaje === 'number') {
+                        texto = `⚡ Voltaje: ${datos.voltaje.toFixed(2)}V`;
+                        // Si hay alerta de bajo voltaje (ejemplo: datos.alerta === true)
+                        esAlerta = !!datos.alerta;
+                    }
+                    elems.forEach(elem => {
+                        if (!elem) return;
+                        elem.textContent = texto;
+                        elem.className = 'indicador-voltaje';
+                        if (esAlerta) {
+                            elem.classList.add('voltaje-alerta');
+                            // Parpadeo visual
+                            elem.style.animation = 'parpadeoVoltaje 1s infinite';
+                            // Sonido de alerta
+                            reproducirBeep(440, 400, 'square');
+                            mostrarToast('¡ALERTA: Bajo voltaje en la Raspberry!', 'err');
+                        } else {
+                            elem.classList.remove('voltaje-alerta');
+                            elem.style.animation = '';
+                        }
+                    });
+                }
+
+                // Animación CSS para parpadeo de alerta voltaje
+                const styleVoltaje = document.createElement('style');
+                styleVoltaje.innerHTML = `@keyframes parpadeoVoltaje { 0%, 100% { background: #ef5350; color: #fff; } 50% { background: #fff; color: #ef5350; } } .voltaje-alerta { background: #ef5350 !important; color: #fff !important; }`;
+                document.head.appendChild(styleVoltaje);
         let ws = null;
         let estadoReles = {};
         let mapa = null;
@@ -593,6 +614,12 @@
             console.log('Mensaje:', datos);
             
             switch(datos.tipo) {
+                case 'reles':
+                    if (datos.reles) aplicarEstadosReles(datos.reles);
+                    break;
+                case 'voltaje':
+                    actualizarVoltaje(datos.datos);
+                    break;
                 case 'conexion':
                     console.log('✓ Conectado');
                     if (datos.gps) actualizarGPS(datos.gps);
@@ -603,6 +630,8 @@
                 case 'respuesta_rele':
                     if (datos.exito) {
                         console.log(`✓ Relé ${datos.numero}: ${datos.estado}`);
+                        // Solicitar estado actualizado de relés al servidor
+                        enviarMensaje({ tipo: 'obtener_datos' });
                     }
                     break;
                     
@@ -747,12 +776,11 @@
                 if (btn && estadosDict[i] !== undefined) {
                     estadoReles[i] = estadosDict[i];
                     const nombre = btn.dataset.nombre || btn.textContent.replace(/^💡 |^🔌 /, '');
+                    btn.innerHTML = `<span class="icono-rele">${estadosDict[i] ? '💡' : '🔌'}</span> <span class="nombre-rele">${nombre}</span>`;
                     if (estadosDict[i]) {
                         btn.classList.add('activo');
-                        btn.innerHTML = `💡 ${nombre}`;
                     } else {
                         btn.classList.remove('activo');
-                        btn.innerHTML = `🔌 ${nombre}`;
                     }
                 }
             }
@@ -797,24 +825,30 @@
             mostrarToast('Función en desarrollo: Mostrar recorrido', 'warn');
         }
 
-        function iniciarCamara(indice) {
+        let camaraActiva = {1: false, 2: false};
+        function toggleCamara(indice) {
             const calidad = document.getElementById(`calidadCam${indice}`).value;
-            enviarMensaje({ tipo: 'camara', accion: 'iniciar', indice, calidad });
-        }
-
-        function detenerCamara(indice) {
-            enviarMensaje({ tipo: 'camara', accion: 'detener', indice });
+            if (!camaraActiva[indice]) {
+                enviarMensaje({ tipo: 'camara', accion: 'iniciar', indice, calidad });
+            } else {
+                enviarMensaje({ tipo: 'camara', accion: 'detener', indice });
+            }
         }
 
         function manejarRespuestaCamara(datos) {
             const i = datos.indice;
             const exito = !!datos.exito;
             const mensaje = datos.mensaje || '';
+            const btn = i === 1 ? document.getElementById('btnCamara1') : document.getElementById('btnCamara2');
             if (datos.accion === 'iniciar') {
                 const videoEl = i === 1 ? document.getElementById('videoCam1') : document.getElementById('videoCam2');
                 const playlist = i === 1 ? '/hls/cam1/cam1.m3u8' : '/hls/cam2/cam2.m3u8';
                 if (exito) {
                     inicializarHLS(videoEl, playlist);
+                    camaraActiva[i] = true;
+                    if (btn) {
+                        btn.textContent = '⏹️ Detener';
+                    }
                 } else {
                     const msg = mensaje || ('No se pudo iniciar la cámara ' + i);
                     mostrarToast(msg, 'err');
@@ -825,6 +859,10 @@
                     videoEl.pause();
                     videoEl.removeAttribute('src');
                 } catch (e) {}
+                camaraActiva[i] = false;
+                if (btn) {
+                    btn.textContent = '▶️ Iniciar';
+                }
             }
         }
 

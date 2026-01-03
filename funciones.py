@@ -213,6 +213,27 @@ def liberar_gpio():
         except Exception as e:
             logger.error(f"Error liberando GPIO: {e}")
 # ==================== FUNCIONES DE MONITOREO ====================
+def obtener_voltaje_raspberry():
+    """
+    Obtiene el estado de voltaje de la Raspberry Pi usando vcgencmd get_throttled.
+    Retorna dict con voltaje (simulado), alerta (bool) y estado raw.
+    """
+    try:
+        # Leer estado de throttling para alerta
+        salida = subprocess.check_output(['vcgencmd', 'get_throttled']).decode().strip()
+        valor = salida.split('=')[1] if '=' in salida else salida
+        alerta = False
+        if valor.endswith('5') or valor.endswith('05') or valor.endswith('50005') or valor.endswith('80005'):
+            alerta = True
+        voltaje = 5.0 if not alerta else 4.5  # Valor simbólico, solo para mostrar
+        return {
+            'voltaje': voltaje,
+            'alerta': alerta,
+            'estado_raw': valor
+        }
+    except Exception as e:
+        logger.error(f"Error obteniendo voltaje Raspberry Pi: {e}")
+        return {'voltaje': 0.0, 'alerta': False, 'estado_raw': 'error'}
 def obtener_ram():
     """
     Obtiene información del uso de RAM del sistema.

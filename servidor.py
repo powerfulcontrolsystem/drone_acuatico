@@ -118,6 +118,7 @@ async def enviar_datos_periodicos():
             peso = await loop.run_in_executor(None, obtener_peso)
             solar = await loop.run_in_executor(None, obtener_solar)
             gps = obtener_payload_gps()
+            voltaje = await loop.run_in_executor(None, obtener_voltaje_raspberry)
             
             # Crear mensajes
             mensaje_ram = {'tipo': 'ram', 'datos': ram}
@@ -125,6 +126,7 @@ async def enviar_datos_periodicos():
             mensaje_bat = {'tipo': 'bateria', 'datos': bat}
             mensaje_peso = {'tipo': 'peso', 'datos': peso}
             mensaje_solar = {'tipo': 'solar', 'datos': solar}
+            mensaje_voltaje = {'tipo': 'voltaje', 'datos': voltaje}
             
             # Enviar a todos los clientes (mismo dato a todos = eficiente)
             desconectados = []
@@ -135,10 +137,9 @@ async def enviar_datos_periodicos():
                     await cliente.send_json(mensaje_bat)
                     await cliente.send_json(mensaje_peso)
                     await cliente.send_json(mensaje_solar)
-                    
+                    await cliente.send_json(mensaje_voltaje)
                     # Enviar GPS siempre (con bandera de válido)
                     await cliente.send_json({'tipo': 'gps', 'datos': gps})
-                
                 except Exception as e:
                     logger.debug(f"Error enviando datos a cliente: {e}")
                     desconectados.append(cliente)
@@ -407,6 +408,8 @@ async def procesar_mensaje_ws(ws, datos):
     
     # Solicitar datos actuales
     elif tipo == 'obtener_datos':
+        from base_de_datos.base_datos import obtener_estado_reles
+        await ws.send_json({'tipo': 'reles', 'reles': obtener_estado_reles()})
         await ws.send_json({'tipo': 'ram', 'datos': obtener_ram()})
         await ws.send_json({'tipo': 'temperatura', 'datos': obtener_temperatura()})
         await ws.send_json({'tipo': 'bateria', 'datos': obtener_bateria()})

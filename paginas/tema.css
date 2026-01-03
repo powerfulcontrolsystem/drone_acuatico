@@ -155,9 +155,69 @@ header {
 
 button,
 .btn,
+.btn-header,
+.btn-menu,
+input[type="button"],
+input[type="submit"] {
+    font-family: var(--font-family);
+    font-size: 13px;
+    font-weight: 500;
+    padding: var(--space-md) var(--space-lg);
+    border: 1px solid transparent;
+    border-radius: var(--radius-md);
+    background: var(--color-accent);
+    color: white;
+    cursor: pointer;
+    transition: all var(--transition);
+    user-select: none;
+}
+
 .btn-rele,
+.btn-gps {
+    font-family: var(--font-family);
+    font-size: 15px;
+    font-weight: 600;
+    padding: 8px 40px;
+    min-width: 200px;
+    max-width: 100%;
+    border: 1.5px solid var(--color-border-primary);
+    border-radius: 18px;
+    background: var(--color-accent);
+    color: #fff;
+    cursor: pointer;
+    transition: all var(--transition);
+    user-select: none;
+    white-space: nowrap;
+    display: inline-block;
+}
+
+.btn-rele,
+.btn-gps {
+    font-family: var(--font-family);
+    font-size: 15px;
+    font-weight: 600;
+    padding: 8px 40px;
+    min-width: 200px;
+    max-width: 100%;
+    border: 1.5px solid var(--color-border-primary);
+    border-radius: 18px;
+    background: var(--color-accent);
+    color: #fff;
+    cursor: pointer;
+    transition: all var(--transition);
+    user-select: none;
+    white-space: nowrap;
+    display: inline-block;
+}
+button:hover,
+.btn:hover,
+.btn-rele:hover,
+.btn-gps:hover {
+    background: var(--color-accent-hover);
+    color: #fff;
+    border-color: var(--color-accent-hover);
+}
 .btn-velocidad,
-.btn-gps,
 .btn-direccion,
 .btn-header,
 .btn-menu,
@@ -176,44 +236,58 @@ input[type="submit"] {
     user-select: none;
 }
 
-button:hover,
-.btn:hover,
-.btn-rele:hover,
-.btn-velocidad:hover,
-.btn-gps:hover,
-.btn-direccion:hover,
-.btn-header:hover,
-.btn-menu:hover {
-    background: var(--color-accent-hover);
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-md);
-}
-
-button:active,
-.btn:active {
-    transform: translateY(0);
-}
-
-button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
 /* Botón activo */
 
-.btn-rele.activo,
-.btn-velocidad.activo,
-button.activo {
-    background: var(--color-success) !important;
+
+
+/* Botón rojo cuadrado 3D universal */
+.btn,
+.btn-header,
+.btn-rele,
+.btn-velocidad,
+button,
+input[type="button"],
+input[type="submit"] {
+    background: #d32f2f !important;
     color: #fff !important;
-    border-color: var(--color-success) !important;
+    border: 2px solid #b71c1c !important;
+    border-radius: 0 !important;
+    box-shadow: 0 4px 0 #b71c1c, 0 1px 8px rgba(0,0,0,0.25);
+    font-family: var(--font-family);
+    font-size: 15px;
+    font-weight: 700;
+    padding: 12px 32px;
+    min-width: 120px;
+    transition: all 0.15s cubic-bezier(0.4,0,0.2,1);
+    user-select: none;
+    white-space: nowrap;
+    display: inline-block;
 }
 
-.btn-rele.activo:hover,
-.btn-velocidad.activo:hover {
-    background: #45a049 !important;
+.btn:hover,
+.btn-header:hover,
+.btn-rele:hover,
+.btn-velocidad:hover,
+button:hover,
+input[type="button"]:hover,
+input[type="submit"]:hover {
+    background: #b71c1c !important;
     color: #fff !important;
-    border-color: #45a049 !important;
+    box-shadow: 0 2px 0 #880808, 0 2px 12px rgba(0,0,0,0.30);
+    transform: translateY(-2px) scale(1.04);
+}
+
+.btn:active,
+.btn-header:active,
+.btn-rele:active,
+.btn-velocidad:active,
+button:active,
+input[type="button"]:active,
+input[type="submit"]:active {
+    background: #880808 !important;
+    color: #fff !important;
+    box-shadow: 0 1px 0 #b71c1c, 0 1px 4px rgba(0,0,0,0.20);
+    transform: scale(0.98);
 }
 
 /* Botón secundario */
