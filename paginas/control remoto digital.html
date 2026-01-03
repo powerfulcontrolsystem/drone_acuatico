@@ -3,263 +3,129 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Control Remoto Digital - Drone Acuático</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <link rel="stylesheet" href="tema.css?v=20251229b">
-        <style>
-                                                                        .estado-conexion.conectado, .estado-conexion.desconectado {
-                                                                            font-size: 13px !important;
-                                                                            font-weight: bold;
-                                                                            display: flex;
-                                                                            align-items: center;
-                                                                            gap: 4px;
-                                                                        }
-                                                                        .estado-conexion.conectado .icono-estado,
-                                                                        .estado-conexion.desconectado .icono-estado {
-                                                                            font-size: 2.1rem;
-                                                                            line-height: 1;
-                                                                            margin-right: 6px;
-                                                                        }
-                                                            .estado-conexion.conectado {
-                                                                color: #3be97a !important;
-                                                            }
-                                                            .estado-conexion.desconectado {
-                                                                color: #ff4a4a !important;
-                                                            }
-                                                /* Menú de la tuerca flotante arriba a la derecha */
-                                                .menu-flotante-tuerca {
-                                                    position: fixed !important;
-                                                    top: 32px;
-                                                    right: 96px;
-                                                    min-width: 180px;
-                                                    z-index: 5000;
-                                                    background: #232e43;
-                                                    box-shadow: 0 4px 24px rgba(0,0,0,0.18);
-                                                    border-radius: 10px;
-                                                    margin-top: 0;
-                                                }
-                                    /* Botón flotante de tuerca grande */
-                                    .btn-flotante-tuerca {
-                                        position: fixed;
-                                        top: 24px;
-                                        right: 24px;
-                                        z-index: 4000;
-                                        background: #232e43;
-                                        color: #4a9eff;
-                                        border: none;
-                                        border-radius: 50%;
-                                        width: 64px;
-                                        height: 64px;
-                                        font-size: 2.2rem;
-                                        box-shadow: 0 4px 24px rgba(0,0,0,0.18);
-                                        display: flex;
-                                        align-items: center;
-                                        justify-content: center;
-                                        cursor: pointer;
-                                        transition: background 0.18s, color 0.18s, transform 0.12s;
-                                    }
-                                    .btn-flotante-tuerca:hover {
-                                        background: #4a9eff;
-                                        color: #fff;
-                                        transform: scale(1.08);
-                                    }
-                        /* Ajuste para que el menú de la tuerca salga sobre el mapa */
-                        .vista-titulo .dropdown {
-                            position: relative;
-                        }
-                        .vista-titulo .dropdown-menu {
-                            position: absolute !important;
-                            right: 0;
-                            top: 100%;
-                            min-width: 160px;
-                            z-index: 3000;
-                            background: #232e43;
-                            box-shadow: 0 4px 16px rgba(0,0,0,0.18);
-                            border-radius: 8px;
-                            margin-top: 4px;
-                        }
-            body {
-                margin: 0;
-                padding: 0;
-                background: #181f2a;
-                color: #e8edef;
-                font-family: var(--font-family, Arial, sans-serif);
-            }
-            .container {
-                max-width: 100vw;
-                height: 100vh;
-                display: flex;
-                flex-direction: column;
-                background: #1a2332;
-                border-radius: 8px;
-                box-shadow: 0 4px 24px rgba(0,0,0,0.25);
-            }
-            header {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                padding: 18px 24px 12px 24px;
-                margin-bottom: 18px;
-                background: #232e43;
-                border-radius: 0 0 12px 12px;
-                box-shadow: 0 2px 12px rgba(0,0,0,0.13);
-            }
-            h1 {
-                font-size: 22px;
-                margin: 0;
-                font-weight: 700;
-                color: #4a9eff;
-                letter-spacing: 0.01em;
-            }
-            .info-sistema {
-                display: flex;
-                gap: 8px;
-                align-items: center;
-                flex-wrap: wrap;
-                font-size: 13px;
-            }
-            .estado-conexion {
-                display: inline-flex;
-                align-items: center;
-                gap: 4px;
-                padding: 6px 10px;
-                border-radius: 8px;
-                font-size: 12px;
-                font-weight: 600;
-            }
-            .dropdown { position: relative; display: inline-block; }
-            .dropdown-menu { position: absolute; right: 0; top: 100%; min-width: 160px; padding: 6px; display: none; z-index: 2000; border-radius: 8px; margin-top: 4px; }
-            .dropdown.open .dropdown-menu { display: block; }
-            .btn-menu { width: 100%; padding: 8px 10px; border-radius: 6px; font-size: 13px; cursor: pointer; text-align: left; border: 1px solid transparent; font-weight: 500; }
-            .grid-vistas {
-                display: grid;
-                grid-template-columns: 1fr 1fr 1fr;
-                gap: 14px;
-                margin-bottom: 14px;
-                flex: 1;
-                min-height: 0;
-            }
-            .vista-columna {
-                display: flex;
-                flex-direction: column;
-                min-height: 0;
-                overflow: hidden;
-                background: #232e43;
-                border-radius: 12px;
-                padding: 12px 10px;
-                box-shadow: 0 2px 12px rgba(0,0,0,0.10);
-            }
-            .vista-titulo {
-                font-size: 14px;
-                margin-bottom: 10px;
-                padding: 8px;
-                flex-shrink: 0;
-                background: #28334a;
-                border-radius: 6px;
-                color: #b0b8c2;
-                font-weight: 700;
-            }
-            .camara {
-                overflow: hidden;
-                flex: 1;
-                min-height: 0;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 13px;
-                background: #181f2a;
-                border-radius: 8px;
-                color: #8a92a0;
-            }
-            .camara img { width: 100%; height: 100%; object-fit: cover; }
-            #mapa {
-                width: 100%;
-                height: 100%;
-                background: #181f2a;
-                border-radius: 8px;
-            }
-            .panel-controles {
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                flex-shrink: 0;
-                padding: 18px;
-                background: #232e43 !important;
-                border-radius: 12px;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.10);
-                margin-bottom: 18px;
-            }
-            .contenedor-controles {
-                padding: 0;
-                display: grid;
-                grid-template-columns: auto auto auto auto;
-                gap: 18px;
-                align-items: start;
-            }
-            .seccion-control {
-                display: flex;
-                flex-direction: column;
-                min-width: 120px;
-                background: #28334a;
-                border-radius: 8px;
-                padding: 16px 12px 12px 12px;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-                margin-bottom: 0;
-                border: 1.5px solid #2a3748;
-            }
-            .seccion-control h3 {
-                font-size: 14px;
-                margin: 0 0 12px 0;
-                text-align: center;
-                padding-bottom: 8px;
-                font-weight: 700;
-                color: #b0b8c2;
-                border-bottom: 1.5px solid #2a3748;
-            }
-            .grid-reles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-            .control-movimiento { display: flex; flex-direction: column; gap: 10px; align-items: center; }
-            .btn-direccion {
-                padding: 12px;
-                font-size: 18px;
-                width: 52px;
-                height: 52px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                cursor: pointer;
-                background: #1a2332;
-                color: #4a9eff;
-                border: none;
-                border-radius: 50%;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.10);
-                font-weight: 700;
-                transition: background 0.18s, color 0.18s, transform 0.12s;
-            }
-            .btn-direccion:hover {
-                background: #4a9eff;
-                color: #fff;
-                transform: scale(1.08);
-            }
-            .btn-fila-lateral { display: flex; gap: 10px; justify-content: center; }
-            .columna-velocidad { display: flex; flex-direction: column; gap: 10px; }
-            .gps-actions { display: flex; flex-direction: column; gap: 10px; align-items: stretch; }
-            /* El estilo de .btn-gps se define en tema.css para unificar botones */
-            /* El estilo de .btn-header se define en tema.css para unificar botones */
-            /* Elimina estilos locales de botones para que se aplique el tema global rojo cuadrado 3D */
-            .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); padding: 12px 16px; font-size: 13px; z-index: 9999; display: none; font-weight: 500; background: #232e43; color: #4a9eff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.10); }
-            .toast.show { display: block; }
-            @media (max-width: 900px) {
-                .grid-vistas { grid-template-columns: 1fr; }
-                .contenedor-controles { grid-template-columns: 1fr; }
-            }
-            @media (max-width: 600px) {
-                .container { padding: 0 2px; }
-                .vista-columna, .panel-controles, .seccion-control { padding: 8px 2px; }
-                .vista-titulo { font-size: 12px; }
-            }
-        </style>
+    <title>Control Remoto Digital</title>
+    <link rel="stylesheet" href="tema.css">
 </head>
 <body>
+        <!-- Indicadores principales ocultos para compatibilidad JS -->
+        <span id="indicador-ram" class="indicador-ram" style="display:none"></span>
+        <span id="indicador-temp" class="indicador-temp" style="display:none"></span>
+        <span id="indicador-bat" class="indicador-bat" style="display:none"></span>
+        <span id="indicador-red" class="indicador-red" style="display:none"></span>
+        <span id="indicador-vel" class="indicador-vel" style="display:none"></span>
+        <span id="indicador-voltaje" class="indicador-voltaje" style="display:none"></span>
+    <div class="container" style="display: flex; flex-direction: column; min-height: 100vh;">
+        <!-- FILA SUPERIOR: CÁMARAS Y MAPA -->
+        <div style="display: flex; flex-direction: row; gap: 18px; margin-bottom: 18px; width: 100%;">
+                        <div class="panel" style="flex: 1; display: flex; flex-direction: column; align-items: center;">
+                                <h2>Cámara 1</h2>
+                                <div style="width:100%; max-width:100%;">
+                                    <div style="font-size:10px; margin-bottom:4px;">
+                                        <label style="margin-right:6px;">Calidad:</label>
+                                        <select id="calidadCam1" style="font-size:11px; padding:2px 4px; border-radius:4px;">
+                                            <option value="sd">SD</option>
+                                            <option value="hd" selected>HD/2K</option>
+                                        </select>
+                                    </div>
+                                    <a id="linkCamara1" href="#" style="color:#B2FF59; font-size:11px;">rtsp://...</a>
+                                    <div style="margin-top:6px;">
+                                        <video id="videoCam1" controls muted playsinline style="max-height:180px; width:100%; background:#000; border-radius:4px"></video>
+                                    </div>
+                                    <div style="display:flex; gap:4px; margin-top:6px; justify-content:center;">
+                                        <button class="btn-header" id="btnCamara1" onclick="toggleCamara(1)">▶️ Iniciar</button>
+                                    </div>
+                                </div>
+                        </div>
+                        <div class="panel" style="flex: 1; display: flex; flex-direction: column; align-items: center;">
+                                <h2>Cámara 2</h2>
+                                <div style="width:100%; max-width:100%;">
+                                    <div style="font-size:10px; margin-bottom:4px;">
+                                        <label style="margin-right:6px;">Calidad:</label>
+                                        <select id="calidadCam2" style="font-size:11px; padding:2px 4px; border-radius:4px;">
+                                            <option value="sd">SD</option>
+                                            <option value="hd" selected>HD/2K</option>
+                                        </select>
+                                    </div>
+                                    <a id="linkCamara2" href="#" style="color:#B2FF59; font-size:11px;">rtsp://...</a>
+                                    <div style="margin-top:6px;">
+                                        <video id="videoCam2" controls muted playsinline style="max-height:180px; width:100%; background:#000; border-radius:4px"></video>
+                                    </div>
+                                    <div style="display:flex; gap:4px; margin-top:6px; justify-content:center;">
+                                        <button class="btn-header" id="btnCamara2" onclick="toggleCamara(2)">▶️ Iniciar</button>
+                                    </div>
+                                </div>
+                        </div>
+            <div class="panel" style="flex: 1.2; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                <h2>Mapa</h2>
+                <div id="mapa" style="width: 100%; min-height: 180px; height: 180px; border-radius: 8px;"></div>
+            </div>
+        </div>
+        <!-- FILA INFERIOR: CONTROLES CENTRADOS -->
+        <div class="panel" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px;">
+            <div style="display: flex; flex-direction: row; gap: 32px; justify-content: center; align-items: flex-start; width: 100%;">
+                <!-- CRUZ DE MOVIMIENTO EN SU PANEL -->
+                <div class="panel" style="display: flex; flex-direction: column; align-items: center; gap: 6px; min-width: 120px;">
+                    <h3>Movimiento</h3>
+                    <button class="btn" style="width: 48px; height: 48px;" onclick="moverDrone('arriba')">▲</button>
+                    <div style="display: flex; flex-direction: row; gap: 6px;">
+                        <button class="btn" style="width: 48px; height: 48px;" onclick="moverDrone('izquierda')">◀</button>
+                        <button class="btn" style="width: 48px; height: 48px;" onclick="pararDrone()">■</button>
+                        <button class="btn" style="width: 48px; height: 48px;" onclick="moverDrone('derecha')">▶</button>
+                    </div>
+                    <button class="btn" style="width: 48px; height: 48px;" onclick="moverDrone('abajo')">▼</button>
+                </div>
+                <!-- VELOCIDADES EN SU PANEL -->
+                <div class="panel" style="display: flex; flex-direction: column; align-items: center; gap: 8px; min-width: 120px;">
+                    <h3>Velocidad</h3>
+                    <button class="btn btn-velocidad" onclick="setVelocidad(1)">V1</button>
+                    <button class="btn btn-velocidad" onclick="setVelocidad(2)">V2</button>
+                    <button class="btn btn-velocidad" onclick="setVelocidad(3)">V3</button>
+                </div>
+                <!-- RELÉS EN SU PANEL -->
+                <div class="panel" style="display: flex; flex-direction: column; align-items: center; gap: 8px; min-width: 120px;">
+                    <h3>Relés</h3>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;">
+                        <button class="btn btn-rele" onclick="toggleRele(1)">R1</button>
+                        <button class="btn btn-rele" onclick="toggleRele(2)">R2</button>
+                        <button class="btn btn-rele" onclick="toggleRele(3)">R3</button>
+                        <button class="btn btn-rele" onclick="toggleRele(4)">R4</button>
+                        <button class="btn btn-rele" onclick="toggleRele(5)">R5</button>
+                        <button class="btn btn-rele" onclick="toggleRele(6)">R6</button>
+                        <button class="btn btn-rele" onclick="toggleRele(7)">R7</button>
+                        <button class="btn btn-rele" onclick="toggleRele(8)">R8</button>
+                        <button class="btn btn-rele" onclick="toggleRele(9)">R9</button>
+                    </div>
+                </div>
+                <!-- GPS EN SU PANEL -->
+                <div class="panel" style="display: flex; flex-direction: column; align-items: center; gap: 8px; min-width: 120px;">
+                    <h3>GPS</h3>
+                    <button class="btn" onclick="guardarUbicacion()">Guardar Ubicación</button>
+                    <button class="btn" onclick="irADestino()">Ir a Destino</button>
+                    <button class="btn" onclick="mostrarRuta()">Ver Recorrido</button>
+                </div>
+                <!-- INDICADORES EN SU PANEL CON DOS COLUMNAS -->
+                <div class="panel" style="display: flex; flex-direction: column; align-items: center; gap: 8px; min-width: 160px;">
+                    <h3>Indicadores</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                        <span id="indicador-estado-sec" class="estado-conexion desconectado">● Desconectado</span>
+                        <span id="indicador-ram-sec" class="indicador-ram">RAM: --</span>
+                        <span id="indicador-temp-sec" class="indicador-temp">Temp: --</span>
+                        <span id="indicador-vel-sec" class="indicador-vel">Vel: -- km/h</span>
+                        <span id="indicador-bat-sec" class="indicador-bat">Bat: --</span>
+                        <span id="indicador-red-sec" class="indicador-red">Red: --</span>
+                        <span style="font-size:12px; grid-column: 1 / span 2;">
+                            <span style="font-size:13px;vertical-align:middle;">🧭</span> <span style="font-size:11px;">Lat:</span> <span id="latitud" style="font-size:11px;">---</span> | <span style="font-size:11px;">Lon:</span> <span id="longitud" style="font-size:11px;">---</span>
+                        </span>
+                        <span id="indicador-voltaje-sec" class="indicador-voltaje" style="grid-column: 1 / span 2;">⚡ Voltaje: --</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+</body>
+</html>
     <div class="container">
     <!-- Botón flotante de tuerca grande -->
     <button class="btn-flotante-tuerca" onclick="togglePowerMenu(event)" title="Opciones" id="btnTuercaFlotante">⚙️</button>
@@ -350,7 +216,6 @@
             </div>
 
             <div class="vista-columna">
-                <div id="mapa"></div>
                 <!-- Latitud y Longitud flotantes sobre el mapa -->
             </div>
         </div>

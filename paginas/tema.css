@@ -1,261 +1,136 @@
-/* ==================================================================================
-   TEMA OSCURO UNIVERSAL - DRONE ACUÁTICO
-   Versión: 2025-12-29 - Solo tema oscuro
-   ================================================================================== */
+    /* =============================
+         ESTILO MODERNO CONTROL RC
+         ============================= */
 
-/* ==================================================================================
-   1. VARIABLES CSS - TEMA OSCURO ÚNICO
-   ================================================================================== */
+    .panel {
+        background: linear-gradient(135deg, #232e43 60%, #2a3748 100%);
+        border-radius: 18px;
+        box-shadow: 0 6px 24px #0008, 0 1.5px 8px #4a9eff33;
+        padding: 18px 16px 16px 16px;
+        margin: 0 0 8px 0;
+        border: 2.5px solid #4a9eff44;
+        transition: box-shadow 0.18s, border 0.18s;
+    }
 
-:root {
-    /* --- FONDOS OSCUROS --- */
-    --color-bg-primary: #1A2332;
-    --color-bg-secondary: #2A3748;
-    --color-bg-tertiary: #364154;
-    --color-bg-hover: #3F4D5F;
-    
-    /* --- TEXTOS --- */
-    --color-text-primary: #E8EDEF;
-    --color-text-secondary: #B0B8C2;
-    --color-text-tertiary: #8A92A0;
-    
-    /* --- BORDES --- */
-    --color-border-primary: #4A5A6F;
-    --color-border-secondary: #3A4858;
-    --color-border-light: #5A7088;
-    
-    /* --- ACENTO --- */
-    --color-accent: #4A9EFF;
-    --color-accent-hover: #3A8AE5;
-    
-    /* --- SEMÁNTICOS --- */
-    --color-success: #4CAF50;
-    --color-warning: #FFA726;
-    --color-danger: #EF5350;
-    
-    /* --- ESPACIADO --- */
-    --space-xs: 4px;
-    --space-sm: 8px;
-    --space-md: 12px;
-    --space-lg: 16px;
-    
-    /* --- BORDER RADIUS --- */
-    --radius-sm: 4px;
-    --radius-md: 6px;
-    --radius-lg: 8px;
-    
-    /* --- SOMBRAS --- */
-    --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.4);
-    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
-    
-    /* --- TRANSICIONES --- */
-    --transition: 180ms cubic-bezier(0.4, 0, 0.2, 1);
-    
-    /* --- TIPOGRAFÍA --- */
-    --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-}
+    .panel:hover {
+        box-shadow: 0 10px 32px #4a9eff55, 0 2px 16px #0006;
+        border-color: #4a9eff;
+    }
 
-/* ==================================================================================
-   2. RESET Y BASE
-   ================================================================================== */
+    button, .btn, input[type="button"], input[type="submit"] {
+        background: linear-gradient(180deg, #ff4a4a 0%, #b71c1c 100%);
+        color: #fff;
+        border: 2.5px solid #4a9eff;
+        border-radius: 16px;
+        box-shadow: 0 4px 0 #1a1d22, 0 2px 16px #4a9eff22;
+        font-family: 'Segoe UI', 'Montserrat', 'Arial', sans-serif;
+        font-size: 1.12em;
+        font-weight: 700;
+        padding: 14px 38px;
+        min-width: 100px;
+        letter-spacing: 0.03em;
+        text-shadow: 0 1px 2px #0008;
+        transition: all 0.16s cubic-bezier(0.4,0,0.2,1);
+        user-select: none;
+        white-space: nowrap;
+        display: inline-block;
+        outline: none;
+        cursor: pointer;
+    }
+    button:hover, .btn:hover, input[type="button"]:hover, input[type="submit"]:hover {
+        background: linear-gradient(180deg, #b71c1c 0%, #ff4a4a 100%);
+        color: #fff;
+        border-color: #82cfff;
+        box-shadow: 0 2px 0 #1a1d22, 0 4px 24px #4a9eff44;
+        transform: translateY(-2px) scale(1.05);
+    }
+    button:active, .btn:active, input[type="button"]:active, input[type="submit"]:active {
+        background: #4a9eff;
+        color: #fff;
+        border-color: #b71c1c;
+        box-shadow: 0 1px 0 #1a1d22, 0 1px 4px #4a9eff22;
+        transform: scale(0.97);
+    }
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+    /* Botones de cruz y relés más cuadrados y grandes */
+    .panel button.btn, .panel button.btn-header {
+        min-width: 48px;
+        min-height: 48px;
+        font-size: 1.3em;
+        border-radius: 14px;
+        margin: 2px;
+    }
 
-html {
-    font-size: 16px;
-}
+    /* Encabezados */
+    h2, h3 {
+        color: #4a9eff;
+        font-family: 'Montserrat', 'Segoe UI', Arial, sans-serif;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+        text-shadow: 0 2px 8px #0004;
+        margin-bottom: 10px;
+    }
+    /* =============================
+         TEMA UNIVERSAL CENTRALIZADO
+         ============================= */
 
-body {
-    background: var(--color-bg-primary) !important;
-    color: var(--color-text-primary) !important;
-    font-family: var(--font-family);
-    font-size: 14px;
-    line-height: 1.5;
-}
+    /* Paleta base: oscuro, acento azul, botones modernos */
+    :root {
+        --color-bg: #181f2a;
+        --color-bg-panel: #232e43;
+        --color-accent: #4a9eff;
+        --color-btn: #ff4a4a;
+        --color-btn-hover: #ff6f6f;
+        --color-btn-active: #b71c1c;
+        --color-btn-text: #fff;
+        --color-border: #232e43;
+        --color-shadow: rgba(0,0,0,0.18);
+        --font-family: 'Segoe UI', 'Montserrat', 'Arial', sans-serif;
+    }
 
-::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-}
+    body {
+        background: var(--color-bg);
+        color: #e8edef;
+        font-family: var(--font-family);
+        margin: 0;
+        padding: 0;
+    }
 
-::-webkit-scrollbar-track {
-    background: var(--color-bg-secondary);
-}
+    button, .btn, input[type="button"], input[type="submit"] {
+        background: linear-gradient(180deg, var(--color-btn) 0%, var(--color-btn-hover) 100%);
+        color: var(--color-btn-text);
+        border: 2.5px solid var(--color-border);
+        border-radius: 14px;
+        box-shadow: 0 4px 0 var(--color-shadow), 0 1px 8px var(--color-shadow);
+        font-family: var(--font-family);
+        font-size: 1.08em;
+        font-weight: 700;
+        padding: 14px 38px;
+        min-width: 120px;
+        letter-spacing: 0.03em;
+        text-shadow: 0 1px 2px #0008;
+        transition: all 0.16s cubic-bezier(0.4,0,0.2,1);
+        user-select: none;
+        white-space: nowrap;
+        display: inline-block;
+        outline: none;
+        cursor: pointer;
+    }
+    button:hover, .btn:hover, input[type="button"]:hover, input[type="submit"]:hover {
+        background: linear-gradient(180deg, var(--color-btn-hover) 0%, var(--color-btn) 100%);
+        color: var(--color-btn-text);
+        border-color: var(--color-accent);
+        box-shadow: 0 2px 0 var(--color-shadow), 0 4px 24px var(--color-accent);
+        transform: translateY(-2px) scale(1.05);
+    }
+    button:active, .btn:active, input[type="button"]:active, input[type="submit"]:active {
+        background: var(--color-btn-active);
+        color: var(--color-btn-text);
+        border-color: var(--color-btn-active);
+        box-shadow: 0 1px 0 var(--color-shadow), 0 1px 4px var(--color-shadow);
+        transform: scale(0.97);
+    }
 
-::-webkit-scrollbar-thumb {
-    background: var(--color-border-primary);
-    border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: var(--color-border-light);
-}
-
-/* ==================================================================================
-   7. TIPOGRAFÍA
-   ================================================================================== */
-
-h1, h2, h3, h4, h5, h6 {
-    font-weight: 600;
-    margin-bottom: var(--space-md);
-}
-
-h1 { font-size: 20px; }
-h2 { font-size: 18px; }
-h3 { font-size: 16px; }
-h4 { font-size: 14px; }
-
-p {
-    margin-bottom: var(--space-md);
-    color: var(--color-text-secondary);
-}
-
-/* ==================================================================================
-   8. COMPONENTES BASE
-   ================================================================================== */
-
-header {
-    background: var(--color-bg-secondary);
-    border-bottom: 1px solid var(--color-border-primary);
-    transition: background var(--transition), border-color var(--transition);
-}
-
-.card,
-.panel,
-.section,
-.vista-columna,
-.seccion-control,
-.contenedor-controles,
-.panel-controles {
-    background: var(--color-bg-secondary);
-    border: 2px solid var(--color-border-light);
-    border-radius: var(--radius-lg);
-    transition: all var(--transition);
-}
-
-.vista-titulo {
-    background: var(--color-bg-tertiary);
-    border-bottom: 1px solid var(--color-border-primary);
-    transition: background var(--transition), border-color var(--transition);
-}
-
-.camara {
-    background: var(--color-bg-tertiary);
-    border: 1px solid var(--color-border-secondary);
-    transition: background var(--transition), border-color var(--transition);
-}
-
-/* ==================================================================================
-   9. BOTONES - ESTILO UNIFICADO
-   ================================================================================== */
-
-button,
-.btn,
-.btn-header,
-.btn-menu,
-input[type="button"],
-input[type="submit"] {
-    font-family: var(--font-family);
-    font-size: 13px;
-    font-weight: 500;
-    padding: var(--space-md) var(--space-lg);
-    border: 1px solid transparent;
-    border-radius: var(--radius-md);
-    background: var(--color-accent);
-    color: white;
-    cursor: pointer;
-    transition: all var(--transition);
-    user-select: none;
-}
-
-.btn-rele,
-.btn-gps {
-    font-family: var(--font-family);
-    font-size: 15px;
-    font-weight: 600;
-    padding: 8px 40px;
-    min-width: 200px;
-    max-width: 100%;
-    border: 1.5px solid var(--color-border-primary);
-    border-radius: 18px;
-    background: var(--color-accent);
-    color: #fff;
-    cursor: pointer;
-    transition: all var(--transition);
-    user-select: none;
-    white-space: nowrap;
-    display: inline-block;
-}
-
-.btn-rele,
-.btn-gps {
-    font-family: var(--font-family);
-    font-size: 15px;
-    font-weight: 600;
-    padding: 8px 40px;
-    min-width: 200px;
-    max-width: 100%;
-    border: 1.5px solid var(--color-border-primary);
-    border-radius: 18px;
-    background: var(--color-accent);
-    color: #fff;
-    cursor: pointer;
-    transition: all var(--transition);
-    user-select: none;
-    white-space: nowrap;
-    display: inline-block;
-}
-button:hover,
-.btn:hover,
-.btn-rele:hover,
-.btn-gps:hover {
-    background: var(--color-accent-hover);
-    color: #fff;
-    border-color: var(--color-accent-hover);
-}
-.btn-velocidad,
-.btn-direccion,
-.btn-header,
-.btn-menu,
-input[type="button"],
-input[type="submit"] {
-    font-family: var(--font-family);
-    font-size: 13px;
-    font-weight: 500;
-    padding: var(--space-md) var(--space-lg);
-    border: 1px solid transparent;
-    border-radius: var(--radius-md);
-    background: var(--color-accent);
-    color: white;
-    cursor: pointer;
-    transition: all var(--transition);
-    user-select: none;
-}
-
-/* Botón activo */
-
-
-
-/* Botón rojo cuadrado 3D universal */
-.btn,
-.btn-header,
-.btn-rele,
-.btn-velocidad,
-button,
-input[type="button"],
-input[type="submit"] {
-    background: #d32f2f !important;
-    color: #fff !important;
-    border: 2px solid #b71c1c !important;
-    border-radius: 0 !important;
-    box-shadow: 0 4px 0 #b71c1c, 0 1px 8px rgba(0,0,0,0.25);
-    font-family: var(--font-family);
-    font-size: 15px;
-    font-weight: 700;
     padding: 12px 32px;
     min-width: 120px;
     transition: all 0.15s cubic-bezier(0.4,0,0.2,1);
@@ -279,19 +154,19 @@ input[type="submit"]:hover {
 
 .btn:active,
 .btn-header:active,
-.btn-rele:active,
-.btn-velocidad:active,
-button:active,
-input[type="button"]:active,
-input[type="submit"]:active {
-    background: #880808 !important;
-    color: #fff !important;
-    box-shadow: 0 1px 0 #b71c1c, 0 1px 4px rgba(0,0,0,0.20);
-    transform: scale(0.98);
+/* Botón de relé activo: fondo amarillo intenso y texto rojo oscuro */
+.btn-rele.activo {
+    background: #ffe066 !important;
+    color: #b71c1c !important;
+    border-color: #ffd700 !important;
+    box-shadow: 0 4px 0 #ffd700, 0 1px 8px rgba(0,0,0,0.25);
 }
-
-/* Botón secundario */
-.btn-secondary,
+.btn-rele.activo:hover {
+    background: #ffd700 !important;
+    color: #b71c1c !important;
+    border-color: #ffe066 !important;
+    box-shadow: 0 2px 0 #ffe066, 0 2px 12px rgba(0,0,0,0.30);
+}
 .btn-header {
     background: var(--color-bg-tertiary);
     color: var(--color-text-primary);
