@@ -9,36 +9,222 @@
 </head>
 <body>
 		<div class="cuadro-superior">
-			<div style="display: flex; flex-direction: row; gap: 2vw; width: 100%; height: 100%; justify-content: center; align-items: center;">
-				<div class="panel-cam" style="flex:1; min-width: 0; background: #222b3a; border: 2px solid #2196f3; border-radius: 12px; height: 90%; display: flex; align-items: center; justify-content: center;">
-					<span style="color: #2196f3; font-size: 1.3em;">CÁMARA 1</span>
+			<div class="fila-superior">
+				<div class="panel-cam">
+					<video id="videoCam1" controls muted playsinline></video>
 				</div>
-				<div class="panel-cam" style="flex:1; min-width: 0; background: #222b3a; border: 2px solid #43a047; border-radius: 12px; height: 90%; display: flex; align-items: center; justify-content: center;">
-					<span style="color: #43a047; font-size: 1.3em;">CÁMARA 2</span>
+				<div class="panel-cam">
+					<video id="videoCam2" controls muted playsinline></video>
 				</div>
-				<div class="panel-cam" style="flex:1; min-width: 0; background: #222b3a; border: 2px solid #e53935; border-radius: 12px; height: 90%; display: flex; align-items: center; justify-content: center;">
-					<span style="color: #e53935; font-size: 1.3em;">MAPA</span>
+				<div class="panel-cam">
+					<!-- Recuadro vacío para el mapa eliminado -->
 				</div>
 			</div>
 		</div>
 		<div class="cuadro-inferior">
-			<div style="display: flex; flex-direction: row; gap: 1vw; width: 100%; height: 100%; justify-content: center; align-items: center;">
-				<div class="panel-bajo" style="flex:1; min-width: 0; background: #232e43; border: 2px solid #2196f3; border-radius: 10px; height: 90%; display: flex; align-items: center; justify-content: center;">
-					<span style="color: #2196f3; font-size: 1em;">CRUZ</span>
+			<div class="fila-inferior">
+				<div class="panel-bajo">
+					<div class="cruz-botones">
+						<button class="btn btn-direccion" id="btn-arriba">▲</button>
+						<div class="cruz-fila-central">
+							<button class="btn btn-direccion" id="btn-izquierda">◀</button>
+							<button class="btn btn-direccion" id="btn-centro">●</button>
+							<button class="btn btn-direccion" id="btn-derecha">▶</button>
+						</div>
+						<button class="btn btn-direccion" id="btn-abajo">▼</button>
+					</div>
 				</div>
-				<div class="panel-bajo" style="flex:1; min-width: 0; background: #232e43; border: 2px solid #43a047; border-radius: 10px; height: 90%; display: flex; align-items: center; justify-content: center;">
-					<span style="color: #43a047; font-size: 1em;">VELOCIDADES</span>
+				<div class="panel-bajo">
+					<div class="velocidades-botones">
+						<button class="btn btn-velocidad" id="vel-lenta">Lenta</button>
+						<button class="btn btn-velocidad" id="vel-media">Media</button>
+						<button class="btn btn-velocidad" id="vel-rapida">Rápida</button>
+					</div>
 				</div>
-				<div class="panel-bajo" style="flex:1; min-width: 0; background: #232e43; border: 2px solid #ffd600; border-radius: 10px; height: 90%; display: flex; align-items: center; justify-content: center;">
-					<span style="color: #ffd600; font-size: 1em;">RELÉ</span>
+				<div class="panel-bajo">
+					<div class="reles-botones" id="reles-botones">
+						<button class="btn btn-rele inactivo" id="rele1">Relé 1</button>
+						<button class="btn btn-rele inactivo" id="rele2">Relé 2</button>
+						<button class="btn btn-rele inactivo" id="rele3">Relé 3</button>
+						<button class="btn btn-rele inactivo" id="rele4">Relé 4</button>
+						<button class="btn btn-rele inactivo" id="rele5">Relé 5</button>
+						<button class="btn btn-rele inactivo" id="rele6">Relé 6</button>
+						<button class="btn btn-rele inactivo" id="rele7">Relé 7</button>
+						<button class="btn btn-rele inactivo" id="rele8">Relé 8</button>
+						<button class="btn btn-rele inactivo" id="rele9">Relé 9</button>
+					</div>
 				</div>
-				<div class="panel-bajo" style="flex:1; min-width: 0; background: #232e43; border: 2px solid #00bcd4; border-radius: 10px; height: 90%; display: flex; align-items: center; justify-content: center;">
-					<span style="color: #00bcd4; font-size: 1em;">GPS</span>
+				<div class="panel-bajo">
+					<div class="gps-botones">
+						<button class="btn btn-gps" id="gps-posicion">Posición</button>
+						<button class="btn btn-gps" id="gps-guardar">Guardar</button>
+						<button class="btn btn-gps" id="gps-destino">Destino</button>
+					</div>
 				</div>
-				<div class="panel-bajo" style="flex:1; min-width: 0; background: #232e43; border: 2px solid #e53935; border-radius: 10px; height: 90%; display: flex; align-items: center; justify-content: center;">
-					<span style="color: #e53935; font-size: 1em;">INDICADORES</span>
+				<div class="panel-bajo">
+					<div class="indicadores-grid">
+						<div class="indicador-item estado-conexion">
+							<span id="indicador-conexion" class="desconectado">
+								<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><circle cx="8" cy="8" r="7" fill="#e53935"/></svg>
+								<span id="texto-conexion" style="color:#e53935; font-weight:600;">Desconectado</span>
+							</span>
+						</div>
+						<div class="indicador-item indicador-ram">
+							<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><rect x="2" y="4" width="12" height="8" rx="2" fill="#6ec1e4"/></svg>
+							RAM: <span id="ram-valor">--</span>
+						</div>
+						<div class="indicador-item indicador-temp">
+							<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><rect x="7" y="2" width="2" height="8" fill="#e6a23c"/><circle cx="8" cy="12" r="3" fill="#e6a23c"/></svg>
+							Temp: <span id="temp-valor">--</span>
+						</div>
+						<div class="indicador-item indicador-bat">
+							<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><rect x="3" y="5" width="10" height="6" rx="2" fill="#43a047"/><rect x="13" y="7" width="2" height="2" fill="#43a047"/></svg>
+							Batería: <span id="bat-valor">--</span>
+						</div>
+						<div class="indicador-item indicador-red">
+							<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><circle cx="8" cy="8" r="7" fill="#6ec1e4"/></svg>
+							Red: <span id="red-valor">--</span>
+						</div>
+						<div class="indicador-item indicador-vel">
+							<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><path d="M8 2 A6 6 0 1 1 7.99 2" stroke="#6ec1e4" stroke-width="2" fill="none"/><circle cx="8" cy="8" r="2" fill="#6ec1e4"/></svg>
+							Velocidad: <span id="vel-valor">--</span>
+						</div>
+						<div class="indicador-item indicador-solar">
+							<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><circle cx="8" cy="8" r="4" fill="#ffd600"/></svg>
+							Solar: <span id="solar-valor">--</span>
+						</div>
+						<div class="indicador-item indicador-peso">
+							<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><rect x="4" y="8" width="8" height="4" fill="#b71c1c"/></svg>
+							Peso: <span id="peso-valor">--</span>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>
+	<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+	<script>
+			// Cámara 1
+			function iniciarCamara(videoId, playlist) {
+					var video = document.getElementById(videoId);
+					if (window.Hls && Hls.isSupported()) {
+							var hls = new Hls({lowLatencyMode: true});
+							hls.loadSource(playlist);
+							hls.attachMedia(video);
+					} else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+							video.src = playlist;
+					}
+			}
+			// Ajusta la ruta según tu servidor HLS
+			iniciarCamara('videoCam1', '/hls/cam1/cam1.m3u8');
+			iniciarCamara('videoCam2', '/hls/cam2/cam2.m3u8');
+
+			// WebSocket para indicadores y relés
+			let ws;
+			let conectado = false;
+			function beep(frec, dur, vol=0.2) {
+				try {
+					const ctx = new (window.AudioContext || window.webkitAudioContext)();
+					const o = ctx.createOscillator();
+					const g = ctx.createGain();
+					o.type = 'sine';
+					o.frequency.value = frec;
+					g.gain.value = vol;
+					o.connect(g); g.connect(ctx.destination);
+					o.start();
+					setTimeout(()=>{o.stop();ctx.close();}, dur);
+				} catch(e) {}
+			}
+			function setConexion(estado) {
+				const icon = document.querySelector('#indicador-conexion svg circle');
+				const texto = document.getElementById('texto-conexion');
+				if (estado) {
+					icon.setAttribute('fill', '#43a047');
+					texto.textContent = 'Conectado';
+					texto.style.color = '#43a047';
+				} else {
+					icon.setAttribute('fill', '#e53935');
+					texto.textContent = 'Desconectado';
+					texto.style.color = '#e53935';
+				}
+			}
+			function actualizarIndicadores(data) {
+				// RAM de la Raspberry
+				if (data.ram !== undefined && data.ram !== null) {
+					document.getElementById('ram-valor').textContent = Number(data.ram).toFixed(1) + ' %';
+				}
+				// Temperatura de la Raspberry
+				if (data.temp !== undefined && data.temp !== null) {
+					document.getElementById('temp-valor').textContent = Number(data.temp).toFixed(1) + ' °C';
+				}
+				// Batería
+				if (data.bateria !== undefined && data.bateria !== null) {
+					document.getElementById('bat-valor').textContent = Number(data.bateria).toFixed(1) + ' %';
+				}
+				// Red
+				if (data.red !== undefined && data.red !== null) {
+					document.getElementById('red-valor').textContent = Number(data.red).toFixed(1) + ' Mbps';
+				}
+				// Velocidad obtenida del sensor GPS
+				if (data.velocidad !== undefined && data.velocidad !== null) {
+					document.getElementById('vel-valor').textContent = Number(data.velocidad).toFixed(2) + ' km/h';
+				}
+				// Solar
+				if (data.solar !== undefined && data.solar !== null) {
+					document.getElementById('solar-valor').textContent = Number(data.solar).toFixed(1) + ' W';
+				}
+				// Peso
+				if (data.peso !== undefined && data.peso !== null) {
+					document.getElementById('peso-valor').textContent = Number(data.peso).toFixed(2) + ' kg';
+				}
+			}
+			function conectarWS() {
+				ws = new WebSocket((location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '/ws');
+				ws.onopen = () => {
+					conectado = true;
+					setConexion(true);
+					beep(1200, 120, 0.18);
+				};
+				ws.onclose = () => {
+					conectado = false;
+					setConexion(false);
+					beep(400, 220, 0.18);
+					setTimeout(conectarWS, 2000);
+				};
+				ws.onmessage = (ev) => {
+					try {
+						const msg = JSON.parse(ev.data);
+						if (msg.tipo === 'indicadores') actualizarIndicadores(msg.datos);
+						if (msg.tipo === 'reles') renderReles(msg.datos);
+					} catch(e) {}
+				};
+			}
+			// Relés
+			function renderReles(reles) {
+				const contenedor = document.getElementById('reles-botones');
+				contenedor.innerHTML = '';
+				for (let i = 1; i <= 9; i++) {
+					const nombre = reles[i]?.nombre || `Relé ${i}`;
+					const activo = reles[i]?.estado ? 'activo' : 'inactivo';
+					const btn = document.createElement('button');
+					btn.className = `btn btn-rele ${activo}`;
+					btn.id = `rele${i}`;
+					btn.textContent = nombre;
+					btn.onclick = () => toggleRele(i, !(reles[i]?.estado));
+					contenedor.appendChild(btn);
+				}
+			}
+			async function toggleRele(num, encender) {
+				try {
+					await fetch(`/api/rele/${num}`, {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({ estado: encender })
+					});
+				} catch (e) {}
+			}
+			window.addEventListener('DOMContentLoaded', () => {
+				conectarWS();
+			});
+	</script>
 </body>
 </html>
