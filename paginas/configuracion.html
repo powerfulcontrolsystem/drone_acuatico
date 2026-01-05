@@ -8,8 +8,8 @@
   <!-- MARCADOR: SOLO tema_universal.css cargado -->
 </head>
 <body>
-  <main class="config-main card" style="max-width: 700px; margin: 32px auto; border: 3px dashed #6ec1e4; background: #232a36;">
-    <section class="card">
+  <main class="config-main" style="max-width: 700px; margin: 32px auto; display: flex; flex-direction: column; gap: 24px;">
+    <section class="card" style="margin:0;">
       <h1 style="text-align:center;">Configuración General</h1>
       <div class="grid">
         <div class="row"><label for="ipPublica">IP Pública</label><input id="ipPublica" type="text" placeholder="192.168.1.15" /></div>
@@ -19,7 +19,7 @@
         <div class="row"><label for="frecuenciaGuardado">Frecuencia guardado GPS (seg)</label><input id="frecuenciaGuardado" type="number" min="5" max="300" step="5" placeholder="30" /></div>
       </div>
     </section>
-    <section class="card">
+    <section class="card" style="margin:0;">
       <div class="row">
         <input id="guardarRecorrido" type="checkbox" />
         <label for="guardarRecorrido">✓ Guardar recorrido automáticamente</label>
@@ -28,7 +28,7 @@
     </section>
 
 
-    <section class="card">
+    <section class="card" style="margin:0;">
       <h2>📷 Cámaras</h2>
       <div class="grid-uno">
         <div class="row"><label for="urlCamara1SD">URL RTSP Cámara 1 - Calidad SD</label><input id="urlCamara1SD" type="text" placeholder="rtsp://usuario:clave@192.168.1.9:554/live/ch0" /></div>
@@ -40,7 +40,7 @@
       </div>
     </section>
 
-    <section class="card">
+    <section class="card" style="margin:0;">
       <h2>⚡ Nombres de Relés (1–9)</h2>
       <div class="grid">
         <div class="row"><label for="rele1">Relé 1</label><input id="rele1" type="text" placeholder="Nombre 1" /></div>
