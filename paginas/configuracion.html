@@ -5,55 +5,105 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Configuración - Drone Acuático</title>
   <link rel="stylesheet" href="/static/tema_universal.css">
-  <!-- MARCADOR: SOLO tema_universal.css cargado -->
+  <style>
+    body, .config-main {
+      text-align: left !important;
+    }
+    .config-main {
+      max-width: 98vw;
+      width: 100%;
+      margin: 0 auto;
+      padding: 0 2vw;
+    }
+    .panel-cam, .panel-bajo {
+      width: 100% !important;
+      max-width: 100% !important;
+      box-sizing: border-box;
+    }
+    .panel-bajo {
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+    @media (max-width: 700px) {
+      .config-main {
+        padding: 0 1vw;
+      }
+      .panel-cam, .panel-bajo {
+        padding: 12px 4px !important;
+      }
+      .panel-bajo {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    @media (max-width: 480px) {
+      .panel-bajo {
+        grid-template-columns: 1fr;
+      }
+      .panel-cam, .panel-bajo {
+        padding: 8px 2px !important;
+      }
+      .config-main {
+        padding: 0 0.5vw;
+      }
+      h2, h3 {
+        font-size: 1.1em !important;
+      }
+      label, input {
+        font-size: 0.98em !important;
+      }
+    }
+  </style>
+
 </head>
 <body>
-  <main class="config-main" style="max-width: 700px; margin: 32px auto; display: flex; flex-direction: column; gap: 24px;">
-    <section class="card" style="margin:0;">
-      <h1 style="text-align:center;">Configuración General</h1>
-      <div class="grid">
-        <div class="row"><label for="ipPublica">IP Pública</label><input id="ipPublica" type="text" placeholder="192.168.1.15" /></div>
-        <div class="row"><label for="correo">Correo de notificación</label><input id="correo" type="email" placeholder="correo@dominio.com" /></div>
-        <div class="row"><label for="tamanoMapa">Tamaño del mapa (px)</label><input id="tamanoMapa" type="number" min="200" max="800" step="10" placeholder="400" /></div>
-        <div class="row"><input id="solicitarPassword" type="checkbox" /><label for="solicitarPassword">Solicitar contraseña al entrar</label></div>
-        <div class="row"><label for="frecuenciaGuardado">Frecuencia guardado GPS (seg)</label><input id="frecuenciaGuardado" type="number" min="5" max="300" step="5" placeholder="30" /></div>
-      </div>
-    </section>
-    <section class="card" style="margin:0;">
-      <div class="row">
-        <input id="guardarRecorrido" type="checkbox" />
-        <label for="guardarRecorrido">✓ Guardar recorrido automáticamente</label>
-      </div>
-      <div id="mapa-gps-container"></div>
-    </section>
+  <main class="config-main" style="max-width: 700px; margin: 32px auto; display: flex; flex-direction: column; align-items: stretch; gap: 28px;">
+        <div style="margin-bottom: 18px; text-align: left;">
+          <button class="btn" onclick="window.location.href='/'">⟵ Regresar</button>
+        </div>
+    <!-- Datos generales -->
+    <h2 style="margin-top:0; color:#6ec1e4;">Datos generales</h2>
+    <div style="display: flex; flex-direction: column; gap: 12px;">
+      <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="ipPublica">IP Pública</label><input id="ipPublica" type="text" placeholder="192.168.1.15" style="width: 100%;" /></div>
+      <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="correo">Correo de notificación</label><input id="correo" type="email" placeholder="correo@dominio.com" style="width: 100%;" /></div>
+      <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="tamanoMapa">Tamaño del mapa (px)</label><input id="tamanoMapa" type="number" min="200" max="800" step="10" placeholder="400" style="width: 100%;" /></div>
+      <div class="row" style="display: flex; flex-direction: row; align-items: center; gap: 8px;"><input id="solicitarPassword" type="checkbox" /><label for="solicitarPassword">Solicitar contraseña al entrar</label></div>
+    </div>
+    <!-- Configuración GPS -->
+    <h2 style="margin-top:0; color:#6ec1e4;">Configuración GPS</h2>
+    <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="frecuenciaGuardado">Frecuencia guardado GPS (seg)</label><input id="frecuenciaGuardado" type="number" min="5" max="300" step="5" placeholder="30" style="width: 100%;" /></div>
+    <div class="row" style="display: flex; flex-direction: row; align-items: center; gap: 8px;"><input id="guardarRecorrido" type="checkbox" /><label for="guardarRecorrido">✓ Guardar recorrido automáticamente</label></div>
+    <div id="mapa-gps-container"></div>
 
 
-    <section class="card" style="margin:0;">
-      <h2>📷 Cámaras</h2>
-      <div class="grid-uno">
-        <div class="row"><label for="urlCamara1SD">URL RTSP Cámara 1 - Calidad SD</label><input id="urlCamara1SD" type="text" placeholder="rtsp://usuario:clave@192.168.1.9:554/live/ch0" /></div>
-        <div class="row"><label for="urlCamara1HD">URL RTSP Cámara 1 - Calidad HD/2K</label><input id="urlCamara1HD" type="text" placeholder="rtsp://usuario:clave@192.168.1.9:554/live/ch1" /></div>
-        <div class="row"><input id="desactivarCamara1" type="checkbox" /><label for="desactivarCamara1">Desactivar Cámara 1</label></div>
-        <div class="row"><label for="urlCamara2SD">URL RTSP Cámara 2 - Calidad SD</label><input id="urlCamara2SD" type="text" placeholder="rtsp://usuario:clave@192.168.1.10:554/live/ch0" /></div>
-        <div class="row"><label for="urlCamara2HD">URL RTSP Cámara 2 - Calidad HD/2K</label><input id="urlCamara2HD" type="text" placeholder="rtsp://usuario:clave@192.168.1.10:554/live/ch1" /></div>
-        <div class="row"><input id="desactivarCamara2" type="checkbox" /><label for="desactivarCamara2">Desactivar Cámara 2</label></div>
+    <!-- Cámaras -->
+    <h2 style="margin-top:0; color:#6ec1e4;">Cámaras</h2>
+    <div style="display: flex; flex-direction: column; gap: 18px;">
+      <div style="width: 100%; max-width: 600px; margin-bottom: 8px;">
+        <h3 style="margin-top:0; color:#6ec1e4;">Cámara 1</h3>
+        <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="urlCamara1SD">URL RTSP SD</label><input id="urlCamara1SD" type="text" placeholder="rtsp://usuario:clave@192.168.1.9:554/live/ch0" style="width:100%;" /></div>
+        <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="urlCamara1HD">URL RTSP HD/2K</label><input id="urlCamara1HD" type="text" placeholder="rtsp://usuario:clave@192.168.1.9:554/live/ch1" style="width:100%;" /></div>
+        <div class="row" style="display: flex; flex-direction: row; align-items: center; gap: 8px;"><input id="desactivarCamara1" type="checkbox" /><label for="desactivarCamara1">Desactivar Cámara 1</label></div>
       </div>
-    </section>
+      <div style="width: 100%; max-width: 600px;">
+        <h3 style="margin-top:0; color:#6ec1e4;">Cámara 2</h3>
+        <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="urlCamara2SD">URL RTSP SD</label><input id="urlCamara2SD" type="text" placeholder="rtsp://usuario:clave@192.168.1.10:554/live/ch0" style="width:100%;" /></div>
+        <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="urlCamara2HD">URL RTSP HD/2K</label><input id="urlCamara2HD" type="text" placeholder="rtsp://usuario:clave@192.168.1.10:554/live/ch1" style="width:100%;" /></div>
+        <div class="row" style="display: flex; flex-direction: row; align-items: center; gap: 8px;"><input id="desactivarCamara2" type="checkbox" /><label for="desactivarCamara2">Desactivar Cámara 2</label></div>
+      </div>
+    </div>
 
-    <section class="card" style="margin:0;">
-      <h2>⚡ Nombres de Relés (1–9)</h2>
-      <div class="grid">
-        <div class="row"><label for="rele1">Relé 1</label><input id="rele1" type="text" placeholder="Nombre 1" /></div>
-        <div class="row"><label for="rele2">Relé 2</label><input id="rele2" type="text" placeholder="Nombre 2" /></div>
-        <div class="row"><label for="rele3">Relé 3</label><input id="rele3" type="text" placeholder="Nombre 3" /></div>
-        <div class="row"><label for="rele4">Relé 4</label><input id="rele4" type="text" placeholder="Nombre 4" /></div>
-        <div class="row"><label for="rele5">Relé 5</label><input id="rele5" type="text" placeholder="Nombre 5" /></div>
-        <div class="row"><label for="rele6">Relé 6</label><input id="rele6" type="text" placeholder="Nombre 6" /></div>
-        <div class="row"><label for="rele7">Relé 7</label><input id="rele7" type="text" placeholder="Nombre 7" /></div>
-        <div class="row"><label for="rele8">Relé 8</label><input id="rele8" type="text" placeholder="Nombre 8" /></div>
-        <div class="row"><label for="rele9">Relé 9</label><input id="rele9" type="text" placeholder="Nombre 9" /></div>
-      </div>
-    </section>
+    <!-- Relés -->
+    <h2 style="margin-top:0; color:#6ec1e4;">⚡ Nombres de Relés (1–9)</h2>
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="rele1">Relé 1</label><input id="rele1" type="text" placeholder="Nombre 1" style="width: 100%;" /></div>
+      <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="rele2">Relé 2</label><input id="rele2" type="text" placeholder="Nombre 2" style="width: 100%;" /></div>
+      <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="rele3">Relé 3</label><input id="rele3" type="text" placeholder="Nombre 3" style="width: 100%;" /></div>
+      <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="rele4">Relé 4</label><input id="rele4" type="text" placeholder="Nombre 4" style="width: 100%;" /></div>
+      <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="rele5">Relé 5</label><input id="rele5" type="text" placeholder="Nombre 5" style="width: 100%;" /></div>
+      <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="rele6">Relé 6</label><input id="rele6" type="text" placeholder="Nombre 6" style="width: 100%;" /></div>
+      <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="rele7">Relé 7</label><input id="rele7" type="text" placeholder="Nombre 7" style="width: 100%;" /></div>
+      <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="rele8">Relé 8</label><input id="rele8" type="text" placeholder="Nombre 8" style="width: 100%;" /></div>
+      <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="rele9">Relé 9</label><input id="rele9" type="text" placeholder="Nombre 9" style="width: 100%;" /></div>
+    </div>
   </main>
 
   <footer style="text-align:center; margin: 24px 0;">
@@ -179,19 +229,6 @@
     };
   </script>
   <script src="tema.js"></script>
-  <script>
-    // MARCADOR: Script de depuración de tema universal
-    console.log('MARCADOR: configuracion.html cargando tema_universal.css');
-    const testDiv = document.createElement('div');
-    testDiv.textContent = 'MARCADOR VISUAL: CSS universal activo';
-    testDiv.style.background = '#6ec1e4';
-    testDiv.style.color = '#232a36';
-    testDiv.style.padding = '8px';
-    testDiv.style.textAlign = 'center';
-    testDiv.style.fontWeight = 'bold';
-    testDiv.style.margin = '12px 0';
-    document.body.insertBefore(testDiv, document.body.firstChild);
-  </script>
 </main>
 </body>
 </html>
