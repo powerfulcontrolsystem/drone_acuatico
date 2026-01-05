@@ -4,185 +4,43 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Configuración - Drone Acuático</title>
-    main {
-      max-width: 520px;
-      margin: 0 auto;
-      display: flex;
-      flex-direction: column;
-      gap: 28px;
-    }
-    .card {
-      background: #232e43;
-      border-radius: 12px;
-      box-shadow: 0 2px 16px rgba(0,0,0,0.18);
-      padding: 22px 20px 18px 20px;
-      margin-bottom: 0;
-      border: 1.5px solid #2a3748;
-    }
-    .grid {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 18px 16px;
-    }
-    .grid > div, .grid-uno > div {
-      flex: 1 1 180px;
-      min-width: 140px;
-    }
-    .grid-uno {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-    label {
-      font-size: 13px;
-      display: block;
-      margin-bottom: 6px;
-      font-weight: 500;
-      color: #8a92a0;
-    }
-    input, select {
-      width: 100%;
-      padding: 10px 12px;
-      font-size: 14px;
-      outline: none;
-      background: #1a2332;
-      color: #e8edef;
-      border: 1.5px solid #2a3748;
-      border-radius: 7px;
-      margin-bottom: 2px;
-      transition: border 0.18s;
-    }
-    input:focus, select:focus {
-      border-color: #4a9eff;
-    }
-    input[type="checkbox"] {
-      width: auto;
-      margin-right: 8px;
-      accent-color: #4a9eff;
-    }
-    small {
-      display: block;
-      margin-top: 4px;
-      font-size: 11px;
-      opacity: 0.75;
-      color: #b0b8c2;
-    }
-    .row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-top: 12px;
-    }
-    .row label { margin: 0; }
-    footer {
-      margin-top: 32px;
-      display: flex;
-      gap: 16px;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-    .msg {
-      text-align: center;
-      font-size: 13px;
-      margin-top: 12px;
-      padding: 10px;
-      background: #232e43;
-      border-radius: 8px;
-      color: #4a9eff;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.10);
-    }
-    .btn {
-      font-size: 14px;
-      padding: 12px 22px;
-      border-radius: 999px;
-      background: linear-gradient(90deg, #4a9eff 60%, #6a8cff 100%);
-      color: #fff;
-      border: none;
-      font-weight: 600;
-      box-shadow: 0 2px 8px rgba(74,158,255,0.10);
-      cursor: pointer;
-      transition: background 0.18s, box-shadow 0.18s, transform 0.12s;
-      outline: none;
-      letter-spacing: 0.02em;
-      position: relative;
-      z-index: 1;
-    }
-    .btn:hover {
-      background: linear-gradient(90deg, #3a8ae5 60%, #4a9eff 100%);
-      box-shadow: 0 4px 16px rgba(74,158,255,0.18);
-      transform: translateY(-2px) scale(1.04);
-    }
-    .btn:active {
-      transform: scale(0.98);
-      box-shadow: 0 1px 3px rgba(74,158,255,0.10);
-    }
-    @media (max-width: 600px) {
-      main { padding: 0 2px; }
-      .card { padding: 12px 4px 10px 4px; }
-    }
-  </style>
+  <link rel="stylesheet" href="tema_universal.css">
 </head>
 <body>
-  <header>
-    <h1>⚙️ Configuración del Drone Acuático</h1>
-    <div style="display: flex; gap: 12px; align-items: center;">
-      <button class="btn btn-volver" onclick="volverAlControl()">⟵ Volver al Control</button>
-    </div>
-  </header>
-
-  <main>
+  <main class="config-main">
     <section class="card">
-      <h2>🔧 Sistema</h2>
+      <h1 style="text-align:center;">Configuración General</h1>
       <div class="grid">
         <div>
-          <label for="ipPublica">IP pública de la Raspberry</label>
-          <input id="ipPublica" type="text" placeholder="Ej: 192.168.1.7" />
+          <label for="ipPublica">IP Pública</label>
+          <input id="ipPublica" type="text" placeholder="192.168.1.15" />
         </div>
-        <div class="row" style="margin-top: 18px;">
+        <div>
+          <label for="correo">Correo de notificación</label>
+          <input id="correo" type="email" placeholder="correo@dominio.com" />
+        </div>
+        <div>
+          <label for="tamanoMapa">Tamaño del mapa (px)</label>
+          <input id="tamanoMapa" type="number" min="200" max="800" step="10" placeholder="400" />
+        </div>
+        <div>
           <input id="solicitarPassword" type="checkbox" />
-          <label for="solicitarPassword">Solicitar contraseña al iniciar</label>
+          <label for="solicitarPassword">Solicitar contraseña al entrar</label>
         </div>
         <div>
-          <label for="correo">Correo electrónico</label>
-          <input id="correo" type="email" placeholder="correo@ejemplo.com" />
-        </div>
-        <div>
-          <label for="passwordNueva">Nueva contraseña</label>
-          <input id="passwordNueva" type="password" placeholder="••••••" />
+          <label for="frecuenciaGuardado">Frecuencia guardado GPS (seg)</label>
+          <input id="frecuenciaGuardado" type="number" min="5" max="300" step="5" placeholder="30" />
         </div>
       </div>
     </section>
-
     <section class="card">
-      <h2>🗺️ Mapa GPS</h2>
-      <div class="grid">
-        <div>
-          <label for="tamanoMapa">Tamaño del mapa (px altura)</label>
-          <input id="tamanoMapa" type="number" min="200" max="1200" step="10" placeholder="400" value="400" />
-        </div>
-        <div>
-          <label for="frecuenciaGuardado">Frecuencia de guardado (segundos)</label>
-          <input id="frecuenciaGuardado" type="number" min="5" max="300" step="1" placeholder="30" value="30" />
-          <small style="display: block; margin-top: 4px; opacity: 0.8;">Solo si el guardado automático está activado</small>
-        </div>
-      </div>
-      <div class="row" style="margin-top: 12px;">
+      <div class="row">
         <input id="guardarRecorrido" type="checkbox" />
         <label for="guardarRecorrido">✓ Guardar recorrido automáticamente</label>
       </div>
-      <div id="mapa-gps-container" style="width: 100%; display: flex; justify-content: center; margin-top: 18px;"></div>
+      <div id="mapa-gps-container"></div>
     </section>
 
-    <section class="card">
-      <h2>📊 Datos de Control</h2>
-      <div class="grid">
-        <div>
-          <label for="tamanoLetraDatos">Tamaño de letra de los datos (px)</label>
-          <input id="tamanoLetraDatos" type="number" min="8" max="24" step="1" placeholder="12" />
-          <small style="display: block; margin-top: 4px; opacity: 0.8;">Afecta: RAM, Temp, Batería, Red, GPS, etc.</small>
-        </div>
-      </div>
-    </section>
 
     <section class="card">
       <h2>📷 Cámaras</h2>
@@ -195,11 +53,11 @@
           <label for="urlCamara1HD">URL RTSP Cámara 1 - Calidad HD/2K</label>
           <input id="urlCamara1HD" type="text" placeholder="rtsp://usuario:clave@192.168.1.9:554/live/ch1" />
         </div>
-        <div class="row" style="margin-top: 18px;">
+        <div class="row">
           <input id="desactivarCamara1" type="checkbox" />
           <label for="desactivarCamara1">Desactivar Cámara 1</label>
         </div>
-        <div style="margin-top: 10px;">
+        <div>
           <label for="urlCamara2SD">URL RTSP Cámara 2 - Calidad SD</label>
           <input id="urlCamara2SD" type="text" placeholder="rtsp://usuario:clave@192.168.1.10:554/live/ch0" />
         </div>
@@ -207,7 +65,7 @@
           <label for="urlCamara2HD">URL RTSP Cámara 2 - Calidad HD/2K</label>
           <input id="urlCamara2HD" type="text" placeholder="rtsp://usuario:clave@192.168.1.10:554/live/ch1" />
         </div>
-        <div class="row" style="margin-top: 18px;">
+        <div class="row">
           <input id="desactivarCamara2" type="checkbox" />
           <label for="desactivarCamara2">Desactivar Cámara 2</label>
         </div>
@@ -257,7 +115,7 @@
     </section>
   </main>
 
-  <footer>
+  <footer style="text-align:center; margin: 24px 0;">
     <button class="btn btn-guardar" onclick="guardarConfig()">💾 Guardar</button>
     <button class="btn btn-cargar" onclick="cargarConfig()">⤳ Cargar</button>
   </footer>
@@ -307,7 +165,6 @@
         solicitar_password: document.getElementById('solicitarPassword').checked,
         correo: document.getElementById('correo').value.trim(),
         tamano_mapa: parseInt(document.getElementById('tamanoMapa').value || '400', 10),
-        tamano_letra_datos: parseInt(document.getElementById('tamanoLetraDatos').value || '12', 10),
         guardar_recorrido: document.getElementById('guardarRecorrido').checked,
         frecuencia_guardado: parseInt(document.getElementById('frecuenciaGuardado').value || '30', 10),
         url_camara1_sd: document.getElementById('urlCamara1SD').value.trim(),
@@ -335,7 +192,8 @@
       document.getElementById('ipPublica').value = cfg.ip_publica || '';
       document.getElementById('solicitarPassword').checked = !!cfg.solicitar_password;
       document.getElementById('correo').value = cfg.correo || '';
-      document.getElementById('tamanoMapa').value = cfg.tamano_mapa || 400;      document.getElementById('tamanoLetraDatos').value = cfg.tamano_letra_datos || 12;      document.getElementById('guardarRecorrido').checked = !!cfg.guardar_recorrido;
+      document.getElementById('tamanoMapa').value = cfg.tamano_mapa || 400;
+      document.getElementById('guardarRecorrido').checked = !!cfg.guardar_recorrido;
       document.getElementById('frecuenciaGuardado').value = cfg.frecuencia_guardado || 30;
       document.getElementById('urlCamara1SD').value = cfg.url_camara1_sd || '';
       document.getElementById('urlCamara1HD').value = cfg.url_camara1_hd || '';
@@ -378,5 +236,8 @@
     window.onload = function() {
       cargarConfig();
     };
-  </script>  <script src="tema.js"></script></body>
+  </script>
+  <script src="tema.js"></script>
+</main>
+</body>
 </html>
