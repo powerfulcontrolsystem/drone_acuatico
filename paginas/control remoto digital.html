@@ -6,24 +6,28 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Control Remoto Digital</title>
 	<link rel="stylesheet" href="/static/tema_universal.css">
+	<script src="/static/leaflet_loader.js"></script>
 </head>
 <body>
 		<div class="cuadro-superior">
 			<div class="fila-superior">
-				<div class="panel-cam">
+				<div class="panel-cam" data-title="Cámara 1">
 					<video id="videoCam1" controls muted playsinline></video>
+					<button id="playCam1" class="btn btn-cam">Play Cam 1</button>
 				</div>
-				<div class="panel-cam">
+				<div class="panel-cam" data-title="Cámara 2">
 					<video id="videoCam2" controls muted playsinline></video>
+					<button id="playCam2" class="btn btn-cam">Play Cam 2</button>
 				</div>
-				<div class="panel-cam">
-					<!-- Recuadro vacío para el mapa eliminado -->
+				<div class="panel-cam" data-title="Mapa GPS">
+					<div id="mapa-gps" style="width: 100%; height: 180px; min-width: 180px; min-height: 120px; border-radius: 8px; background: #232a36;"></div>
 				</div>
 			</div>
 		</div>
 		<div class="cuadro-inferior">
 			<div class="fila-inferior">
 				<div class="panel-bajo">
+					<div id="debug-panel" style="background:#222;color:#fff;padding:8px;font-size:12px;border-radius:8px;margin:8px 0;max-width:600px;overflow-x:auto;display:none"></div>
 					<div class="cruz-botones">
 						<button class="btn btn-direccion" id="btn-arriba">▲</button>
 						<div class="cruz-fila-central">
@@ -62,61 +66,68 @@
 					</div>
 				</div>
 				<div class="panel-bajo">
-					<div class="indicadores-grid">
-						<div class="indicador-item estado-conexion">
+					<div class="indicadores-grid" style="display: grid; grid-template-columns: repeat(2, minmax(180px, 1fr)); gap: 8px; max-width: 400px; margin: 0 auto;">
+						<div class="indicador-item estado-conexion" style="margin:2px; padding:4px;">
 							<span id="indicador-conexion" class="desconectado">
 								<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><circle cx="8" cy="8" r="7" fill="#e53935"/></svg>
 								<span id="texto-conexion" style="color:#e53935; font-weight:600;">Desconectado</span>
 							</span>
 						</div>
-						<div class="indicador-item indicador-ram">
+						<div class="indicador-item indicador-ram" style="margin:2px; padding:4px;">
 							<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><rect x="2" y="4" width="12" height="8" rx="2" fill="#6ec1e4"/></svg>
 							RAM: <span id="ram-valor">--</span>
 						</div>
-						<div class="indicador-item indicador-temp">
+						<div class="indicador-item indicador-temp" style="margin:2px; padding:4px;">
 							<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><rect x="7" y="2" width="2" height="8" fill="#e6a23c"/><circle cx="8" cy="12" r="3" fill="#e6a23c"/></svg>
 							Temp: <span id="temp-valor">--</span>
 						</div>
-						<div class="indicador-item indicador-bat">
+						<div class="indicador-item indicador-bat" style="margin:2px; padding:4px;">
 							<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><rect x="3" y="5" width="10" height="6" rx="2" fill="#43a047"/><rect x="13" y="7" width="2" height="2" fill="#43a047"/></svg>
 							Batería: <span id="bat-valor">--</span>
 						</div>
-						<div class="indicador-item indicador-red">
+						<div class="indicador-item indicador-red" style="margin:2px; padding:4px;">
 							<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><circle cx="8" cy="8" r="7" fill="#6ec1e4"/></svg>
 							Red: <span id="red-valor">--</span>
 						</div>
-						<div class="indicador-item indicador-vel">
+						<div class="indicador-item indicador-vel" style="margin:2px; padding:4px;">
 							<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><path d="M8 2 A6 6 0 1 1 7.99 2" stroke="#6ec1e4" stroke-width="2" fill="none"/><circle cx="8" cy="8" r="2" fill="#6ec1e4"/></svg>
 							Velocidad: <span id="vel-valor">--</span>
 						</div>
-						<div class="indicador-item indicador-solar">
+						<div class="indicador-item indicador-solar" style="margin:2px; padding:4px;">
 							<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><circle cx="8" cy="8" r="4" fill="#ffd600"/></svg>
 							Solar: <span id="solar-valor">--</span>
 						</div>
-						<div class="indicador-item indicador-peso">
+						<div class="indicador-item indicador-peso" style="margin:2px; padding:4px;">
 							<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><rect x="4" y="8" width="8" height="4" fill="#b71c1c"/></svg>
 							Peso: <span id="peso-valor">--</span>
+						</div>
+						<div class="indicador-item indicador-gps" style="margin:2px; padding:4px;">
+							<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><circle cx="8" cy="8" r="7" fill="#6ec1e4"/></svg>
+							Lat: <span id="gps-lat">--</span> Lon: <span id="gps-lon">--</span>
 						</div>
 					</div>
 				</div>
 			</div>
 		</div>
-	<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-	<script>
-			// Cámara 1
-			function iniciarCamara(videoId, playlist) {
-					var video = document.getElementById(videoId);
-					if (window.Hls && Hls.isSupported()) {
-							var hls = new Hls({lowLatencyMode: true});
-							hls.loadSource(playlist);
-							hls.attachMedia(video);
-					} else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-							video.src = playlist;
-					}
-			}
-			// Ajusta la ruta según tu servidor HLS
+	    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+	    <script>
+		    // Cámara 1 y 2
+		    function iniciarCamara(videoId, playlist) {
+			    var video = document.getElementById(videoId);
+			    if (window.Hls && Hls.isSupported()) {
+				    var hls = new Hls({lowLatencyMode: true});
+				    hls.loadSource(playlist);
+				    hls.attachMedia(video);
+			    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+				    video.src = playlist;
+			    }
+		    }
+		    document.getElementById('playCam1').onclick = function() {
 			iniciarCamara('videoCam1', '/hls/cam1/cam1.m3u8');
+		    };
+		    document.getElementById('playCam2').onclick = function() {
 			iniciarCamara('videoCam2', '/hls/cam2/cam2.m3u8');
+		    };
 
 			// WebSocket para indicadores y relés
 			let ws;
@@ -148,55 +159,63 @@
 				}
 			}
 			function actualizarIndicadores(data) {
-				// RAM de la Raspberry
-				if (data.ram !== undefined && data.ram !== null) {
-					document.getElementById('ram-valor').textContent = Number(data.ram).toFixed(1) + ' %';
+				// Mostrar todos los datos en el panel de depuración
+				// ...eliminar panel de depuración...
+				// RAM
+				if (data.ram && typeof data.ram.percent !== 'undefined') {
+					document.getElementById('ram-valor').textContent = data.ram.percent + ' % (' + data.ram.used + 'MB/' + data.ram.total + 'MB)';
+				} else {
+					document.getElementById('ram-valor').textContent = '--';
 				}
-				// Temperatura de la Raspberry
-				if (data.temp !== undefined && data.temp !== null) {
-					document.getElementById('temp-valor').textContent = Number(data.temp).toFixed(1) + ' °C';
+				// Temperatura
+				if (data.temperatura && typeof data.temperatura.temperatura !== 'undefined') {
+					document.getElementById('temp-valor').textContent = data.temperatura.temperatura + ' °C';
+				} else {
+					document.getElementById('temp-valor').textContent = '--';
 				}
 				// Batería
-				if (data.bateria !== undefined && data.bateria !== null) {
-					document.getElementById('bat-valor').textContent = Number(data.bateria).toFixed(1) + ' %';
+				if (data.bateria && typeof data.bateria.porcentaje !== 'undefined') {
+					document.getElementById('bat-valor').textContent = data.bateria.porcentaje + ' %';
+				} else {
+					document.getElementById('bat-valor').textContent = '--';
 				}
 				// Red
 				if (data.red !== undefined && data.red !== null) {
 					document.getElementById('red-valor').textContent = Number(data.red).toFixed(1) + ' Mbps';
+				} else {
+					document.getElementById('red-valor').textContent = '--';
 				}
-				// Velocidad obtenida del sensor GPS
+				// Velocidad
 				if (data.velocidad !== undefined && data.velocidad !== null) {
 					document.getElementById('vel-valor').textContent = Number(data.velocidad).toFixed(2) + ' km/h';
+				} else {
+					document.getElementById('vel-valor').textContent = '--';
 				}
 				// Solar
-				if (data.solar !== undefined && data.solar !== null) {
+				if (data.solar && typeof data.solar !== 'undefined') {
 					document.getElementById('solar-valor').textContent = Number(data.solar).toFixed(1) + ' W';
+				} else {
+					document.getElementById('solar-valor').textContent = '--';
 				}
 				// Peso
-				if (data.peso !== undefined && data.peso !== null) {
-					document.getElementById('peso-valor').textContent = Number(data.peso).toFixed(2) + ' kg';
+				if (data.peso && typeof data.peso.peso_kg !== 'undefined') {
+					document.getElementById('peso-valor').textContent = Number(data.peso.peso_kg).toFixed(2) + ' kg';
+				} else {
+					document.getElementById('peso-valor').textContent = '--';
 				}
-			}
-			function conectarWS() {
-				ws = new WebSocket((location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '/ws');
-				ws.onopen = () => {
-					conectado = true;
-					setConexion(true);
-					beep(1200, 120, 0.18);
-				};
-				ws.onclose = () => {
-					conectado = false;
-					setConexion(false);
-					beep(400, 220, 0.18);
-					setTimeout(conectarWS, 2000);
-				};
-				ws.onmessage = (ev) => {
-					try {
-						const msg = JSON.parse(ev.data);
-						if (msg.tipo === 'indicadores') actualizarIndicadores(msg.datos);
-						if (msg.tipo === 'reles') renderReles(msg.datos);
-					} catch(e) {}
-				};
+				// GPS Lat/Lon y mapa
+				if (data.gps && data.gps.latitud && data.gps.longitud && data.gps.valido) {
+					let lat = Number(data.gps.latitud);
+					let lon = Number(data.gps.longitud);
+					document.getElementById('gps-lat').textContent = isNaN(lat) ? '--' : lat.toFixed(1);
+					document.getElementById('gps-lon').textContent = isNaN(lon) ? '--' : lon.toFixed(1);
+					if (!isNaN(lat) && !isNaN(lon)) {
+						mostrarMapaGPS(lat, lon);
+					}
+				} else {
+					document.getElementById('gps-lat').textContent = '--';
+					document.getElementById('gps-lon').textContent = '--';
+				}
 			}
 			// Relés
 			function renderReles(reles) {
@@ -221,6 +240,36 @@
 						body: JSON.stringify({ estado: encender })
 					});
 				} catch (e) {}
+			}
+			function conectarWS() {
+				let wsProto = (location.protocol === 'https:') ? 'wss://' : 'ws://';
+				let wsUrl = wsProto + location.hostname + ':8080/ws';
+				ws = new WebSocket(wsUrl);
+				ws.onopen = function() {
+					setConexion(true);
+					conectado = true;
+				};
+				ws.onclose = function() {
+					setConexion(false);
+					conectado = false;
+					setTimeout(conectarWS, 2000); // reconectar
+				};
+				ws.onerror = function() {
+					setConexion(false);
+				};
+				ws.onmessage = function(event) {
+					try {
+						let data = JSON.parse(event.data);
+						if (data.tipo === 'conexion' || data.tipo === 'datos') {
+							actualizarIndicadores(data);
+						}
+						if (data.tipo === 'reles' && data.reles) {
+							renderReles(data.reles);
+						}
+					} catch(e) {
+						// Error de parseo
+					}
+				};
 			}
 			window.addEventListener('DOMContentLoaded', () => {
 				conectarWS();

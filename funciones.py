@@ -162,13 +162,17 @@ def controlar_rele(numero, encender):
     """
     if numero not in RELES_PINES:
         return False, f"Relé {numero} no válido (1-9)"
-    
+    # Guardar estado en base de datos
+    try:
+        from base_de_datos.base_datos import guardar_estado_rele
+        guardar_estado_rele(numero, int(encender))
+    except Exception as e:
+        logger.error(f"No se pudo guardar estado de relé en BD: {e}")
     if not GPIO_DISPONIBLE:
         # Modo simulación
         ESTADO_RELES[numero] = encender
         logger.info(f"[SIM] Relé {numero}: {'ON' if encender else 'OFF'}")
         return True, None
-    
     try:
         pin = RELES_PINES[numero]
         # Relé activo-bajo: LOW=encendido, HIGH=apagado
@@ -176,7 +180,6 @@ def controlar_rele(numero, encender):
         ESTADO_RELES[numero] = encender
         logger.info(f"Relé {numero}: {'ENCENDIDO' if encender else 'APAGADO'}")
         return True, None
-    
     except Exception as e:
         logger.error(f"Error controlando relé {numero}: {e}")
         return False, str(e)
@@ -535,9 +538,9 @@ def obtener_posicion_gps():
     """
     if GPS_DATOS['valido']:
         return {
-            'lat': GPS_DATOS['latitud'],
-            'lon': GPS_DATOS['longitud'],
-            'alt': GPS_DATOS['altitud'],
+            'latitud': GPS_DATOS['latitud'],
+            'longitud': GPS_DATOS['longitud'],
+            'altitud': GPS_DATOS['altitud'],
             'velocidad': GPS_DATOS['velocidad'],
             'satelites': GPS_DATOS['satelites'],
             'timestamp': GPS_DATOS['timestamp']

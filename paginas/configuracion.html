@@ -192,7 +192,7 @@
       <div class="grid">
         <div>
           <label for="tamanoMapa">Tamaño del mapa (px altura)</label>
-          <input id="tamanoMapa" type="number" min="200" max="1200" step="10" placeholder="400" />
+          <input id="tamanoMapa" type="number" min="200" max="1200" step="10" placeholder="400" value="400" />
         </div>
         <div>
           <label for="frecuenciaGuardado">Frecuencia de guardado (segundos)</label>
@@ -204,6 +204,7 @@
         <input id="guardarRecorrido" type="checkbox" />
         <label for="guardarRecorrido">✓ Guardar recorrido automáticamente</label>
       </div>
+      <div id="mapa-gps-container" style="width: 100%; display: flex; justify-content: center; margin-top: 18px;"></div>
     </section>
 
     <section class="card">
@@ -297,6 +298,30 @@
   <div id="mensaje" class="msg"></div>
 
   <script>
+        // Mostrar el mapa con la ubicación actual
+        function mostrarUbicacionActual() {
+          if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(pos) {
+              const lat = pos.coords.latitude;
+              const lon = pos.coords.longitude;
+              if (window.mostrarMapaGPS) {
+                window.mostrarMapaGPS(lat, lon);
+              } else {
+                const script = document.createElement('script');
+                script.src = 'leaflet_loader.js';
+                script.onload = function() {
+                  window.mostrarMapaGPS(lat, lon);
+                };
+                document.body.appendChild(script);
+              }
+            }, function(err) {
+              setMsg('No se pudo obtener la ubicación actual.', false);
+            });
+          } else {
+            setMsg('Geolocalización no soportada.', false);
+          }
+        }
+        document.addEventListener('DOMContentLoaded', mostrarUbicacionActual);
     const API = '/api/config';
 
     function volverAlControl() {
