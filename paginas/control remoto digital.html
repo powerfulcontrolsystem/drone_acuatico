@@ -67,41 +67,41 @@
 				</div>
 				<div class="panel-bajo">
 					<div class="indicadores-grid" style="display: grid; grid-template-columns: repeat(2, minmax(180px, 1fr)); gap: 8px; max-width: 400px; margin: 0 auto;">
-						<div class="indicador-item estado-conexion" style="margin:2px; padding:4px;">
+						<div class="indicador-item estado-conexion" style="margin:0; padding:2px; font-size:14px; font-family:'Segoe UI', 'Roboto', Arial, sans-serif;">
 							<span id="indicador-conexion" class="desconectado">
 								<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><circle cx="8" cy="8" r="7" fill="#e53935"/></svg>
 								<span id="texto-conexion" style="color:#e53935; font-weight:600;">Desconectado</span>
 							</span>
 						</div>
-						<div class="indicador-item indicador-ram" style="margin:2px; padding:4px;">
+						<div class="indicador-item indicador-ram" style="margin:0; padding:2px; font-size:14px; font-family:'Segoe UI', 'Roboto', Arial, sans-serif;">
 							<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><rect x="2" y="4" width="12" height="8" rx="2" fill="#6ec1e4"/></svg>
 							RAM: <span id="ram-valor">--</span>
 						</div>
-						<div class="indicador-item indicador-temp" style="margin:2px; padding:4px;">
+						<div class="indicador-item indicador-temp" style="margin:0; padding:2px; font-size:14px; font-family:'Segoe UI', 'Roboto', Arial, sans-serif;">
 							<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><rect x="7" y="2" width="2" height="8" fill="#e6a23c"/><circle cx="8" cy="12" r="3" fill="#e6a23c"/></svg>
 							Temp: <span id="temp-valor">--</span>
 						</div>
-						<div class="indicador-item indicador-bat" style="margin:2px; padding:4px;">
+						<div class="indicador-item indicador-bat" style="margin:0; padding:2px; font-size:14px; font-family:'Segoe UI', 'Roboto', Arial, sans-serif;">
 							<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><rect x="3" y="5" width="10" height="6" rx="2" fill="#43a047"/><rect x="13" y="7" width="2" height="2" fill="#43a047"/></svg>
 							Batería: <span id="bat-valor">--</span>
 						</div>
-						<div class="indicador-item indicador-red" style="margin:2px; padding:4px;">
+						<div class="indicador-item indicador-red" style="margin:0; padding:2px; font-size:14px; font-family:'Segoe UI', 'Roboto', Arial, sans-serif;">
 							<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><circle cx="8" cy="8" r="7" fill="#6ec1e4"/></svg>
 							Red: <span id="red-valor">--</span>
 						</div>
-						<div class="indicador-item indicador-vel" style="margin:2px; padding:4px;">
+						<div class="indicador-item indicador-vel" style="margin:0; padding:2px; font-size:14px; font-family:'Segoe UI', 'Roboto', Arial, sans-serif;">
 							<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><path d="M8 2 A6 6 0 1 1 7.99 2" stroke="#6ec1e4" stroke-width="2" fill="none"/><circle cx="8" cy="8" r="2" fill="#6ec1e4"/></svg>
 							Velocidad: <span id="vel-valor">--</span>
 						</div>
-						<div class="indicador-item indicador-solar" style="margin:2px; padding:4px;">
+						<div class="indicador-item indicador-solar" style="margin:0; padding:2px; font-size:14px; font-family:'Segoe UI', 'Roboto', Arial, sans-serif;">
 							<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><circle cx="8" cy="8" r="4" fill="#ffd600"/></svg>
 							Solar: <span id="solar-valor">--</span>
 						</div>
-						<div class="indicador-item indicador-peso" style="margin:2px; padding:4px;">
+						<div class="indicador-item indicador-peso" style="margin:0; padding:2px; font-size:14px; font-family:'Segoe UI', 'Roboto', Arial, sans-serif;">
 							<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><rect x="4" y="8" width="8" height="4" fill="#b71c1c"/></svg>
 							Peso: <span id="peso-valor">--</span>
 						</div>
-						<div class="indicador-item indicador-gps" style="margin:2px; padding:4px;">
+						<div class="indicador-item indicador-gps" style="margin:0; padding:2px; font-size:14px; font-family:'Segoe UI', 'Roboto', Arial, sans-serif;">
 							<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><circle cx="8" cy="8" r="7" fill="#6ec1e4"/></svg>
 							Lat: <span id="gps-lat">--</span> Lon: <span id="gps-lon">--</span>
 						</div>
@@ -221,13 +221,15 @@
 			function renderReles(reles) {
 				const contenedor = document.getElementById('reles-botones');
 				contenedor.innerHTML = '';
+				// Obtener nombres personalizados de la configuración global si existen
+				let nombresReles = window.nombres_reles || {};
 				for (let i = 1; i <= 9; i++) {
-					const nombre = reles[i]?.nombre || `Relé ${i}`;
-					const activo = reles[i]?.estado ? 'activo' : 'inactivo';
+					let nombre = nombresReles[i] || reles[i]?.nombre || `Relé ${i}`;
+					let activo = reles[i]?.estado ? 'activo' : 'inactivo';
 					const btn = document.createElement('button');
 					btn.className = `btn btn-rele ${activo}`;
 					btn.id = `rele${i}`;
-					btn.textContent = nombre;
+					btn.textContent = nombre + (activo === 'activo' ? ' (ON)' : ' (OFF)');
 					btn.onclick = () => toggleRele(i, !(reles[i]?.estado));
 					contenedor.appendChild(btn);
 				}
@@ -261,6 +263,9 @@
 					try {
 						let data = JSON.parse(event.data);
 						if (data.tipo === 'conexion' || data.tipo === 'datos') {
+							if (data.nombres_reles) {
+								window.nombres_reles = data.nombres_reles;
+							}
 							actualizarIndicadores(data);
 						}
 						if (data.tipo === 'reles' && data.reles) {

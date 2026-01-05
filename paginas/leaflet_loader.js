@@ -21,12 +21,20 @@ function crearMapa(lat, lon) {
         return;
     }
     mapDiv.innerHTML = "";
+    // Definir icono personalizado de barco/lancha
+    var barcoIcon = L.icon({
+        iconUrl: 'https://cdn-icons-png.flaticon.com/128/2933/2933186.png', // Icono de lancha/barco transparente
+        iconSize: [32, 32],
+        iconAnchor: [16, 16],
+        popupAnchor: [0, -16]
+    });
     if (window._leafletMap) {
         window._leafletMap.setView([lat, lon], 16);
         if (window._leafletMarker) {
             window._leafletMarker.setLatLng([lat, lon]);
+            window._leafletMarker.setIcon(barcoIcon);
         } else {
-            window._leafletMarker = L.marker([lat, lon]).addTo(window._leafletMap);
+            window._leafletMarker = L.marker([lat, lon], {icon: barcoIcon}).addTo(window._leafletMap);
         }
         return;
     }
@@ -35,5 +43,5 @@ function crearMapa(lat, lon) {
         maxZoom: 19,
         attribution: '© OpenStreetMap'
     }).addTo(window._leafletMap);
-    window._leafletMarker = L.marker([lat, lon]).addTo(window._leafletMap);
+    window._leafletMarker = L.marker([lat, lon], {icon: barcoIcon}).addTo(window._leafletMap);
 }
