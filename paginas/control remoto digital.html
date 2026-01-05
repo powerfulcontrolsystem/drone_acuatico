@@ -10,15 +10,15 @@
 </head>
 <body>
 		<!-- Tuerca flotante en esquina superior derecha -->
-		<div id="menu-flotante" style="position:fixed;top:18px;right:18px;z-index:1000;">
-			<button id="btn-tuerca" class="btn-menu" style="background:#232a36;border-radius:50%;width:44px;height:44px;box-shadow:0 2px 8px #0003;display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;">
-				<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#4a9eff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.09a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.09a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.09a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+		<div id="menu-flotante">
+		<button id="btn-tuerca" class="btn-menu" type="button" aria-label="Menú de opciones">
+				<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#4a9eff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.09a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.09a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.09a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
 			</button>
-			<div id="menu-opciones" style="display:none;position:absolute;top:54px;right:0;background:#232a36;border-radius:12px;box-shadow:0 2px 16px #0005;padding:10px 0;min-width:180px;">
-				<button class="btn-menu" style="width:100%;padding:10px 18px;text-align:left;border:none;background:none;color:#e8edef;cursor:pointer;" onclick="document.documentElement.requestFullscreen()">🖵 Pantalla completa</button>
-				<button class="btn-menu" style="width:100%;padding:10px 18px;text-align:left;border:none;background:none;color:#e8edef;cursor:pointer;" onclick="window.location.href='configuracion.html'">⚙️ Configuración</button>
-				<button class="btn-menu" style="width:100%;padding:10px 18px;text-align:left;border:none;background:none;color:#e8edef;cursor:pointer;" onclick="if(confirm('¿Reiniciar el sistema?')) fetch('/api/reiniciar', {method:'POST'}).then(()=>window.location.reload())">🔄 Reiniciar</button>
-				<button class="btn-menu" style="width:100%;padding:10px 18px;text-align:left;border:none;background:none;color:#e8edef;cursor:pointer;" onclick="if(confirm('¿Apagar el sistema?')) fetch('/api/apagar', {method:'POST'})">⏻ Apagar</button>
+			<div id="menu-opciones" style="display:none;">
+				<button class="btn-menu" onclick="document.documentElement.requestFullscreen()">🖵 Pantalla completa</button>
+				<button class="btn-menu" onclick="window.location.href='configuracion.html'">⚙️ Configuración</button>
+				<button class="btn-menu" onclick="if(confirm('¿Reiniciar el sistema?')) fetch('/api/reiniciar', {method:'POST'}).then(()=>window.location.reload())">🔄 Reiniciar</button>
+				<button class="btn-menu" onclick="if(confirm('¿Apagar el sistema?')) fetch('/api/apagar', {method:'POST'})">⏻ Apagar</button>
 			</div>
 		</div>
 		<script>

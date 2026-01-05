@@ -1,3 +1,55 @@
+/* === Tuerca flotante y menú === */
+#menu-flotante {
+  position: fixed;
+  top: 18px;
+  right: 18px;
+  z-index: 1000;
+}
+#btn-tuerca {
+  background: #232a36;
+  border-radius: 50%;
+  width: 64px;
+  height: 64px;
+  box-shadow: 0 2px 8px #0003;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: none;
+  transition: box-shadow 0.2s;
+}
+#btn-tuerca:hover {
+  box-shadow: 0 4px 16px #0005;
+  background: #263043;
+}
+#menu-opciones {
+  display: none;
+  position: absolute;
+  top: 54px;
+  right: 0;
+  background: #232a36;
+  border-radius: 12px;
+  box-shadow: 0 2px 16px #0005;
+  padding: 10px 0;
+  min-width: 260px;
+}
+.btn-menu {
+  width: 100%;
+  padding: 10px 18px;
+  text-align: left;
+  border: none;
+  background: none;
+  color: #e8edef;
+  cursor: pointer;
+  font-size: 1em;
+  font-family: inherit;
+  border-radius: 8px;
+  transition: background 0.2s, color 0.2s;
+}
+.btn-menu:hover {
+  background: #263043;
+  color: #4a9eff;
+}
 .indicadores-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -78,9 +130,15 @@
 
 /* Botones de relé: color y estado */
 .btn-rele {
-	border-color: #ffd600;
-	background: #333a2a;
-	color: #ffd600;
+  border-color: #ffd600;
+  background: #333a2a;
+  color: #ffd600;
+  min-width: 120px;
+  min-height: 38px;
+  padding: 8px 18px;
+  font-size: 1.1em;
+  font-family: inherit;
+  font-weight: 500;
 }
 .btn-rele.activo {
 	background: #ffd600;
