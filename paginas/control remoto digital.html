@@ -66,14 +66,20 @@
 			});
 		</script>
 			<div class="fila-superior">
-				<div class="panel-cam">
-					<video id="videoCam1" controls muted playsinline></video>
-					<button id="playCam1" class="btn btn-cam">Play Cam 1</button>
-				</div>
-				<div class="panel-cam">
-					<video id="videoCam2" controls muted playsinline></video>
-					<button id="playCam2" class="btn btn-cam">Play Cam 2</button>
-				</div>
+				   <div class="panel-cam">
+					   <video id="videoCam1" controls muted playsinline></video>
+					   <div style="display: flex; gap: 8px; margin-top: 4px;">
+						   <button id="playCam1" class="btn btn-cam">Play Cam 1</button>
+						   <button id="captureCam1" class="btn btn-cam">Capturar Foto</button>
+					   </div>
+				   </div>
+				   <div class="panel-cam">
+					   <video id="videoCam2" controls muted playsinline></video>
+					   <div style="display: flex; gap: 8px; margin-top: 4px;">
+						   <button id="playCam2" class="btn btn-cam">Play Cam 2</button>
+						   <button id="captureCam2" class="btn btn-cam">Capturar Foto</button>
+					   </div>
+				   </div>
 				<div class="panel-cam">
 					<div id="mapa-gps" style="width: 100%; height: 180px; min-width: 180px; min-height: 120px; border-radius: 8px; background: #232a36;"></div>
 				</div>
@@ -157,22 +163,93 @@
 	    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 	    <script>
 		    // Cámara 1 y 2
-		    function iniciarCamara(videoId, playlist) {
-			    var video = document.getElementById(videoId);
-			    if (window.Hls && Hls.isSupported()) {
-				    var hls = new Hls({lowLatencyMode: true});
-				    hls.loadSource(playlist);
-				    hls.attachMedia(video);
-			    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-				    video.src = playlist;
-			    }
-		    }
-		    document.getElementById('playCam1').onclick = function() {
-			iniciarCamara('videoCam1', '/hls/cam1/cam1.m3u8');
-		    };
-		    document.getElementById('playCam2').onclick = function() {
-			iniciarCamara('videoCam2', '/hls/cam2/cam2.m3u8');
-		    };
+
+			   // --- Play/Stop y Captura ---
+			   let hlsPlayers = { cam1: null, cam2: null };
+			   let playing = { cam1: false, cam2: false };
+
+			   function iniciarCamara(videoId, playlist, camKey) {
+				   var video = document.getElementById(videoId);
+				   if (window.Hls && Hls.isSupported()) {
+					   if (hlsPlayers[camKey]) {
+						   hlsPlayers[camKey].destroy();
+					   }
+					   var hls = new Hls({lowLatencyMode: true});
+					   hls.loadSource(playlist);
+					   hls.attachMedia(video);
+					   hlsPlayers[camKey] = hls;
+				   } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+					   video.src = playlist;
+				   }
+				   video.play();
+				   playing[camKey] = true;
+			   }
+
+			   function detenerCamara(videoId, camKey) {
+				   var video = document.getElementById(videoId);
+				   if (window.Hls && Hls.isSupported() && hlsPlayers[camKey]) {
+					   hlsPlayers[camKey].destroy();
+					   hlsPlayers[camKey] = null;
+				   }
+				   video.pause();
+				   video.removeAttribute('src');
+				   video.load();
+				   playing[camKey] = false;
+			   }
+
+			   function toggleCamara(videoId, playlist, camKey, btnId) {
+				   if (!playing[camKey]) {
+					   iniciarCamara(videoId, playlist, camKey);
+					   document.getElementById(btnId).textContent = 'Stop ' + btnId.replace('play', '').replace('Cam', 'Cam ');
+				   } else {
+					   detenerCamara(videoId, camKey);
+					   document.getElementById(btnId).textContent = 'Play ' + btnId.replace('play', '').replace('Cam', 'Cam ');
+				   }
+			   }
+
+			   document.getElementById('playCam1').onclick = function() {
+				   toggleCamara('videoCam1', '/hls/cam1/cam1.m3u8', 'cam1', 'playCam1');
+			   };
+			   document.getElementById('playCam2').onclick = function() {
+				   toggleCamara('videoCam2', '/hls/cam2/cam2.m3u8', 'cam2', 'playCam2');
+			   };
+
+			   // --- Captura de Foto ---
+			   async function capturarFoto(videoId, camara) {
+				   const video = document.getElementById(videoId);
+				   if (video.readyState < 2) {
+					   alert('La cámara no está lista para capturar.');
+					   return;
+				   }
+				   const canvas = document.createElement('canvas');
+				   canvas.width = video.videoWidth;
+				   canvas.height = video.videoHeight;
+				   const ctx = canvas.getContext('2d');
+				   ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+				   const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+				   try {
+					   const resp = await fetch('/api/captura_foto', {
+						   method: 'POST',
+						   headers: { 'Content-Type': 'application/json' },
+						   body: JSON.stringify({ imagen: dataUrl, camara })
+					   });
+					   const res = await resp.json();
+					   if (res.ok) {
+						   alert('Foto guardada: ' + res.archivo);
+					   } else {
+						   alert('Error al guardar foto: ' + (res.error || '')); 
+					   }
+				   } catch (e) {
+					   alert('Error de red al guardar foto.');
+				   }
+			   }
+
+			   document.getElementById('captureCam1').onclick = function() {
+				   capturarFoto('videoCam1', 'cam1');
+			   };
+			   document.getElementById('captureCam2').onclick = function() {
+				   capturarFoto('videoCam2', 'cam2');
+			   };
 
 			// WebSocket para indicadores y relés
 			let ws;

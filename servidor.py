@@ -44,6 +44,7 @@ from base_de_datos.base_datos import (
     guardar_posicion_gps as guardar_posicion_bd,
     obtener_todos_recorridos
 )
+
 from camera_stream import (
     asegurar_carpetas as hls_asegurar,
     construir_rtsp_url,
@@ -51,6 +52,9 @@ from camera_stream import (
     detener_todos as hls_detener_todos,
     detener_hls
 )
+
+# Importar handler de captura de foto
+from captura_foto import capturar_foto_handler
 
 # Configuración de logging
 logging.basicConfig(
@@ -633,6 +637,8 @@ def crear_app():
     app.router.add_get('/api/config', api_config_handler)
     app.router.add_post('/api/config', api_config_handler)
     app.router.add_get('/ws', websocket_handler)
+    # Endpoint para capturar foto
+    app.router.add_post('/api/captura_foto', capturar_foto_handler)
     
     # Archivos estáticos (CSS, JS, imágenes)
     app.router.add_static(
