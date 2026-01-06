@@ -219,7 +219,7 @@ body {
   border-radius: 13px;
   box-shadow: 0 4px 24px #0004, 0 1.5px 0 #232a36;
   border: 1.5px solid #263043;
-  margin: 0 0.5vw;
+  margin: 0 2px;
   box-sizing: border-box;
   display: inline-flex;
   flex-direction: column;
