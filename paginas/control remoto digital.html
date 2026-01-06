@@ -32,14 +32,7 @@
 				max-width: 180px;
 			}
 		}
-		.cruz-botones {
-			display: grid;
-			grid-template-rows: 1fr 1fr 1fr;
-			grid-template-columns: 1fr 1fr 1fr;
-			gap: 6px;
-			width: 120px;
-			margin: 0 auto;
-		}
+		/* .cruz-botones ahora se ajusta desde tema_universal.css para unificar formato */
 		#btn-arriba { grid-row: 1; grid-column: 2; }
 		#btn-izquierda { grid-row: 2; grid-column: 1; }
 		#btn-centro { grid-row: 2; grid-column: 2; }
@@ -89,7 +82,7 @@
 		<div class="cuadro-inferior">
 			<div class="fila-inferior">
 				<div class="panel-bajo">
-					<div id="debug-panel" style="background:#222;color:#fff;padding:8px;font-size:12px;border-radius:8px;margin:8px 0;max-width:600px;overflow-x:auto;display:none"></div>
+	<!-- Panel de depuración eliminado -->
 					<div class="cruz-botones">
 						<button class="btn btn-direccion" id="btn-arriba">▲</button>
 						<button class="btn btn-direccion" id="btn-izquierda">◀</button>
@@ -212,9 +205,7 @@
 					   beep(220, 220, 0.18); // Sonido de desconexión
 				   }
 			}
-			function actualizarIndicadores(data) {
-				// Mostrar todos los datos en el panel de depuración
-				// ...eliminar panel de depuración...
+	function actualizarIndicadores(data) {
 				// RAM
 				if (data.ram && typeof data.ram.percent !== 'undefined') {
 					document.getElementById('ram-valor').textContent = data.ram.percent + ' % (' + data.ram.used + 'MB/' + data.ram.total + 'MB)';
@@ -296,7 +287,7 @@
 					contenedor.appendChild(btn);
 				}
 			}
-			// toggleRele ya no es necesario, todo se hace por WebSocket
+	// toggleRele eliminado, todo se hace por WebSocket
 			function conectarWS() {
 				let wsProto = (location.protocol === 'https:') ? 'wss://' : 'ws://';
 				let wsUrl = wsProto + location.hostname + ':8080/ws';
