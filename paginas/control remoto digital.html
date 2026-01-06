@@ -6,6 +6,46 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Control Remoto Digital</title>
 	<link rel="stylesheet" href="/static/tema_universal.css">
+	<style>
+			   .indicador-item {
+				   font-size: 12px !important;
+				   font-family: 'Segoe UI', 'Roboto', Arial, sans-serif !important;
+			   }
+		.reles-botones {
+			display: grid;
+			grid-template-columns: repeat(3, 1fr);
+			gap: 12px;
+			margin: 12px 0;
+			width: 100%;
+			max-width: 420px;
+		}
+		@media (max-width: 700px) {
+			.reles-botones {
+				grid-template-columns: 1fr 1fr;
+				gap: 8px;
+				max-width: 320px;
+			}
+		}
+		@media (max-width: 480px) {
+			.reles-botones {
+				grid-template-columns: 1fr;
+				max-width: 180px;
+			}
+		}
+		.cruz-botones {
+			display: grid;
+			grid-template-rows: 1fr 1fr 1fr;
+			grid-template-columns: 1fr 1fr 1fr;
+			gap: 6px;
+			width: 120px;
+			margin: 0 auto;
+		}
+		#btn-arriba { grid-row: 1; grid-column: 2; }
+		#btn-izquierda { grid-row: 2; grid-column: 1; }
+		#btn-centro { grid-row: 2; grid-column: 2; }
+		#btn-derecha { grid-row: 2; grid-column: 3; }
+		#btn-abajo { grid-row: 3; grid-column: 2; }
+	</style>
 	<script src="/static/leaflet_loader.js"></script>
 </head>
 <body>
@@ -52,11 +92,9 @@
 					<div id="debug-panel" style="background:#222;color:#fff;padding:8px;font-size:12px;border-radius:8px;margin:8px 0;max-width:600px;overflow-x:auto;display:none"></div>
 					<div class="cruz-botones">
 						<button class="btn btn-direccion" id="btn-arriba">▲</button>
-						<div class="cruz-fila-central">
-							<button class="btn btn-direccion" id="btn-izquierda">◀</button>
-							<button class="btn btn-direccion" id="btn-centro">●</button>
-							<button class="btn btn-direccion" id="btn-derecha">▶</button>
-						</div>
+						<button class="btn btn-direccion" id="btn-izquierda">◀</button>
+						<button class="btn btn-direccion" id="btn-centro">●</button>
+						<button class="btn btn-direccion" id="btn-derecha">▶</button>
 						<button class="btn btn-direccion" id="btn-abajo">▼</button>
 					</div>
 				</div>
@@ -69,15 +107,7 @@
 				</div>
 				<div class="panel-bajo">
 					<div class="reles-botones" id="reles-botones">
-						<button class="btn btn-rele inactivo" id="rele1">Relé 1</button>
-						<button class="btn btn-rele inactivo" id="rele2">Relé 2</button>
-						<button class="btn btn-rele inactivo" id="rele3">Relé 3</button>
-						<button class="btn btn-rele inactivo" id="rele4">Relé 4</button>
-						<button class="btn btn-rele inactivo" id="rele5">Relé 5</button>
-						<button class="btn btn-rele inactivo" id="rele6">Relé 6</button>
-						<button class="btn btn-rele inactivo" id="rele7">Relé 7</button>
-						<button class="btn btn-rele inactivo" id="rele8">Relé 8</button>
-						<button class="btn btn-rele inactivo" id="rele9">Relé 9</button>
+						<!-- Los botones de relé se generan dinámicamente -->
 					</div>
 				</div>
 				<div class="panel-bajo">
@@ -170,15 +200,17 @@
 			function setConexion(estado) {
 				const icon = document.querySelector('#indicador-conexion svg circle');
 				const texto = document.getElementById('texto-conexion');
-				if (estado) {
-					icon.setAttribute('fill', '#43a047');
-					texto.textContent = 'Conectado';
-					texto.style.color = '#43a047';
-				} else {
-					icon.setAttribute('fill', '#e53935');
-					texto.textContent = 'Desconectado';
-					texto.style.color = '#e53935';
-				}
+				   if (estado) {
+					   icon.setAttribute('fill', '#43a047');
+					   texto.textContent = 'Conectado';
+					   texto.style.color = '#43a047';
+					   beep(880, 120, 0.18); // Sonido de conexión
+				   } else {
+					   icon.setAttribute('fill', '#e53935');
+					   texto.textContent = 'Desconectado';
+					   texto.style.color = '#e53935';
+					   beep(220, 220, 0.18); // Sonido de desconexión
+				   }
 			}
 			function actualizarIndicadores(data) {
 				// Mostrar todos los datos en el panel de depuración
@@ -249,22 +281,22 @@
 					let nombre = nombresReles[i] || `Relé ${i}`;
 					let activo = reles[i]?.estado ? 'activo' : 'inactivo';
 					const btn = document.createElement('button');
-					btn.className = `btn btn-rele ${activo}`;
+					btn.className = `btn-modern btn-rele ${activo}`;
 					btn.id = `rele${i}`;
-					btn.textContent = nombre + (activo === 'activo' ? ' (ON)' : ' (OFF)');
-					btn.onclick = () => toggleRele(i, !(reles[i]?.estado));
+					btn.innerHTML = `<span style='font-weight:600;'>${nombre}</span>`;
+					btn.addEventListener('click', () => {
+						if (window.ws && window.ws.readyState === 1) {
+							window.ws.send(JSON.stringify({
+								tipo: 'rele',
+								numero: i,
+								estado: !(reles[i]?.estado)
+							}));
+						}
+					});
 					contenedor.appendChild(btn);
 				}
 			}
-			async function toggleRele(num, encender) {
-				try {
-					await fetch(`/api/rele/${num}`, {
-						method: 'POST',
-						headers: { 'Content-Type': 'application/json' },
-						body: JSON.stringify({ estado: encender })
-					});
-				} catch (e) {}
-			}
+			// toggleRele ya no es necesario, todo se hace por WebSocket
 			function conectarWS() {
 				let wsProto = (location.protocol === 'https:') ? 'wss://' : 'ws://';
 				let wsUrl = wsProto + location.hostname + ':8080/ws';
@@ -289,6 +321,9 @@
 								window.nombres_reles = data.nombres_reles;
 							}
 							actualizarIndicadores(data);
+							if (data.reles) {
+								renderReles(data.reles);
+							}
 						}
 						if (data.tipo === 'reles' && data.reles) {
 							renderReles(data.reles);
