@@ -65,29 +65,66 @@
 				if (menuOpciones.style.display === 'block') menuOpciones.style.display = 'none';
 			});
 		</script>
-			<div class="fila-superior">
-				   <div class="panel-cam">
+			   <div style="width:100%; display:flex; justify-content:center;">
+				   <div class="fila-superior" style="gap:8px; margin-left:2px; margin-right:2px; display:flex; justify-content:center;">
+				   <div class="panel-cam" style="margin-left:0;margin-right:0;">
 					   <video id="videoCam1" controls muted playsinline></video>
 					   <div style="display: flex; gap: 8px; margin-top: 4px;">
-						   <button id="playCam1" class="btn btn-cam">Play Cam 1</button>
-						   <button id="captureCam1" class="btn btn-cam">Capturar Foto</button>
+						   <button id="playCam1" class="btn btn-cam btn-cam-icon" title="Play/Stop Cam 1">
+							   <span id="iconPlayCam1" style="display:inline-block;width:100%;height:100%;vertical-align:middle;">
+								   <svg width="100%" height="100%" viewBox="0 0 22 22" fill="#2196f3" style="display:block;"><polygon points="6,4 18,11 6,18"/></svg>
+							   </span>
+						   </button>
+						   <button id="captureCam1" class="btn btn-cam btn-cam-icon" title="Capturar Foto">
+							   <svg width="100%" height="100%" viewBox="0 0 32 32" fill="#555" style="display:block;">
+								   <rect x="4" y="10" width="24" height="14" rx="3" fill="#bbb"/>
+								   <circle cx="16" cy="17" r="6" fill="#2196f3"/>
+								   <rect x="11" y="5" width="10" height="6" rx="2" fill="#bbb"/>
+							   </svg>
+						   </button>
 					   </div>
 				   </div>
-				   <div class="panel-cam">
+				   <div class="panel-cam" style="margin-left:0;margin-right:0;">
 					   <video id="videoCam2" controls muted playsinline></video>
 					   <div style="display: flex; gap: 8px; margin-top: 4px;">
-						   <button id="playCam2" class="btn btn-cam">Play Cam 2</button>
-						   <button id="captureCam2" class="btn btn-cam">Capturar Foto</button>
+						   <button id="playCam2" class="btn btn-cam btn-cam-icon" title="Play/Stop Cam 2">
+							   <span id="iconPlayCam2" style="display:inline-block;width:100%;height:100%;vertical-align:middle;">
+								   <svg width="100%" height="100%" viewBox="0 0 22 22" fill="#2196f3" style="display:block;"><polygon points="6,4 18,11 6,18"/></svg>
+							   </span>
+						   </button>
+						   <button id="captureCam2" class="btn btn-cam btn-cam-icon" title="Capturar Foto">
+							   <svg width="100%" height="100%" viewBox="0 0 32 32" fill="#555" style="display:block;">
+								   <rect x="4" y="10" width="24" height="14" rx="3" fill="#bbb"/>
+								   <circle cx="16" cy="17" r="6" fill="#2196f3"/>
+								   <rect x="11" y="5" width="10" height="6" rx="2" fill="#bbb"/>
+							   </svg>
+						   </button>
+						<style>
+							.btn-cam-icon {
+								width: 48px;
+								height: 48px;
+								min-width: 48px;
+								min-height: 48px;
+								padding: 0;
+								display: flex;
+								align-items: center;
+								justify-content: center;
+							}
+							.btn-cam-icon svg {
+								width: 90%;
+								height: 90%;
+							}
+						</style>
 					   </div>
 				   </div>
-				<div class="panel-cam">
+				   <div class="panel-cam" style="margin-left:0;margin-right:0;">
 					<div id="mapa-gps" style="width: 100%; height: 180px; min-width: 180px; min-height: 120px; border-radius: 8px; background: #232a36;"></div>
 				</div>
 			</div>
 		</div>
 		<div class="cuadro-inferior">
-			<div class="fila-inferior">
-				<div class="panel-bajo">
+			   <div class="fila-inferior" style="display:flex; justify-content:center; gap:8px;">
+				   <div class="panel-bajo" style="margin-left:0;margin-right:0;">
 	<!-- Panel de depuración eliminado -->
 					<div class="cruz-botones">
 						<button class="btn btn-direccion" id="btn-arriba">▲</button>
@@ -97,26 +134,26 @@
 						<button class="btn btn-direccion" id="btn-abajo">▼</button>
 					</div>
 				</div>
-				<div class="panel-bajo">
+				   <div class="panel-bajo" style="margin-left:0;margin-right:0;">
 					<div class="velocidades-botones">
 						<button class="btn btn-velocidad" id="vel-lenta">Lenta</button>
 						<button class="btn btn-velocidad" id="vel-media">Media</button>
 						<button class="btn btn-velocidad" id="vel-rapida">Rápida</button>
 					</div>
 				</div>
-				<div class="panel-bajo">
+				   <div class="panel-bajo" style="margin-left:0;margin-right:0;">
 					<div class="reles-botones" id="reles-botones">
 						<!-- Los botones de relé se generan dinámicamente -->
 					</div>
 				</div>
-				<div class="panel-bajo">
+				   <div class="panel-bajo" style="margin-left:0;margin-right:0;">
 					<div class="gps-botones">
 						<button class="btn btn-gps" id="gps-posicion">Posición</button>
 						<button class="btn btn-gps" id="gps-guardar">Guardar</button>
 						<button class="btn btn-gps" id="gps-destino">Destino</button>
 					</div>
 				</div>
-				<div class="panel-bajo">
+				   <div class="panel-bajo" style="margin-left:0;margin-right:0;">
 					<div class="indicadores-grid" style="display: grid; grid-template-columns: repeat(2, minmax(180px, 1fr)); gap: 8px; max-width: 400px; margin: 0 auto;">
 						<div class="indicador-item estado-conexion" style="margin:0; padding:2px; font-size:14px; font-family:'Segoe UI', 'Roboto', Arial, sans-serif;">
 							<span id="indicador-conexion" class="desconectado">
@@ -198,12 +235,15 @@
 			   }
 
 			   function toggleCamara(videoId, playlist, camKey, btnId) {
+				   const iconSpan = document.getElementById('icon' + btnId.charAt(0).toUpperCase() + btnId.slice(1));
 				   if (!playing[camKey]) {
 					   iniciarCamara(videoId, playlist, camKey);
-					   document.getElementById(btnId).textContent = 'Stop ' + btnId.replace('play', '').replace('Cam', 'Cam ');
+					   // Cambia a icono de Stop
+					   iconSpan.innerHTML = '<svg width="100%" height="100%" viewBox="0 0 22 22" fill="#e53935" style="display:block;"><rect x="6" y="6" width="10" height="10" rx="2"/></svg>';
 				   } else {
 					   detenerCamara(videoId, camKey);
-					   document.getElementById(btnId).textContent = 'Play ' + btnId.replace('play', '').replace('Cam', 'Cam ');
+					   // Cambia a icono de Play
+					   iconSpan.innerHTML = '<svg width="100%" height="100%" viewBox="0 0 22 22" fill="#2196f3" style="display:block;"><polygon points="6,4 18,11 6,18"/></svg>';
 				   }
 			   }
 
