@@ -102,6 +102,12 @@
 								   <rect x="11" y="5" width="10" height="6" rx="2" fill="#bbb"/>
 							   </svg>
 						   </button>
+						<button id="grabar-cam1" class="btn btn-cam btn-cam-icon" title="Grabar video">
+							<svg width="100%" height="100%" viewBox="0 0 28 28" fill="#d32f2f" style="display:block;">
+								<rect x="7" y="7" width="14" height="14" rx="3" fill="#d32f2f"/>
+								<circle cx="14" cy="14" r="5" fill="#fff"/>
+							</svg>
+						</button>
 						   </div>
 					   </div>
 				   </div>
@@ -120,6 +126,12 @@
 								   <rect x="11" y="5" width="10" height="6" rx="2" fill="#bbb"/>
 							   </svg>
 						   </button>
+						<button id="grabar-cam2" class="btn btn-cam btn-cam-icon" title="Grabar video">
+							<svg width="100%" height="100%" viewBox="0 0 28 28" fill="#d32f2f" style="display:block;">
+								<rect x="7" y="7" width="14" height="14" rx="3" fill="#d32f2f"/>
+								<circle cx="14" cy="14" r="5" fill="#fff"/>
+							</svg>
+						</button>
 						<style>
 							.btn-cam-icon {
 								width: 48px;
@@ -180,33 +192,33 @@
 							<table class="tabla-indicadores" style="width:100%; max-width:340px; margin:0 auto; border-collapse:collapse; background:#23272b; border-radius:8px; box-shadow:0 1px 6px #0001; color:#f2f2f2;">
 								<tbody>
 									<tr>
-										<td style="border:1px solid #444; padding:6px; text-align:center; background:#23272b; color:#f2f2f2;">
+										<td style="border:1px solid #e0e0e0; padding:6px; text-align:center; background:#23272b; color:#f2f2f2;">
 											<span id="indicador-conexion" class="desconectado">
 												<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><circle cx="8" cy="8" r="7" fill="#e53935"/></svg>
 												<span id="texto-conexion" style="color:#e53935; font-weight:600;">Desconectado</span>
 											</span>
 										</td>
-										<td style="border:1px solid #444; padding:6px; text-align:center; background:#23272b; color:#f2f2f2;">
+										<td style="border:1px solid #e0e0e0; padding:6px; text-align:center; background:#23272b; color:#f2f2f2;">
 											<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><rect x="2" y="4" width="12" height="8" rx="2" fill="#6ec1e4"/></svg>
 											RAM: <span id="ram-valor">--</span>
 										</td>
 									</tr>
 									<tr>
-										<td style="border:1px solid #444; padding:6px; text-align:center; background:#23272b; color:#f2f2f2;">
+										<td style="border:1px solid #e0e0e0; padding:6px; text-align:center; background:#23272b; color:#f2f2f2;">
 											<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><rect x="7" y="2" width="2" height="8" fill="#e6a23c"/><circle cx="8" cy="12" r="3" fill="#e6a23c"/></svg>
 											Temp: <span id="temp-valor">--</span>
 										</td>
-										<td style="border:1px solid #444; padding:6px; text-align:center; background:#23272b; color:#f2f2f2;">
+										<td style="border:1px solid #e0e0e0; padding:6px; text-align:center; background:#23272b; color:#f2f2f2;">
 											<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><rect x="3" y="5" width="10" height="6" rx="2" fill="#43a047"/><rect x="13" y="7" width="2" height="2" fill="#43a047"/></svg>
 											Batería: <span id="bat-valor">--</span>
 										</td>
 									</tr>
 									<tr>
-										<td style="border:1px solid #444; padding:6px; text-align:center; background:#23272b; color:#f2f2f2;">
+										<td style="border:1px solid #e0e0e0; padding:6px; text-align:center; background:#23272b; color:#f2f2f2;">
 											<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><circle cx="8" cy="8" r="7" fill="#6ec1e4"/></svg>
 											Red: <span id="red-valor">--</span>
 										</td>
-										<td style="border:1px solid #444; padding:6px; text-align:center; background:#23272b; color:#f2f2f2;">
+										<td style="border:1px solid #e0e0e0; padding:6px; text-align:center; background:#23272b; color:#f2f2f2;">
 											<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><path d="M8 2 A6 6 0 1 1 7.99 2" stroke="#6ec1e4" stroke-width="2" fill="none"/><circle cx="8" cy="8" r="2" fill="#6ec1e4"/></svg>
 											Velocidad: <span id="vel-valor">--</span>
 										</td>
@@ -222,7 +234,7 @@
 										</td>
 									</tr>
 									<tr>
-										<td colspan="2" style="border:1px solid #444; padding:6px; text-align:center; background:#23272b; color:#f2f2f2;">
+										<td colspan="2" style="border:1px solid #e0e0e0; padding:6px; text-align:center; background:#23272b; color:#f2f2f2;">
 											<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><circle cx="8" cy="8" r="7" fill="#6ec1e4"/></svg>
 											Lat: <span id="gps-lat">--</span> Lon: <span id="gps-lon">--</span>
 										</td>
@@ -292,42 +304,103 @@
 				   toggleCamara('videoCam2', '/hls/cam2/cam2.m3u8', 'cam2', 'playCam2');
 			   };
 
-			   // --- Captura de Foto ---
-			   async function capturarFoto(videoId, camara) {
-				   const video = document.getElementById(videoId);
-				   if (video.readyState < 2) {
-					   alert('La cámara no está lista para capturar.');
-					   return;
-				   }
-				   const canvas = document.createElement('canvas');
-				   canvas.width = video.videoWidth;
-				   canvas.height = video.videoHeight;
-				   const ctx = canvas.getContext('2d');
-				   ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-				   const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
-				   try {
-					   const resp = await fetch('/api/captura_foto', {
-						   method: 'POST',
-						   headers: { 'Content-Type': 'application/json' },
-						   body: JSON.stringify({ imagen: dataUrl, camara })
-					   });
-					   const res = await resp.json();
-					   if (res.ok) {
-						   alert('Foto guardada: ' + res.archivo);
-					   } else {
-						   alert('Error al guardar foto: ' + (res.error || '')); 
-					   }
-				   } catch (e) {
-					   alert('Error de red al guardar foto.');
-				   }
-			   }
 
-			   document.getElementById('captureCam1').onclick = function() {
-				   capturarFoto('videoCam1', 'cam1');
-			   };
-			   document.getElementById('captureCam2').onclick = function() {
-				   capturarFoto('videoCam2', 'cam2');
-			   };
+			// --- Captura de Foto ---
+			async function capturarFoto(videoId, camara) {
+				const video = document.getElementById(videoId);
+				if (video.readyState < 2) {
+					alert('La cámara no está lista para capturar.');
+					return;
+				}
+				const canvas = document.createElement('canvas');
+				canvas.width = video.videoWidth;
+				canvas.height = video.videoHeight;
+				const ctx = canvas.getContext('2d');
+				ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+				const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+				try {
+					const resp = await fetch('/api/captura_foto', {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({ imagen: dataUrl, camara })
+					});
+					const res = await resp.json();
+					if (res.ok) {
+						alert('Foto guardada: ' + res.archivo);
+					} else {
+						alert('Error al guardar foto: ' + (res.error || ''));
+					}
+				} catch (e) {
+					alert('Error de red al guardar foto.');
+				}
+			}
+
+			document.getElementById('captureCam1').onclick = function() {
+				capturarFoto('videoCam1', 'cam1');
+			};
+			document.getElementById('captureCam2').onclick = function() {
+				capturarFoto('videoCam2', 'cam2');
+			};
+
+			// --- Grabación de Video ---
+			let mediaRecorders = { cam1: null, cam2: null };
+			let recordedChunks = { cam1: [], cam2: [] };
+			let grabando = { cam1: false, cam2: false };
+
+			async function grabarVideo(videoId, camara) {
+				const video = document.getElementById(videoId);
+				let stream = video.captureStream ? video.captureStream() : null;
+				if (!stream) {
+					alert('No se puede obtener el stream de video.');
+					return;
+				}
+				if (grabando[camara]) {
+					// Detener grabación
+					mediaRecorders[camara].stop();
+					return;
+				}
+				recordedChunks[camara] = [];
+				let options = { mimeType: 'video/webm;codecs=vp9' };
+				let mediaRecorder = new MediaRecorder(stream, options);
+				mediaRecorders[camara] = mediaRecorder;
+				grabando[camara] = true;
+				mediaRecorder.ondataavailable = function(e) {
+					if (e.data.size > 0) recordedChunks[camara].push(e.data);
+				};
+				mediaRecorder.onstop = async function() {
+					grabando[camara] = false;
+					const blob = new Blob(recordedChunks[camara], { type: 'video/webm' });
+					const reader = new FileReader();
+					reader.onloadend = async function() {
+						const base64data = reader.result;
+						try {
+							const resp = await fetch('/api/grabar_video', {
+								method: 'POST',
+								headers: { 'Content-Type': 'application/json' },
+								body: JSON.stringify({ video: base64data, camara })
+							});
+							const res = await resp.json();
+							if (res.ok) {
+								alert('Video guardado: ' + res.archivo);
+							} else {
+								alert('Error al guardar video: ' + (res.error || ''));
+							}
+						} catch (e) {
+							alert('Error de red al guardar video.');
+						}
+					};
+					reader.readAsDataURL(blob);
+				};
+				mediaRecorder.start();
+				alert('Grabando video... pulsa el botón nuevamente para detener y guardar.');
+			}
+
+			document.getElementById('grabar-cam1').onclick = function() {
+				grabarVideo('videoCam1', 'cam1');
+			};
+			document.getElementById('grabar-cam2').onclick = function() {
+				grabarVideo('videoCam2', 'cam2');
+			};
 
 			// WebSocket para indicadores y relés
 			let ws;
