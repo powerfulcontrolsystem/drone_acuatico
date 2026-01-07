@@ -1,3 +1,22 @@
+	<style>
+		/* Unificar distancia entre todos los botones */
+		.btn,
+		button,
+		.btn-cam,
+		.btn-velocidad,
+		.btn-gps,
+		.btn-direccion,
+		.btn-rele {
+			margin: 3px !important;
+		}
+		.reles-botones,
+		.velocidades-botones,
+		.gps-botones,
+		.cruz-botones,
+		.indicadores-grid {
+			gap: 6px !important;
+		}
+	</style>
 
 <!DOCTYPE html>
 <html lang="es">
@@ -14,8 +33,8 @@
 		.reles-botones {
 			display: grid;
 			grid-template-columns: repeat(3, 1fr);
-			gap: 12px;
-			margin: 12px 0;
+			gap: 6px !important;
+			margin: 0 !important;
 			width: 100%;
 			max-width: 420px;
 		}
@@ -66,9 +85,9 @@
 			});
 		</script>
 			   <div style="width:100%; display:flex; justify-content:center;">
-				   <div class="cuadro-externo-superior" style="background:#232a36; border-radius:14px; box-shadow:0 2px 12px #0002; padding:12px 18px; display:flex; justify-content:center; align-items:center;">
+				   <div class="cuadro-externo-superior" style="background:#e3eaf2; border-radius:14px; box-shadow:0 2px 12px #0002; padding:12px 18px; display:flex; justify-content:center; align-items:center;">
 					   <div class="fila-superior" style="gap:8px; margin-left:2px; margin-right:2px; display:flex; justify-content:center; align-items:stretch;">
-				   <div class="panel-cam" style="margin-left:0;margin-right:0; min-width:260px; max-width:340px; width:300px; height:220px; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+				   <div class="panel-cam" style="margin-left:0;margin-right:0; min-width:260px; max-width:340px; width:300px; height:220px; display:flex; flex-direction:column; align-items:center; justify-content:center; padding-left:12px; padding-right:12px; box-sizing:border-box;">
 					   <video id="videoCam1" controls muted playsinline></video>
 					   <div style="display: flex; gap: 8px; margin-top: 4px;">
 						   <button id="playCam1" class="btn btn-cam btn-cam-icon" title="Play/Stop Cam 1">
@@ -86,7 +105,7 @@
 						   </div>
 					   </div>
 				   </div>
-				   <div class="panel-cam" style="margin-left:0;margin-right:0; min-width:260px; max-width:340px; width:300px; height:220px; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+				   <div class="panel-cam" style="margin-left:0;margin-right:0; min-width:260px; max-width:340px; width:300px; height:220px; display:flex; flex-direction:column; align-items:center; justify-content:center; padding-left:12px; padding-right:12px; box-sizing:border-box;">
 					   <video id="videoCam2" controls muted playsinline></video>
 					   <div style="display: flex; gap: 8px; margin-top: 4px;">
 						   <button id="playCam2" class="btn btn-cam btn-cam-icon" title="Play/Stop Cam 2">
@@ -119,88 +138,101 @@
 						</style>
 					   </div>
 				   </div>
-				   <div class="panel-cam" style="margin-left:0;margin-right:0; min-width:260px; max-width:340px; width:300px; height:220px; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+				   <div class="panel-cam" style="margin-left:0;margin-right:0; min-width:260px; max-width:340px; width:300px; height:220px; display:flex; flex-direction:column; align-items:center; justify-content:center; padding-left:12px; padding-right:12px; box-sizing:border-box;">
 					   <div id="mapa-gps" style="width: 100%; height: 100%; min-width: 0; min-height: 0; border-radius: 8px; background: #232a36;"></div>
 				</div>
 			</div>
 		</div>
 		<div class="cuadro-inferior">
-			   <div style="width:100%; display:flex; justify-content:center;">
-				   <div class="cuadro-externo-inferior" style="background:#232a36; border-radius:14px; box-shadow:0 2px 12px #0002; padding:12px 18px; display:flex; justify-content:center; align-items:center;">
-					   <div class="fila-inferior" style="display:flex; justify-content:center; gap:8px;">
-				   <div class="panel-bajo" style="margin-left:0;margin-right:0;">
-	<!-- Panel de depuración eliminado -->
-					<div class="cruz-botones">
-						<button class="btn btn-direccion" id="btn-arriba">▲</button>
-						<button class="btn btn-direccion" id="btn-izquierda">◀</button>
-						<button class="btn btn-direccion" id="btn-centro">●</button>
-						<button class="btn btn-direccion" id="btn-derecha">▶</button>
-						<button class="btn btn-direccion" id="btn-abajo">▼</button>
-							   </div>
-						   </div>
-					   </div>
-				</div>
-				   <div class="panel-bajo" style="margin-left:0;margin-right:0; display:flex; justify-content:center; align-items:center; min-width:120px; max-width:140px; width:130px;">
-					<div class="velocidades-botones" style="display:flex; flex-direction:column; gap:2px; align-items:center; padding-left:2px; padding-right:2px; width:100%; box-sizing:border-box;">
-						   <button class="btn btn-velocidad" id="vel-lenta" style="margin-left:0;margin-right:0;padding-left:6px;padding-right:6px;min-width:120px;max-width:140px;width:100%;box-sizing:border-box;">Lenta</button>
-						   <button class="btn btn-velocidad" id="vel-media" style="margin-left:0;margin-right:0;padding-left:6px;padding-right:6px;min-width:120px;max-width:140px;width:100%;box-sizing:border-box;">Media</button>
-						   <button class="btn btn-velocidad" id="vel-rapida" style="margin-left:0;margin-right:0;padding-left:6px;padding-right:6px;min-width:120px;max-width:140px;width:100%;box-sizing:border-box;">Rápida</button>
+			<div style="width:100%; display:flex; justify-content:center;">
+				<div class="cuadro-externo-inferior" style="background:#e3eaf2; border-radius:14px; box-shadow:0 2px 12px #0002; padding:12px 18px; display:flex; justify-content:center; align-items:center;">
+					<div class="fila-inferior" style="display:flex; justify-content:center; gap:8px;">
+						<div class="panel-bajo" style="margin-left:0;margin-right:0; padding-left:12px; padding-right:12px; box-sizing:border-box;">
+							<!-- Panel de depuración eliminado -->
+							<div class="cruz-botones">
+								<button class="btn btn-direccion" id="btn-arriba">▲</button>
+								<button class="btn btn-direccion" id="btn-izquierda">◀</button>
+								<button class="btn btn-direccion" id="btn-centro">●</button>
+								<button class="btn btn-direccion" id="btn-derecha">▶</button>
+								<button class="btn btn-direccion" id="btn-abajo">▼</button>
+							</div>
+						</div>
+						<div class="panel-bajo" style="margin-left:0;margin-right:0; display:flex; justify-content:center; align-items:center; min-width:120px; max-width:140px; width:130px; padding-left:12px; padding-right:12px; box-sizing:border-box;">
+							<div class="velocidades-botones" style="display:flex; flex-direction:column; gap:2px; align-items:center; padding-left:2px; padding-right:2px; width:100%; box-sizing:border-box;">
+								<button class="btn btn-velocidad" id="vel-lenta" style="margin-left:0;margin-right:0;padding-left:6px;padding-right:6px;min-width:120px;max-width:140px;width:100%;box-sizing:border-box;">Lenta</button>
+								<button class="btn btn-velocidad" id="vel-media" style="margin-left:0;margin-right:0;padding-left:6px;padding-right:6px;min-width:120px;max-width:140px;width:100%;box-sizing:border-box;">Media</button>
+								<button class="btn btn-velocidad" id="vel-rapida" style="margin-left:0;margin-right:0;padding-left:6px;padding-right:6px;min-width:120px;max-width:140px;width:100%;box-sizing:border-box;">Rápida</button>
+							</div>
+						</div>
+						<div class="panel-bajo" style="margin-left:0;margin-right:0; padding-left:12px; padding-right:12px; width:100%; box-sizing:border-box;">
+							<div class="reles-botones" id="reles-botones">
+								<!-- Los botones de relé se generan dinámicamente -->
+							</div>
+						</div>
+						<div class="panel-bajo" style="margin-left:0;margin-right:0; display:flex; justify-content:center; align-items:center; min-width:120px; max-width:140px; width:130px; padding-left:12px; padding-right:12px; box-sizing:border-box;">
+							<div class="gps-botones" style="display:flex; flex-direction:column; gap:2px; align-items:center; padding-left:2px; padding-right:2px; width:100%; box-sizing:border-box;">
+								<button class="btn btn-gps" id="gps-posicion" style="margin-left:0;margin-right:0;padding-left:6px;padding-right:6px;min-width:120px;max-width:140px;width:100%;box-sizing:border-box;">Posición</button>
+								<button class="btn btn-gps" id="gps-guardar" style="margin-left:0;margin-right:0;padding-left:6px;padding-right:6px;min-width:120px;max-width:140px;width:100%;box-sizing:border-box;">Guardar</button>
+								<button class="btn btn-gps" id="gps-destino" style="margin-left:0;margin-right:0;padding-left:6px;padding-right:6px;min-width:120px;max-width:140px;width:100%;box-sizing:border-box;">Destino</button>
+							</div>
+						</div>
+						<div class="panel-bajo" style="margin-left:0;margin-right:0; padding-left:12px; padding-right:12px; width:100%; box-sizing:border-box;">
+							<table class="tabla-indicadores" style="width:100%; max-width:340px; margin:0 auto; border-collapse:collapse; background:#23272b; border-radius:8px; box-shadow:0 1px 6px #0001; color:#f2f2f2;">
+								<tbody>
+									<tr>
+										<td style="border:1px solid #444; padding:6px; text-align:center; background:#23272b; color:#f2f2f2;">
+											<span id="indicador-conexion" class="desconectado">
+												<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><circle cx="8" cy="8" r="7" fill="#e53935"/></svg>
+												<span id="texto-conexion" style="color:#e53935; font-weight:600;">Desconectado</span>
+											</span>
+										</td>
+										<td style="border:1px solid #444; padding:6px; text-align:center; background:#23272b; color:#f2f2f2;">
+											<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><rect x="2" y="4" width="12" height="8" rx="2" fill="#6ec1e4"/></svg>
+											RAM: <span id="ram-valor">--</span>
+										</td>
+									</tr>
+									<tr>
+										<td style="border:1px solid #444; padding:6px; text-align:center; background:#23272b; color:#f2f2f2;">
+											<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><rect x="7" y="2" width="2" height="8" fill="#e6a23c"/><circle cx="8" cy="12" r="3" fill="#e6a23c"/></svg>
+											Temp: <span id="temp-valor">--</span>
+										</td>
+										<td style="border:1px solid #444; padding:6px; text-align:center; background:#23272b; color:#f2f2f2;">
+											<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><rect x="3" y="5" width="10" height="6" rx="2" fill="#43a047"/><rect x="13" y="7" width="2" height="2" fill="#43a047"/></svg>
+											Batería: <span id="bat-valor">--</span>
+										</td>
+									</tr>
+									<tr>
+										<td style="border:1px solid #444; padding:6px; text-align:center; background:#23272b; color:#f2f2f2;">
+											<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><circle cx="8" cy="8" r="7" fill="#6ec1e4"/></svg>
+											Red: <span id="red-valor">--</span>
+										</td>
+										<td style="border:1px solid #444; padding:6px; text-align:center; background:#23272b; color:#f2f2f2;">
+											<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><path d="M8 2 A6 6 0 1 1 7.99 2" stroke="#6ec1e4" stroke-width="2" fill="none"/><circle cx="8" cy="8" r="2" fill="#6ec1e4"/></svg>
+											Velocidad: <span id="vel-valor">--</span>
+										</td>
+									</tr>
+									<tr>
+										<td style="border:1px solid #cfd8dc; padding:6px; text-align:center;">
+											<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><circle cx="8" cy="8" r="4" fill="#ffd600"/></svg>
+											Solar: <span id="solar-valor">--</span>
+										</td>
+										<td style="border:1px solid #cfd8dc; padding:6px; text-align:center;">
+											<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><rect x="4" y="8" width="8" height="4" fill="#b71c1c"/></svg>
+											Peso: <span id="peso-valor">--</span>
+										</td>
+									</tr>
+									<tr>
+										<td colspan="2" style="border:1px solid #444; padding:6px; text-align:center; background:#23272b; color:#f2f2f2;">
+											<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><circle cx="8" cy="8" r="7" fill="#6ec1e4"/></svg>
+											Lat: <span id="gps-lat">--</span> Lon: <span id="gps-lon">--</span>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
 					</div>
 				</div>
-				   <div class="panel-bajo" style="margin-left:0;margin-right:0;">
-					<div class="reles-botones" id="reles-botones">
-						<!-- Los botones de relé se generan dinámicamente -->
-					</div>
-				</div>
-				   <div class="panel-bajo" style="margin-left:0;margin-right:0; display:flex; justify-content:center; align-items:center; min-width:120px; max-width:140px; width:130px;">
-					<div class="gps-botones" style="display:flex; flex-direction:column; gap:2px; align-items:center; padding-left:2px; padding-right:2px; width:100%; box-sizing:border-box;">
-						   <button class="btn btn-gps" id="gps-posicion" style="margin-left:0;margin-right:0;padding-left:6px;padding-right:6px;min-width:120px;max-width:140px;width:100%;box-sizing:border-box;">Posición</button>
-						   <button class="btn btn-gps" id="gps-guardar" style="margin-left:0;margin-right:0;padding-left:6px;padding-right:6px;min-width:120px;max-width:140px;width:100%;box-sizing:border-box;">Guardar</button>
-						   <button class="btn btn-gps" id="gps-destino" style="margin-left:0;margin-right:0;padding-left:6px;padding-right:6px;min-width:120px;max-width:140px;width:100%;box-sizing:border-box;">Destino</button>
-					</div>
-				</div>
-				   <div class="panel-bajo" style="margin-left:0;margin-right:0;">
-					<div class="indicadores-grid" style="display: grid; grid-template-columns: repeat(2, minmax(180px, 1fr)); gap: 8px; max-width: 400px; margin: 0 auto;">
-						<div class="indicador-item estado-conexion" style="margin:0; padding:2px; font-size:14px; font-family:'Segoe UI', 'Roboto', Arial, sans-serif;">
-							<span id="indicador-conexion" class="desconectado">
-								<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><circle cx="8" cy="8" r="7" fill="#e53935"/></svg>
-								<span id="texto-conexion" style="color:#e53935; font-weight:600;">Desconectado</span>
-							</span>
-						</div>
-						<div class="indicador-item indicador-ram" style="margin:0; padding:2px; font-size:14px; font-family:'Segoe UI', 'Roboto', Arial, sans-serif;">
-							<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><rect x="2" y="4" width="12" height="8" rx="2" fill="#6ec1e4"/></svg>
-							RAM: <span id="ram-valor">--</span>
-						</div>
-						<div class="indicador-item indicador-temp" style="margin:0; padding:2px; font-size:14px; font-family:'Segoe UI', 'Roboto', Arial, sans-serif;">
-							<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><rect x="7" y="2" width="2" height="8" fill="#e6a23c"/><circle cx="8" cy="12" r="3" fill="#e6a23c"/></svg>
-							Temp: <span id="temp-valor">--</span>
-						</div>
-						<div class="indicador-item indicador-bat" style="margin:0; padding:2px; font-size:14px; font-family:'Segoe UI', 'Roboto', Arial, sans-serif;">
-							<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><rect x="3" y="5" width="10" height="6" rx="2" fill="#43a047"/><rect x="13" y="7" width="2" height="2" fill="#43a047"/></svg>
-							Batería: <span id="bat-valor">--</span>
-						</div>
-						<div class="indicador-item indicador-red" style="margin:0; padding:2px; font-size:14px; font-family:'Segoe UI', 'Roboto', Arial, sans-serif;">
-							<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><circle cx="8" cy="8" r="7" fill="#6ec1e4"/></svg>
-							Red: <span id="red-valor">--</span>
-						</div>
-						<div class="indicador-item indicador-vel" style="margin:0; padding:2px; font-size:14px; font-family:'Segoe UI', 'Roboto', Arial, sans-serif;">
-							<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><path d="M8 2 A6 6 0 1 1 7.99 2" stroke="#6ec1e4" stroke-width="2" fill="none"/><circle cx="8" cy="8" r="2" fill="#6ec1e4"/></svg>
-							Velocidad: <span id="vel-valor">--</span>
-						</div>
-						<div class="indicador-item indicador-solar" style="margin:0; padding:2px; font-size:14px; font-family:'Segoe UI', 'Roboto', Arial, sans-serif;">
-							<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><circle cx="8" cy="8" r="4" fill="#ffd600"/></svg>
-							Solar: <span id="solar-valor">--</span>
-						</div>
-						<div class="indicador-item indicador-peso" style="margin:0; padding:2px; font-size:14px; font-family:'Segoe UI', 'Roboto', Arial, sans-serif;">
-							<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><rect x="4" y="8" width="8" height="4" fill="#b71c1c"/></svg>
-							Peso: <span id="peso-valor">--</span>
-						</div>
-						<div class="indicador-item indicador-gps" style="margin:0; padding:2px; font-size:14px; font-family:'Segoe UI', 'Roboto', Arial, sans-serif;">
-							<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><circle cx="8" cy="8" r="7" fill="#6ec1e4"/></svg>
-							Lat: <span id="gps-lat">--</span> Lon: <span id="gps-lon">--</span>
-						</div>
-					</div>
-				</div>
+			</div>
 			</div>
 		</div>
 	    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
@@ -395,7 +427,7 @@
 					let nombre = nombresReles[i] || `Relé ${i}`;
 					let activo = reles[i]?.estado ? 'activo' : 'inactivo';
 					const btn = document.createElement('button');
-					btn.className = `btn-modern btn-rele ${activo}`;
+					btn.className = `btn btn-rele btn-modern ${activo}`;
 					btn.id = `rele${i}`;
 					btn.innerHTML = `<span style='font-weight:600;'>${nombre}</span>`;
 					btn.addEventListener('click', () => {
