@@ -321,6 +321,16 @@ body {
   background: #6ec1e4;
   color: #232a36;
 }
+.btn-velocidad.activo {
+  background: #4ade80;
+  color: #ffffff;
+  border-color: #22c55e;
+}
+.btn-velocidad.inactivo {
+  background: #9ca3af;
+  color: #ffffff;
+  border-color: #6b7280;
+}
 .btn-gps {
   border-color: #6ec1e4;
   background: #f3f7fa;
