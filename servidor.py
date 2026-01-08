@@ -28,9 +28,9 @@ from funciones import (
     obtener_posicion_gps,
     guardar_posicion_gps,
     apagar_sistema,
-    reiniciar_sistema,
-    ESTADO_RELES
+    reiniciar_sistema
 )
+import funciones  # Importar módulo para acceder a ESTADO_RELES
 
 # Importar funciones de base de datos
 from base_de_datos.base_datos import (
@@ -254,7 +254,7 @@ async def websocket_handler(request):
         await ws.send_json({
             'tipo': 'conexion',
             'mensaje': 'WebSocket conectado',
-            'reles': ESTADO_RELES,
+            'reles': funciones.ESTADO_RELES,
             'nombres_reles': config_inicial.get('reles', {}),
             'velocidad': VELOCIDAD_ACTUAL,
             'ram': obtener_ram(),
@@ -317,7 +317,9 @@ async def procesar_mensaje_ws(ws, datos):
     if tipo == 'rele':
         numero = int(datos.get('numero', 0))
         estado = bool(datos.get('estado', False))
+        logger.info(f"Comando de relé recibido: número={numero}, estado={estado}")
         exito, error = controlar_rele(numero, estado)
+        logger.info(f"Resultado de controlar_rele: exito={exito}, error={error}, ESTADO_RELES={funciones.ESTADO_RELES}")
         
         # Guardar estado en base de datos para persistencia
         if exito:
@@ -336,7 +338,7 @@ async def procesar_mensaje_ws(ws, datos):
         try:
             for cliente in list(CLIENTES_WS):
                 try:
-                    await cliente.send_json({'tipo': 'reles', 'reles': ESTADO_RELES})
+                    await cliente.send_json({'tipo': 'reles', 'reles': funciones.ESTADO_RELES})
                 except Exception:
                     pass
         except Exception:
@@ -604,7 +606,7 @@ async def on_startup(app):
     # Cargar estado de relés desde BD
     estados_bd = obtener_estado_reles()
     if estados_bd:
-        ESTADO_RELES.update({k: v for k, v in estados_bd.items()})
+        funciones.ESTADO_RELES.update({k: v for k, v in estados_bd.items()})
         logger.info("Estado de relés cargado desde BD")
     
     # Iniciar tarea de envío periódico de datos
