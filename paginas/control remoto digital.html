@@ -594,10 +594,17 @@
 					btn.addEventListener('click', function(e) {
 						const numero = parseInt(this.getAttribute('data-numero'));
 						console.log('🔴 CLICK DETECTADO EN RELÉ:', numero);
-						console.log('WebSocket status:', window.ws ? 'exists' : 'NOT EXISTS', window.ws?.readyState);
-						if (!(window.ws && window.ws.readyState === 1)) {
-							console.error('❌ WebSocket NO conectado. readyState:', window.ws?.readyState);
-							alert('Error: WebSocket no conectado');
+						console.log('window.ws existe:', typeof window.ws !== 'undefined');
+						console.log('window.ws:', window.ws);
+						if (typeof window.ws === 'undefined' || window.ws === null) {
+							console.error('❌ window.ws NO EXISTE');
+							alert('Error: WebSocket no inicializado');
+							return;
+						}
+						console.log('window.ws.readyState:', window.ws.readyState, '(1=OPEN)');
+						if (window.ws.readyState !== 1) {
+							console.error('❌ WebSocket NO conectado. readyState:', window.ws.readyState);
+							alert('Error: WebSocket no conectado. readyState=' + window.ws.readyState);
 							return;
 						}
 						const nuevoEstado = !(estadoReles[numero] === true);
@@ -625,26 +632,26 @@
 				let wsProto = (location.protocol === 'https:') ? 'wss://' : 'ws://';
 				let wsUrl = wsProto + location.hostname + ':8080/ws';
 				console.log('URL WebSocket:', wsUrl);
-				ws = new WebSocket(wsUrl);
-				ws.onopen = function() {
-					console.log('✅ WebSocket ABIERTO');
+				window.ws = new WebSocket(wsUrl);
+				window.ws.onopen = function() {
+					console.log('✅ WebSocket ABIERTO - readyState:', window.ws.readyState);
 					setConexion(true);
 					conectado = true;
 					// Solicitar datos completos al conectar para asegurar estados iniciales de relés
-					ws.send(JSON.stringify({ tipo: 'obtener_datos' }));
+					window.ws.send(JSON.stringify({ tipo: 'obtener_datos' }));
 					console.log('📤 Enviado: obtener_datos');
 				};
-				ws.onclose = function() {
+				window.ws.onclose = function() {
 					console.log('❌ WebSocket CERRADO');
 					setConexion(false);
 					conectado = false;
 					setTimeout(conectarWS, 2000); // reconectar
 				};
-				ws.onerror = function(error) {
+				window.ws.onerror = function(error) {
 					console.error('⚠️ Error WebSocket:', error);
 					setConexion(false);
 				};
-				ws.onmessage = function(event) {
+				window.ws.onmessage = function(event) {
 					console.log('📥 Mensaje WebSocket recibido:', event.data);
 					try {
 						let data = JSON.parse(event.data);
