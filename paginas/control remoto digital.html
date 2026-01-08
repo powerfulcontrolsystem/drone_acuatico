@@ -245,11 +245,11 @@
 								<button class="btn btn-direccion" id="btn-abajo" style="margin:0; padding:0; width:100%; height:32px; font-size:0.9em;">▼</button>
 							</div>
 						</div>
-						<div class="panel-bajo" style="margin:0; display:flex; justify-content:center; align-items:center; min-width:120px; max-width:140px; width:130px; padding:0; box-sizing:border-box;">
+						<div class="panel-bajo" style="margin:0; display:flex; justify-content:center; align-items:center; min-width:70px; max-width:90px; width:75px; padding:0; box-sizing:border-box;">
 							<div class="velocidades-botones" style="display:flex; flex-direction:column; gap:2px; align-items:center; padding:0; width:100%; box-sizing:border-box;">
-								<button class="btn btn-velocidad" id="vel-lenta" style="margin-left:0;margin-right:0;padding-left:6px;padding-right:6px;min-width:120px;max-width:140px;width:100%;box-sizing:border-box;">Lenta</button>
-								<button class="btn btn-velocidad" id="vel-media" style="margin-left:0;margin-right:0;padding-left:6px;padding-right:6px;min-width:120px;max-width:140px;width:100%;box-sizing:border-box;">Media</button>
-								<button class="btn btn-velocidad" id="vel-rapida" style="margin-left:0;margin-right:0;padding-left:6px;padding-right:6px;min-width:120px;max-width:140px;width:100%;box-sizing:border-box;">Rápida</button>
+								<button class="btn btn-velocidad" id="vel-lenta" style="margin-left:0;margin-right:0;padding-left:4px;padding-right:4px;min-width:70px;max-width:90px;width:100%;box-sizing:border-box;">L</button>
+								<button class="btn btn-velocidad" id="vel-media" style="margin-left:0;margin-right:0;padding-left:4px;padding-right:4px;min-width:70px;max-width:90px;width:100%;box-sizing:border-box;">M</button>
+								<button class="btn btn-velocidad" id="vel-rapida" style="margin-left:0;margin-right:0;padding-left:4px;padding-right:4px;min-width:70px;max-width:90px;width:100%;box-sizing:border-box;">R</button>
 							</div>
 						</div>
 						<div class="panel-bajo" style="margin:0; padding:0; width:100%; box-sizing:border-box;">
@@ -626,6 +626,24 @@
 				}
 				console.log('=== renderReles finalizado. Botones creados: 9');
 			}
+	// Función para aplicar velocidad en UI
+			function aplicarVelocidadUI(velocidad) {
+				console.log('Aplicando velocidad UI:', velocidad);
+				velocidadActual = velocidad;
+				const mapeoVelocidad = [
+					{ id: 'vel-lenta', valor: 30 },
+					{ id: 'vel-media', valor: 60 },
+					{ id: 'vel-rapida', valor: 90 }
+				];
+				mapeoVelocidad.forEach(v => {
+					const btn = document.getElementById(v.id);
+					if (!btn) return;
+					const activo = v.valor === velocidad;
+					btn.classList.toggle('activo', activo);
+					btn.classList.toggle('inactivo', !activo);
+					console.log('Botón', v.id, 'activo:', activo);
+				});
+			}
 	// toggleRele eliminado, todo se hace por WebSocket
 			function conectarWS() {
 				console.log('📡 Intentando conectar WebSocket...');
@@ -666,6 +684,11 @@
 								console.log('Llamando renderReles con:', data.reles);
 								renderReles(data.reles);
 							}
+							// Cargar velocidad guardada de BD
+							if (typeof data.velocidad !== 'undefined') {
+								console.log('📤 Velocidad inicial recibida:', data.velocidad);
+								aplicarVelocidadUI(Number(data.velocidad));
+							}
 						}
 						if (data.tipo === 'reles' && data.reles) {
 							console.log('Tipo reles recibido:', data.reles);
@@ -689,6 +712,30 @@
 				};
 			}
 			window.addEventListener('DOMContentLoaded', () => {
+				// Conectar eventos de botones de velocidad
+				const mapeoVelocidad = [
+					{ id: 'vel-lenta', valor: 30 },
+					{ id: 'vel-media', valor: 60 },
+					{ id: 'vel-rapida', valor: 90 }
+				];
+				mapeoVelocidad.forEach(cfg => {
+					const btn = document.getElementById(cfg.id);
+					if (!btn) return;
+					btn.addEventListener('click', () => {
+						console.log('Click en velocidad:', cfg.valor);
+						if (!(window.ws && window.ws.readyState === 1)) {
+							console.error('WebSocket no conectado');
+							alert('Error: WebSocket no conectado');
+							return;
+						}
+						console.log('Enviando velocidad:', cfg.valor);
+						aplicarVelocidadUI(cfg.valor);
+						window.ws.send(JSON.stringify({ 
+							tipo: 'velocidad', 
+							nivel: cfg.valor 
+						}));
+					});
+				});
 				conectarWS();
 			});
 	</script>
