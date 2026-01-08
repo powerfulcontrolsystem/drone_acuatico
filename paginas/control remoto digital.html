@@ -570,11 +570,18 @@
 			}
 			// Relés
 			function renderReles(reles) {
+				console.log('=== renderReles llamado con:', reles);
 				estadoReles = reles || {};
 				const contenedor = document.getElementById('reles-botones');
+				console.log('Contenedor reles-botones:', contenedor);
+				if (!contenedor) {
+					console.error('NO ENCONTRADO: elemento reles-botones');
+					return;
+				}
 				contenedor.innerHTML = '';
 				// Los nombres de los relés se reciben por WebSocket en data.nombres_reles
 				let nombresReles = window.nombres_reles || {};
+				console.log('Nombres de relés:', nombresReles);
 				for (let i = 1; i <= 9; i++) {
 					let nombre = nombresReles[i] || `Relé ${i}`;
 					let estaActivo = estadoReles[i] === true;
@@ -583,58 +590,82 @@
 					btn.id = `rele${i}`;
 					btn.setAttribute('data-numero', String(i));
 					btn.innerHTML = `<span style='font-weight:600;'>${nombre}</span>`;
-					btn.addEventListener('click', () => {
-						if (window.ws && window.ws.readyState === 1) {
-							const nuevoEstado = !(estadoReles[i] === true);
-							// Actualización optimista de UI
-							estadoReles[i] = nuevoEstado;
-							btn.classList.toggle('activo', nuevoEstado);
-							btn.classList.toggle('inactivo', !nuevoEstado);
-							window.ws.send(JSON.stringify({
-								tipo: 'rele',
-								numero: i,
-								estado: nuevoEstado
-							}));
+					console.log(`Creando botón relé ${i}:`, btn.id, 'activo:', estaActivo);
+					btn.addEventListener('click', function(e) {
+						const numero = parseInt(this.getAttribute('data-numero'));
+						console.log('🔴 CLICK DETECTADO EN RELÉ:', numero);
+						console.log('WebSocket status:', window.ws ? 'exists' : 'NOT EXISTS', window.ws?.readyState);
+						if (!(window.ws && window.ws.readyState === 1)) {
+							console.error('❌ WebSocket NO conectado. readyState:', window.ws?.readyState);
+							alert('Error: WebSocket no conectado');
+							return;
 						}
+						const nuevoEstado = !(estadoReles[numero] === true);
+						console.log('📤 Enviando comando relé', numero, '-> estado:', nuevoEstado);
+						// Actualización optimista de UI
+						estadoReles[numero] = nuevoEstado;
+						this.classList.toggle('activo', nuevoEstado);
+						this.classList.toggle('inactivo', !nuevoEstado);
+						const mensaje = JSON.stringify({
+							tipo: 'rele',
+							numero: numero,
+							estado: nuevoEstado
+						});
+						console.log('Mensaje a enviar:', mensaje);
+						window.ws.send(mensaje);
+						console.log('✅ Comando enviado');
 					});
 					contenedor.appendChild(btn);
 				}
+				console.log('=== renderReles finalizado. Botones creados: 9');
 			}
 	// toggleRele eliminado, todo se hace por WebSocket
 			function conectarWS() {
+				console.log('📡 Intentando conectar WebSocket...');
 				let wsProto = (location.protocol === 'https:') ? 'wss://' : 'ws://';
 				let wsUrl = wsProto + location.hostname + ':8080/ws';
+				console.log('URL WebSocket:', wsUrl);
 				ws = new WebSocket(wsUrl);
 				ws.onopen = function() {
+					console.log('✅ WebSocket ABIERTO');
 					setConexion(true);
 					conectado = true;
 					// Solicitar datos completos al conectar para asegurar estados iniciales de relés
 					ws.send(JSON.stringify({ tipo: 'obtener_datos' }));
+					console.log('📤 Enviado: obtener_datos');
 				};
 				ws.onclose = function() {
+					console.log('❌ WebSocket CERRADO');
 					setConexion(false);
 					conectado = false;
 					setTimeout(conectarWS, 2000); // reconectar
 				};
-				ws.onerror = function() {
+				ws.onerror = function(error) {
+					console.error('⚠️ Error WebSocket:', error);
 					setConexion(false);
 				};
 				ws.onmessage = function(event) {
+					console.log('📥 Mensaje WebSocket recibido:', event.data);
 					try {
 						let data = JSON.parse(event.data);
+						console.log('Tipo de mensaje:', data.tipo);
 						if (data.tipo === 'conexion' || data.tipo === 'datos') {
+							console.log('Recibido conexion/datos, nombres_reles:', data.nombres_reles);
 							if (data.nombres_reles) {
 								window.nombres_reles = data.nombres_reles;
 							}
 							actualizarIndicadores(data);
 							if (data.reles) {
+								console.log('Llamando renderReles con:', data.reles);
 								renderReles(data.reles);
 							}
 						}
 						if (data.tipo === 'reles' && data.reles) {
+							console.log('Tipo reles recibido:', data.reles);
 							renderReles(data.reles);
 						}
 						if (data.tipo === 'respuesta_rele' && typeof data.numero !== 'undefined') {
+							console.log('Respuesta de relé:', data.numero, 'estado:', data.estado, 'exito:', data.exito);
 							const n = Number(data.numero);
 							const on = (data.estado === 'on' || data.estado === true);
 							estadoReles[n] = on;
@@ -642,10 +673,11 @@
 							if (btn) {
 								btn.classList.toggle('activo', on);
 								btn.classList.toggle('inactivo', !on);
+								console.log('✅ Botón relé', n, 'actualizado');
 							}
 						}
 					} catch(e) {
-						// Error de parseo
+						console.error('Error al parsear mensaje WebSocket:', e, event.data);
 					}
 				};
 			}
