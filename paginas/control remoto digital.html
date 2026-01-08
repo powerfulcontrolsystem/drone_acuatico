@@ -85,9 +85,9 @@
 			});
 		</script>
 			   <div style="width:100%; display:flex; justify-content:center;">
-				   <div class="cuadro-externo-superior" style="background:#e3eaf2; border-radius:14px; box-shadow:0 2px 12px #0002; padding:12px 18px; display:flex; justify-content:center; align-items:center;">
-					   <div class="fila-superior" style="gap:8px; margin-left:2px; margin-right:2px; display:flex; justify-content:center; align-items:stretch;">
-				   <div class="panel-cam" style="margin-left:0;margin-right:0; min-width:260px; max-width:340px; width:300px; height:220px; display:flex; flex-direction:column; align-items:center; justify-content:center; padding-left:12px; padding-right:12px; box-sizing:border-box;">
+				   <div class="cuadro-externo-superior" style="background:#e3eaf2; border-radius:14px; box-shadow:0 2px 12px #0002; padding:8px; display:flex; justify-content:center; align-items:center;">
+					   <div class="fila-superior" style="gap:4px; margin:0; display:flex; justify-content:center; align-items:stretch;">
+			   <div class="panel-cam" style="margin:0; min-width:260px; max-width:340px; width:300px; height:220px; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:6px; box-sizing:border-box;">
 					   <video id="videoCam1" controls muted playsinline></video>
 					   <div style="display: flex; gap: 8px; margin-top: 4px;">
 						   <button id="playCam1" class="btn btn-cam btn-cam-icon" title="Play/Stop Cam 1">
@@ -103,15 +103,16 @@
 							   </svg>
 						   </button>
 						<button id="grabar-cam1" class="btn btn-cam btn-cam-icon" title="Grabar video">
-							<svg width="100%" height="100%" viewBox="0 0 28 28" fill="#d32f2f" style="display:block;">
-								<rect x="7" y="7" width="14" height="14" rx="3" fill="#d32f2f"/>
-								<circle cx="14" cy="14" r="5" fill="#fff"/>
+						<svg width="100%" height="100%" viewBox="0 0 32 32" style="display:block;">
+							<rect x="4" y="10" width="16" height="12" rx="2" fill="#d32f2f"/>
+							<circle cx="12" cy="16" r="3" fill="#fff"/>
+							<path d="M20 12 L28 8 L28 24 L20 20 Z" fill="#d32f2f"/>
 							</svg>
 						</button>
 						   </div>
 					   </div>
 				   </div>
-				   <div class="panel-cam" style="margin-left:0;margin-right:0; min-width:260px; max-width:340px; width:300px; height:220px; display:flex; flex-direction:column; align-items:center; justify-content:center; padding-left:12px; padding-right:12px; box-sizing:border-box;">
+			   <div class="panel-cam" style="margin:0; min-width:260px; max-width:340px; width:300px; height:220px; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:6px; box-sizing:border-box;">
 					   <video id="videoCam2" controls muted playsinline></video>
 					   <div style="display: flex; gap: 8px; margin-top: 4px;">
 						   <button id="playCam2" class="btn btn-cam btn-cam-icon" title="Play/Stop Cam 2">
@@ -127,9 +128,10 @@
 							   </svg>
 						   </button>
 						<button id="grabar-cam2" class="btn btn-cam btn-cam-icon" title="Grabar video">
-							<svg width="100%" height="100%" viewBox="0 0 28 28" fill="#d32f2f" style="display:block;">
-								<rect x="7" y="7" width="14" height="14" rx="3" fill="#d32f2f"/>
-								<circle cx="14" cy="14" r="5" fill="#fff"/>
+						<svg width="100%" height="100%" viewBox="0 0 32 32" style="display:block;">
+							<rect x="4" y="10" width="16" height="12" rx="2" fill="#d32f2f"/>
+							<circle cx="12" cy="16" r="3" fill="#fff"/>
+							<path d="M20 12 L28 8 L28 24 L20 20 Z" fill="#d32f2f"/>
 							</svg>
 						</button>
 						<style>
@@ -150,7 +152,7 @@
 						</style>
 					   </div>
 				   </div>
-				   <div class="panel-cam" style="margin-left:0;margin-right:0; min-width:260px; max-width:340px; width:300px; height:220px; display:flex; flex-direction:column; align-items:center; justify-content:center; padding-left:12px; padding-right:12px; box-sizing:border-box;">
+			   <div class="panel-cam" style="margin:0; min-width:260px; max-width:340px; width:300px; height:220px; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:6px; box-sizing:border-box;">
 					   <div id="mapa-gps" style="width: 100%; height: 100%; min-width: 0; min-height: 0; border-radius: 8px; background: #232a36;"></div>
 				</div>
 			</div>
@@ -477,13 +479,14 @@
 					document.getElementById('peso-valor').textContent = '--';
 				}
 				// GPS Lat/Lon y mapa
-				if (data.gps && data.gps.latitud && data.gps.longitud && data.gps.valido) {
+				if (data.gps && data.gps.latitud && data.gps.longitud) {
 					let lat = Number(data.gps.latitud);
 					let lon = Number(data.gps.longitud);
+					let gpsActivo = data.gps.valido === true;
 					document.getElementById('gps-lat').textContent = isNaN(lat) ? '--' : lat.toFixed(1);
 					document.getElementById('gps-lon').textContent = isNaN(lon) ? '--' : lon.toFixed(1);
 					if (!isNaN(lat) && !isNaN(lon)) {
-						mostrarMapaGPS(lat, lon);
+						mostrarMapaGPS(lat, lon, gpsActivo);
 					}
 				} else {
 					document.getElementById('gps-lat').textContent = '--';
