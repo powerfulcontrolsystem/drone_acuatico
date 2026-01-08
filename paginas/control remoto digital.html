@@ -461,22 +461,33 @@
 				canvas.height = video.videoHeight;
 				const ctx = canvas.getContext('2d');
 				ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-				const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
-				try {
-					const resp = await fetch('/api/captura_foto', {
-						method: 'POST',
-						headers: { 'Content-Type': 'application/json' },
-						body: JSON.stringify({ imagen: dataUrl, camara })
-					});
-					const res = await resp.json();
-					if (res.ok) {
-						alert('Foto guardada: ' + res.archivo);
-					} else {
-						alert('Error al guardar foto: ' + (res.error || ''));
-					}
-				} catch (e) {
-					alert('Error de red al guardar foto.');
-				}
+				
+				// Convertir canvas a blob
+				canvas.toBlob(function(blob) {
+					// Crear URL descargable de la imagen
+					const url = URL.createObjectURL(blob);
+					
+					// Crear nombre del archivo con fecha y hora
+					const ahora = new Date();
+					const fecha = ahora.toISOString().replace(/[:.]/g, '-').split('T')[0];
+					const hora = ahora.toTimeString().split(' ')[0].replace(/:/g, '');
+					const nombreArchivo = `foto_cam${camara === 'cam1' ? '1' : '2'}_${fecha}_${hora}.jpg`;
+					
+					// Crear elemento <a> para descargar
+					const a = document.createElement('a');
+					a.href = url;
+					a.download = nombreArchivo;
+					
+					// Agregar al DOM, hacer clic y remover
+					document.body.appendChild(a);
+					a.click();
+					document.body.removeChild(a);
+					
+					// Liberar la URL del objeto
+					URL.revokeObjectURL(url);
+					
+					alert(`✓ Foto descargada: ${nombreArchivo}`);
+				}, 'image/jpeg', 0.92);
 			}
 
 			document.getElementById('captureCam1').onclick = function() {
@@ -524,29 +535,33 @@
 				mediaRecorder.ondataavailable = function(e) {
 					if (e.data.size > 0) recordedChunks[camara].push(e.data);
 				};
-				mediaRecorder.onstop = async function() {
+				mediaRecorder.onstop = function() {
 					grabando[camara] = false;
 					const blob = new Blob(recordedChunks[camara], { type: 'video/webm' });
-					const reader = new FileReader();
-					reader.onloadend = async function() {
-						const base64data = reader.result;
-						try {
-							const resp = await fetch('/api/grabar_video', {
-								method: 'POST',
-								headers: { 'Content-Type': 'application/json' },
-								body: JSON.stringify({ video: base64data, camara })
-							});
-							const res = await resp.json();
-							if (res.ok) {
-								alert('Video guardado: ' + res.archivo);
-							} else {
-								alert('Error al guardar video: ' + (res.error || ''));
-							}
-						} catch (e) {
-							alert('Error de red al guardar video.');
-						}
-					};
-					reader.readAsDataURL(blob);
+					
+					// Crear URL descargable del video
+					const url = URL.createObjectURL(blob);
+					
+					// Crear nombre del archivo con fecha y hora
+					const ahora = new Date();
+					const fecha = ahora.toISOString().replace(/[:.]/g, '-').split('T')[0];
+					const hora = ahora.toTimeString().split(' ')[0].replace(/:/g, '');
+					const nombreArchivo = `video_cam${camara === 'cam1' ? '1' : '2'}_${fecha}_${hora}.webm`;
+					
+					// Crear elemento <a> para descargar
+					const a = document.createElement('a');
+					a.href = url;
+					a.download = nombreArchivo;
+					
+					// Agregar al DOM, hacer clic y remover
+					document.body.appendChild(a);
+					a.click();
+					document.body.removeChild(a);
+					
+					// Liberar la URL del objeto
+					URL.revokeObjectURL(url);
+					
+					alert(`✓ Video descargado: ${nombreArchivo}`);
 				};
 				mediaRecorder.start();
 			}

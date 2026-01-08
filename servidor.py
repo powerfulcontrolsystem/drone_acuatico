@@ -58,9 +58,6 @@ from camera_stream import (
     detener_hls
 )
 
-# Importar handler de captura de foto
-from captura_foto import capturar_foto_handler
-
 # Configuración de logging
 logging.basicConfig(
     level=logging.INFO,
@@ -740,8 +737,6 @@ def crear_app():
     app.router.add_get('/api/config', api_config_handler)
     app.router.add_post('/api/config', api_config_handler)
     app.router.add_get('/ws', websocket_handler)
-    # Endpoint para capturar foto
-    app.router.add_post('/api/captura_foto', capturar_foto_handler)
     # Endpoints para apagar y reiniciar el sistema
     app.router.add_post('/api/reiniciar', api_reiniciar_handler)
     app.router.add_post('/api/apagar', api_apagar_handler)
