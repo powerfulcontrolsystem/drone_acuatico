@@ -577,17 +577,19 @@
 				let nombresReles = window.nombres_reles || {};
 				for (let i = 1; i <= 9; i++) {
 					let nombre = nombresReles[i] || `Relé ${i}`;
-					let activo = reles[i]?.estado ? 'activo' : 'inactivo';
+					let estaActivo = !!reles[i];
 					const btn = document.createElement('button');
-					btn.className = `btn btn-rele btn-modern ${activo}`;
+					btn.className = `btn btn-rele btn-modern ${estaActivo ? 'activo' : 'inactivo'}`;
 					btn.id = `rele${i}`;
+					btn.setAttribute('data-numero', String(i));
 					btn.innerHTML = `<span style='font-weight:600;'>${nombre}</span>`;
 					btn.addEventListener('click', () => {
 						if (window.ws && window.ws.readyState === 1) {
+							const nuevoEstado = !estaActivo;
 							window.ws.send(JSON.stringify({
 								tipo: 'rele',
 								numero: i,
-								estado: !(reles[i]?.estado)
+								estado: nuevoEstado
 							}));
 						}
 					});
@@ -625,6 +627,15 @@
 						}
 						if (data.tipo === 'reles' && data.reles) {
 							renderReles(data.reles);
+						}
+						if (data.tipo === 'respuesta_rele' && typeof data.numero !== 'undefined') {
+							const n = Number(data.numero);
+							const btn = document.getElementById('rele' + n);
+							if (btn) {
+								const on = (data.estado === 'on' || data.estado === true);
+								btn.classList.toggle('activo', on);
+								btn.classList.toggle('inactivo', !on);
+							}
 						}
 					} catch(e) {
 						// Error de parseo

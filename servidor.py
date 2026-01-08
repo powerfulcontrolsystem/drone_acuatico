@@ -329,6 +329,16 @@ async def procesar_mensaje_ws(ws, datos):
             'exito': exito,
             'error': error
         })
+
+        # Notificar a todos los clientes el estado actualizado de los relés
+        try:
+            for cliente in list(CLIENTES_WS):
+                try:
+                    await cliente.send_json({'tipo': 'reles', 'reles': ESTADO_RELES})
+                except Exception:
+                    pass
+        except Exception:
+            pass
     
     # Control de motores
     elif tipo == 'motor':
