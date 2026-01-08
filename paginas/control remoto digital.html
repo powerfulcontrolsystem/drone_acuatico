@@ -100,6 +100,55 @@
 		#btn-derecha { grid-row: 2; grid-column: 3; }
 		#btn-abajo { grid-row: 3; grid-column: 2; }
 		
+		/* Animación de parpadeo para grabación */
+		@keyframes parpadeoRojo {
+			0% { opacity: 1; }
+			50% { opacity: 0.3; }
+			100% { opacity: 1; }
+		}
+		
+		.grabando-indicador {
+			position: fixed;
+			top: 20px;
+			right: 60px;
+			display: flex;
+			align-items: center;
+			gap: 12px;
+			background: rgba(211, 47, 47, 0.95);
+			color: white;
+			padding: 12px 20px;
+			border-radius: 8px;
+			font-weight: 600;
+			font-size: 14px;
+			box-shadow: 0 4px 12px rgba(211, 47, 47, 0.4);
+			z-index: 1000;
+			display: none;
+		}
+		
+		.grabando-indicador.activo {
+			display: flex;
+		}
+		
+		.grabando-punto {
+			width: 16px;
+			height: 16px;
+			border-radius: 50%;
+			background: #ff5252;
+			animation: parpadeoRojo 0.8s infinite;
+			box-shadow: 0 0 8px #ff5252;
+		}
+		
+		#iconGrabarCam1 svg circle,
+		#iconGrabarCam2 svg circle {
+			transition: all 0.2s ease;
+		}
+		
+		#grabar-cam1.grabando svg circle,
+		#grabar-cam2.grabando svg circle {
+			animation: parpadeoRojo 0.8s infinite;
+			filter: drop-shadow(0 0 4px #ff5252);
+		}
+		
 		/* Dividir pantalla en dos mitades */
 		body {
 			margin: 0;
@@ -160,6 +209,12 @@
 	<script src="/static/leaflet_loader.js"></script>
 </head>
 <body>
+		<!-- Indicador de grabación en vivo -->
+		<div id="grabando-indicador" class="grabando-indicador">
+			<div class="grabando-punto"></div>
+			<span id="grabando-camara">Grabando Cámara 1</span>
+		</div>
+
 		<!-- Tuerca flotante en esquina superior derecha -->
 		<div id="menu-flotante">
 		<button id="btn-tuerca" class="btn-menu" type="button" aria-label="Menú de opciones">
@@ -207,11 +262,9 @@
 								</svg>
 							</button>
 							<button id="grabar-cam1" class="btn btn-cam btn-cam-icon" title="Grabar video">
-								<svg width="100%" height="100%" viewBox="0 0 32 32" style="display:block;">
-									<rect x="4" y="10" width="16" height="12" rx="2" fill="#d32f2f"/>
-									<circle cx="12" cy="16" r="3" fill="#fff"/>
-									<path d="M20 12 L28 8 L28 24 L20 20 Z" fill="#d32f2f"/>
-								</svg>
+							<span id="iconGrabarCam1" style="display:inline-block;width:100%;height:100%;vertical-align:middle;">
+								<svg width="100%" height="100%" viewBox="0 0 32 32" style="display:block;"><circle cx="16" cy="16" r="12" fill="#d32f2f"/></svg>
+							</span>
 							</button>
 						</div>
 					</div>
@@ -231,11 +284,9 @@
 								</svg>
 							</button>
 							<button id="grabar-cam2" class="btn btn-cam btn-cam-icon" title="Grabar video">
-								<svg width="100%" height="100%" viewBox="0 0 32 32" style="display:block;">
-									<rect x="4" y="10" width="16" height="12" rx="2" fill="#d32f2f"/>
-									<circle cx="12" cy="16" r="3" fill="#fff"/>
-									<path d="M20 12 L28 8 L28 24 L20 20 Z" fill="#d32f2f"/>
-								</svg>
+							<span id="iconGrabarCam2" style="display:inline-block;width:100%;height:100%;vertical-align:middle;">
+								<svg width="100%" height="100%" viewBox="0 0 32 32" style="display:block;"><circle cx="16" cy="16" r="12" fill="#d32f2f"/></svg>
+							</span>
 							</button>
 						</div>
 					</div>
@@ -442,6 +493,11 @@
 
 			async function grabarVideo(videoId, camara) {
 				const video = document.getElementById(videoId);
+				const btnGrabar = document.getElementById(`grabar-cam${camara === 'cam1' ? '1' : '2'}`);
+				const iconSpan = document.getElementById(`iconGrabarCam${camara === 'cam1' ? '1' : '2'}`);
+				const indicador = document.getElementById('grabando-indicador');
+				const textoCamara = document.getElementById('grabando-camara');
+				
 				let stream = video.captureStream ? video.captureStream() : null;
 				if (!stream) {
 					alert('No se puede obtener el stream de video.');
@@ -450,6 +506,8 @@
 				if (grabando[camara]) {
 					// Detener grabación
 					mediaRecorders[camara].stop();
+					btnGrabar.classList.remove('grabando');
+					indicador.classList.remove('activo');
 					return;
 				}
 				recordedChunks[camara] = [];
@@ -457,6 +515,12 @@
 				let mediaRecorder = new MediaRecorder(stream, options);
 				mediaRecorders[camara] = mediaRecorder;
 				grabando[camara] = true;
+				
+				// Mostrar indicador de grabación
+				btnGrabar.classList.add('grabando');
+				textoCamara.textContent = `Grabando Cámara ${camara === 'cam1' ? '1' : '2'}`;
+				indicador.classList.add('activo');
+				
 				mediaRecorder.ondataavailable = function(e) {
 					if (e.data.size > 0) recordedChunks[camara].push(e.data);
 				};
@@ -485,7 +549,6 @@
 					reader.readAsDataURL(blob);
 				};
 				mediaRecorder.start();
-				alert('Grabando video... pulsa el botón nuevamente para detener y guardar.');
 			}
 
 			document.getElementById('grabar-cam1').onclick = function() {
