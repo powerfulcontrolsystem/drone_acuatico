@@ -77,3 +77,59 @@ function crearMapa(lat, lon, gpsActivo) {
         window._puntoGpsStyle = true;
     }
 }
+
+// Muestra o actualiza un marcador de destino en el mapa
+function mostrarDestino(lat, lon, nombre) {
+    function _colocar() {
+        if (!window._leafletMap) {
+            // Si el mapa aún no existe, créalo con un zoom razonable
+            crearMapa(lat, lon, false);
+        }
+        const html = '<div class="punto-destino" title="Destino"></div>';
+        var destinoIcon = L.divIcon({
+            className: 'destino-icon',
+            iconSize: [22, 22],
+            iconAnchor: [11, 11],
+            html
+        });
+        if (window._leafletDestinoMarker) {
+            window._leafletDestinoMarker.setLatLng([lat, lon]);
+            window._leafletDestinoMarker.setIcon(destinoIcon);
+        } else {
+            window._leafletDestinoMarker = L.marker([lat, lon], {icon: destinoIcon}).addTo(window._leafletMap);
+        }
+        const label = nombre && nombre.trim() ? nombre.trim() : (lat.toFixed(5) + ", " + lon.toFixed(5));
+        window._leafletDestinoMarker.bindPopup('Destino: ' + label, {autoClose: false});
+    }
+
+    if (!window.L) {
+        // Si Leaflet no está cargado aún, cárguelo y luego coloque el destino
+        const leafletCss = document.createElement('link');
+        leafletCss.rel = 'stylesheet';
+        leafletCss.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+        document.head.appendChild(leafletCss);
+        const leafletJs = document.createElement('script');
+        leafletJs.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+        leafletJs.onload = _colocar;
+        document.body.appendChild(leafletJs);
+    } else {
+        _colocar();
+    }
+
+    // Estilos para el marcador de destino
+    if (!window._destinoStyle) {
+        var style = document.createElement('style');
+        style.innerHTML = `
+            .punto-destino {
+                width: 18px;
+                height: 18px;
+                border-radius: 50%;
+                background: #1e88e5;
+                border: 2px solid #bbdefb;
+                box-shadow: 0 0 8px #1e88e588;
+            }
+        `;
+        document.head.appendChild(style);
+        window._destinoStyle = true;
+    }
+}

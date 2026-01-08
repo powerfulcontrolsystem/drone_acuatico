@@ -261,6 +261,7 @@
 						<div class="panel-bajo" style="margin:0; margin-top:0; display:flex; justify-content:center; align-items:center; min-width:120px; max-width:140px; width:130px; padding:0; box-sizing:border-box;">
 							<div class="gps-botones" style="display:flex; flex-direction:column; gap:2px; align-items:center; padding:0; width:100%; box-sizing:border-box;">
                                 <div style="font-size:0.85em; font-weight:600; color:#6ec1e4; margin-bottom:4px; text-align:center; width:100%;">GPS.</div>
+                                <input id="gps-nombre" type="text" placeholder="Nombre destino (opcional)" style="width:100%;max-width:140px;min-width:120px;box-sizing:border-box;padding:4px 6px;margin:0;border-radius:6px;border:1px solid #6ec1e4;background:#f3f7fa;color:#232a36;">
 								<button class="btn btn-gps" id="gps-guardar" style="margin-left:0;margin-right:0;padding-left:6px;padding-right:6px;min-width:120px;max-width:140px;width:100%;box-sizing:border-box;">Guardar ubicación</button>
 								<button class="btn btn-gps" id="gps-destino" style="margin-left:0;margin-right:0;padding-left:6px;padding-right:6px;min-width:120px;max-width:140px;width:100%;box-sizing:border-box;">Ir a destino</button>
 							</div>
@@ -690,6 +691,10 @@
 								console.log('📤 Velocidad inicial recibida:', data.velocidad);
 								aplicarVelocidadUI(Number(data.velocidad));
 							}
+							// Destino inicial
+							if (data.destino && typeof mostrarDestino === 'function' && data.destino.latitud && data.destino.longitud) {
+								try { mostrarDestino(Number(data.destino.latitud), Number(data.destino.longitud), data.destino.nombre || ''); } catch(e) { console.warn('No se pudo mostrar destino inicial:', e); }
+							}
 						}
 						if (data.tipo === 'reles' && data.reles) {
 							console.log('Tipo reles recibido:', data.reles);
@@ -719,6 +724,9 @@
 						if (data.tipo === 'destino_actual') {
 							if (data.exito) {
 								alert('📍 Destino establecido: ' + data.latitud + ', ' + data.longitud);
+								if (typeof mostrarDestino === 'function' && data.latitud && data.longitud) {
+									try { mostrarDestino(Number(data.latitud), Number(data.longitud), data.nombre || ''); } catch(e) {}
+								}
 							} else if (data.mensaje) {
 								alert('✖ ' + data.mensaje);
 							}
@@ -787,8 +795,9 @@
 							alert('Coordenadas inválidas');
 							return;
 						}
-						console.log('Enviando destino:', lat, lon);
-						window.ws.send(JSON.stringify({ tipo: 'gps_destino', latitud: lat, longitud: lon }));
+						const nombre = (document.getElementById('gps-nombre')?.value || '').trim();
+						console.log('Enviando destino:', lat, lon, nombre ? ('nombre=' + nombre) : '');
+						window.ws.send(JSON.stringify({ tipo: 'gps_destino', latitud: lat, longitud: lon, nombre: nombre || undefined }));
 					});
 				}
 				conectarWS();
