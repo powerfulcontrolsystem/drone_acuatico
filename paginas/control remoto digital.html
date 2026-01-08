@@ -330,8 +330,9 @@
 		    // Cámara 1 y 2
 
 			   // --- Play/Stop y Captura ---
-			   let hlsPlayers = { cam1: null, cam2: null };
-			   let playing = { cam1: false, cam2: false };
+			let hlsPlayers = { cam1: null, cam2: null };
+			let playing = { cam1: false, cam2: false };
+			let estadoReles = {};
 
 			   function iniciarCamara(videoId, playlist, camKey) {
 				   var video = document.getElementById(videoId);
@@ -571,13 +572,14 @@
 			}
 			// Relés
 			function renderReles(reles) {
+				estadoReles = reles || {};
 				const contenedor = document.getElementById('reles-botones');
 				contenedor.innerHTML = '';
 				// Los nombres de los relés se reciben por WebSocket en data.nombres_reles
 				let nombresReles = window.nombres_reles || {};
 				for (let i = 1; i <= 9; i++) {
 					let nombre = nombresReles[i] || `Relé ${i}`;
-					let estaActivo = !!reles[i];
+					let estaActivo = estadoReles[i] === true;
 					const btn = document.createElement('button');
 					btn.className = `btn btn-rele btn-modern ${estaActivo ? 'activo' : 'inactivo'}`;
 					btn.id = `rele${i}`;
@@ -585,7 +587,11 @@
 					btn.innerHTML = `<span style='font-weight:600;'>${nombre}</span>`;
 					btn.addEventListener('click', () => {
 						if (window.ws && window.ws.readyState === 1) {
-							const nuevoEstado = !estaActivo;
+							const nuevoEstado = !(estadoReles[i] === true);
+							// Actualización optimista de UI
+							estadoReles[i] = nuevoEstado;
+							btn.classList.toggle('activo', nuevoEstado);
+							btn.classList.toggle('inactivo', !nuevoEstado);
 							window.ws.send(JSON.stringify({
 								tipo: 'rele',
 								numero: i,
@@ -604,6 +610,8 @@
 				ws.onopen = function() {
 					setConexion(true);
 					conectado = true;
+					// Solicitar datos completos al conectar para asegurar estados iniciales de relés
+					ws.send(JSON.stringify({ tipo: 'obtener_datos' }));
 				};
 				ws.onclose = function() {
 					setConexion(false);
@@ -630,9 +638,10 @@
 						}
 						if (data.tipo === 'respuesta_rele' && typeof data.numero !== 'undefined') {
 							const n = Number(data.numero);
+							const on = (data.estado === 'on' || data.estado === true);
+							estadoReles[n] = on;
 							const btn = document.getElementById('rele' + n);
 							if (btn) {
-								const on = (data.estado === 'on' || data.estado === true);
 								btn.classList.toggle('activo', on);
 								btn.classList.toggle('inactivo', !on);
 							}
