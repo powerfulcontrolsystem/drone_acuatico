@@ -333,6 +333,7 @@
 			let hlsPlayers = { cam1: null, cam2: null };
 			let playing = { cam1: false, cam2: false };
 			let estadoReles = {};
+			let velocidadActual = 50;
 
 			   function iniciarCamara(videoId, playlist, camKey) {
 				   var video = document.getElementById(videoId);
@@ -579,7 +580,8 @@
 				let nombresReles = window.nombres_reles || {};
 				for (let i = 1; i <= 9; i++) {
 					let nombre = nombresReles[i] || `Relé ${i}`;
-					let estaActivo = estadoReles[i] === true;
+					let estaActivo = !!estadoReles[i];
+					estadoReles[i] = estaActivo;
 					const btn = document.createElement('button');
 					btn.className = `btn btn-rele btn-modern ${estaActivo ? 'activo' : 'inactivo'}`;
 					btn.id = `rele${i}`;
@@ -587,7 +589,7 @@
 					btn.innerHTML = `<span style='font-weight:600;'>${nombre}</span>`;
 					btn.addEventListener('click', () => {
 						if (window.ws && window.ws.readyState === 1) {
-							const nuevoEstado = !(estadoReles[i] === true);
+							const nuevoEstado = !estadoReles[i];
 							// Actualización optimista de UI
 							estadoReles[i] = nuevoEstado;
 							btn.classList.toggle('activo', nuevoEstado);
@@ -601,6 +603,25 @@
 					});
 					contenedor.appendChild(btn);
 				}
+			}
+
+			function aplicarVelocidadUI(nivel) {
+				velocidadActual = nivel;
+				const niveles = [
+					{ id: 'vel-lenta', valor: 30 },
+					{ id: 'vel-media', valor: 60 },
+					{ id: 'vel-rapida', valor: 90 }
+				];
+				niveles.forEach(n => {
+					const b = document.getElementById(n.id);
+					if (!b) return;
+					const activo = n.valor === nivel;
+					b.classList.toggle('activo', activo);
+					b.classList.toggle('inactivo', !activo);
+				});
+				// Actualizar indicador numérico si existe
+				const velValor = document.getElementById('vel-valor');
+				if (velValor) velValor.textContent = Number(nivel).toFixed(0) + ' %';
 			}
 	// toggleRele eliminado, todo se hace por WebSocket
 			function conectarWS() {
@@ -632,9 +653,15 @@
 							if (data.reles) {
 								renderReles(data.reles);
 							}
+							if (typeof data.velocidad !== 'undefined') {
+								aplicarVelocidadUI(Number(data.velocidad));
+							}
 						}
 						if (data.tipo === 'reles' && data.reles) {
 							renderReles(data.reles);
+						}
+						if (data.tipo === 'velocidad' && typeof data.velocidad !== 'undefined') {
+							aplicarVelocidadUI(Number(data.velocidad));
 						}
 						if (data.tipo === 'respuesta_rele' && typeof data.numero !== 'undefined') {
 							const n = Number(data.numero);
@@ -646,12 +673,35 @@
 								btn.classList.toggle('inactivo', !on);
 							}
 						}
+						if (data.tipo === 'respuesta_velocidad' && typeof data.velocidad !== 'undefined') {
+							aplicarVelocidadUI(Number(data.velocidad));
+						}
 					} catch(e) {
 						// Error de parseo
 					}
 				};
 			}
+
+			function wireVelocidadBotones() {
+				const map = [
+					{ id: 'vel-lenta', valor: 30 },
+					{ id: 'vel-media', valor: 60 },
+					{ id: 'vel-rapida', valor: 90 }
+				];
+				map.forEach(cfg => {
+					const btn = document.getElementById(cfg.id);
+					if (!btn) return;
+					btn.addEventListener('click', () => {
+						aplicarVelocidadUI(cfg.valor);
+						if (window.ws && window.ws.readyState === 1) {
+							window.ws.send(JSON.stringify({ tipo: 'velocidad', nivel: cfg.valor }));
+						}
+					});
+				});
+			}
+
 			window.addEventListener('DOMContentLoaded', () => {
+				wireVelocidadBotones();
 				conectarWS();
 			});
 	</script>

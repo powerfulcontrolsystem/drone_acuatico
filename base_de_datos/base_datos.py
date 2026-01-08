@@ -128,6 +128,7 @@ def inicializar_bd():
             "ALTER TABLE configuracion ADD COLUMN tema_oscuro INTEGER DEFAULT 1",
             "ALTER TABLE configuracion ADD COLUMN tamano_letra_datos INTEGER DEFAULT 12",
             "ALTER TABLE configuracion ADD COLUMN frecuencia_guardado INTEGER DEFAULT 30",
+            "ALTER TABLE configuracion ADD COLUMN velocidad_actual INTEGER DEFAULT 50",
         ]:
             try:
                 cursor.execute(stmt)
@@ -203,6 +204,7 @@ def obtener_configuracion():
                 'url_camara2_hd': fila['url_camara2_hd'] if 'url_camara2_hd' in fila.keys() else '',
                 'desactivar_camara2': bool(fila['desactivar_camara2']),
                 'tamano_letra_datos': int(fila['tamano_letra_datos']) if 'tamano_letra_datos' in fila.keys() else 12,
+                'velocidad_actual': int(fila['velocidad_actual']) if 'velocidad_actual' in fila.keys() else 50,
                 'reles': {
                     1: fila['nombre_rele1'],
                     2: fila['nombre_rele2'],
@@ -256,6 +258,7 @@ def guardar_configuracion(config):
                 correo = ?,
                 tamano_mapa = ?,
                 tamano_letra_datos = ?,
+                velocidad_actual = ?,
                 guardar_recorrido = ?,
                 url_camara1_sd = ?,
                 url_camara1_hd = ?,
@@ -280,6 +283,7 @@ def guardar_configuracion(config):
             config.get('correo', ''),
             int(config.get('tamano_mapa', 400)),
             int(config.get('tamano_letra_datos', 12)),
+            int(config.get('velocidad_actual', 50)),
             int(config.get('guardar_recorrido', True)),
             config.get('url_camara1_sd', ''),
             config.get('url_camara1_hd', ''),
@@ -622,6 +626,46 @@ def guardar_estado_rele(numero, estado):
         logger.error(f"Error guardando estado de relé: {e}")
         return False
     
+    finally:
+        conexion.close()
+
+
+def guardar_velocidad_actual(nivel):
+    """Guarda el nivel de velocidad actual en la configuración."""
+    conexion = obtener_conexion()
+    if not conexion:
+        return False
+    try:
+        cursor = conexion.cursor()
+        cursor.execute('''
+            UPDATE configuracion
+            SET velocidad_actual = ?, fecha_actualizacion = CURRENT_TIMESTAMP
+            WHERE id = 1
+        ''', (int(nivel),))
+        conexion.commit()
+        return True
+    except sqlite3.Error as e:
+        logger.error(f"Error guardando velocidad: {e}")
+        return False
+    finally:
+        conexion.close()
+
+
+def obtener_velocidad_actual():
+    """Obtiene el nivel de velocidad actual guardado (default 50)."""
+    conexion = obtener_conexion()
+    if not conexion:
+        return 50
+    try:
+        cursor = conexion.cursor()
+        cursor.execute('SELECT velocidad_actual FROM configuracion WHERE id = 1')
+        fila = cursor.fetchone()
+        if fila and 'velocidad_actual' in fila.keys() and fila['velocidad_actual'] is not None:
+            return int(fila['velocidad_actual'])
+        return 50
+    except sqlite3.Error as e:
+        logger.error(f"Error obteniendo velocidad: {e}")
+        return 50
     finally:
         conexion.close()
 

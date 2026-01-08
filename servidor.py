@@ -42,7 +42,9 @@ from base_de_datos.base_datos import (
     restaurar_estados_reles,
     iniciar_recorrido,
     guardar_posicion_gps as guardar_posicion_bd,
-    obtener_todos_recorridos
+    obtener_todos_recorridos,
+    guardar_velocidad_actual,
+    obtener_velocidad_actual
 )
 
 from camera_stream import (
@@ -355,11 +357,18 @@ async def procesar_mensaje_ws(ws, datos):
     # Cambio de velocidad
     elif tipo == 'velocidad':
         VELOCIDAD_ACTUAL = int(datos.get('nivel', 50))
-        
+        guardar_velocidad_actual(VELOCIDAD_ACTUAL)
+
         await ws.send_json({
             'tipo': 'respuesta_velocidad',
             'velocidad': VELOCIDAD_ACTUAL
         })
+        # Broadcast a todos los clientes el nivel actualizado
+        for cliente in list(CLIENTES_WS):
+            try:
+                await cliente.send_json({'tipo': 'velocidad', 'velocidad': VELOCIDAD_ACTUAL})
+            except Exception:
+                pass
     
     # Comandos de sistema
     elif tipo == 'sistema':
@@ -430,6 +439,7 @@ async def procesar_mensaje_ws(ws, datos):
         await ws.send_json({'tipo': 'peso', 'datos': obtener_peso()})
         await ws.send_json({'tipo': 'solar', 'datos': obtener_solar()})
         await ws.send_json({'tipo': 'gps', 'datos': obtener_payload_gps()})
+        await ws.send_json({'tipo': 'velocidad', 'velocidad': VELOCIDAD_ACTUAL})
     
     # Guardar configuración
     elif tipo == 'guardar_config':
@@ -580,6 +590,9 @@ async def on_startup(app):
     config = await loop.run_in_executor(None, obtener_configuracion)
     if config:
         logger.info(f"Configuración cargada: IP={config['ip_publica']}, Tamaño mapa={config['tamano_mapa']}px")
+        # Cargar velocidad almacenada
+        global VELOCIDAD_ACTUAL
+        VELOCIDAD_ACTUAL = config.get('velocidad_actual', VELOCIDAD_ACTUAL)
         # Preparar carpeta HLS y arrancar cámaras si están configuradas
         hls_asegurar()
         rtsp1_hd = construir_rtsp_url(config, 1, 'hd')
@@ -699,6 +712,10 @@ def main():
     
     # Inicializar base de datos
     inicializar_bd()
+
+    # Cargar velocidad almacenada
+    global VELOCIDAD_ACTUAL
+    VELOCIDAD_ACTUAL = obtener_velocidad_actual()
     
     # Inicializar hardware
     inicializar_gpio()
