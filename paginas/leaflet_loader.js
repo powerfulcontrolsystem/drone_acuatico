@@ -92,7 +92,7 @@ function crearMapa(lat, lon, gpsActivo) {
         // Si no existe, no crear el div, ya que ahora está en el HTML
         return;
     }
-    mapDiv.innerHTML = "";
+    // NO limpiar innerHTML porque destruye el mapa de Leaflet existente
     // Definir icono personalizado: punto circular animado o fijo
     var puntoHtml;
     if (gpsActivo) {
