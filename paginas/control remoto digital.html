@@ -31,6 +31,7 @@
 			align-items: center;
 			justify-content: center;
 			overflow: auto;
+			padding: 4px;
 		}
 		.cuadro-inferior {
 			flex: 1;
@@ -51,6 +52,66 @@
 	<title>Control Remoto Digital</title>
 	<link rel="stylesheet" href="/static/tema_universal.css">
 	<style>
+		   .fila-superior {
+			display: grid;
+			grid-template-columns: repeat(3, minmax(0, 1fr));
+			gap: 4px;
+			width: 100%;
+			height: 100%;
+			min-height: 260px;
+			align-items: stretch;
+			justify-items: stretch;
+			margin: 0;
+		}
+		.panel-cam {
+			margin: 0;
+			flex: 1 1 0;
+			height: 100%;
+			min-height: 260px;
+			display: flex;
+			flex-direction: column;
+			align-items: stretch;
+			justify-content: flex-start;
+			padding: 4px;
+			box-sizing: border-box;
+		}
+		.panel-cam video {
+			flex: 1 1 0;
+			width: 100%;
+			min-height: 0;
+			object-fit: contain;
+			border-radius: 8px;
+		}
+		.cam-controles {
+			display: flex;
+			gap: 8px;
+			margin-top: 4px;
+		}
+		.panel-cam.mapa {
+			padding: 4px;
+		}
+		.btn-cam-icon {
+			width: 48px;
+			height: 48px;
+			min-width: 48px;
+			min-height: 48px;
+			padding: 0;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		}
+		.btn-cam-icon svg {
+			width: 90%;
+			height: 90%;
+		}
+		.panel-cam.mapa #mapa-gps {
+			flex: 1 1 0;
+			width: 100%;
+			height: 100%;
+			min-height: 240px;
+			border-radius: 8px;
+			background: #232a36;
+		}
 			   .indicador-item {
 				   font-size: 12px !important;
 				   font-family: 'Segoe UI', 'Roboto', Arial, sans-serif !important;
@@ -105,10 +166,17 @@
 		display: flex;
 		align-items: stretch;
 		height: 100%;
+		width: 100%;
+		justify-content: stretch;
 	}
 	.cuadro-externo-superior {
 		height: 100% !important;
-		margin: 0 !important;
+		margin: 0 auto !important;
+		width: 100%;
+		max-width: 1200px;
+		display: flex;
+		justify-content: stretch;
+		align-items: stretch;
 	}
 	.cuadro-inferior {
 		flex: 1;
@@ -156,81 +224,71 @@
 				if (menuOpciones.style.display === 'block') menuOpciones.style.display = 'none';
 			});
 		</script>
+		<script>
+			// Mostrar un mapa base por defecto para que el recuadro no quede vacío si aún no llegan datos de GPS
+			document.addEventListener('DOMContentLoaded', function() {
+				if (document.getElementById('mapa-gps') && typeof mostrarMapaGPS === 'function') {
+					mostrarMapaGPS(0, 0, false);
+				}
+			});
+		</script>
 		<div class="cuadro-superior-wrapper">
-			   <div style="width:100%; display:flex; justify-content:center; align-items:stretch;">
-				   <div class="cuadro-externo-superior" style="background:#e3eaf2; border-radius:8px; box-shadow:0 2px 12px #0002; padding:4px; display:flex; justify-content:center; align-items:center;">
-					   <div class="fila-superior" style="gap:8px; margin:0; display:flex; justify-content:center; align-items:stretch;">
-			   <div class="panel-cam" style="margin:0; min-width:260px; max-width:340px; width:300px; height:220px; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:6px; box-sizing:border-box;">
-					   <video id="videoCam1" controls muted playsinline></video>
-					   <div style="display: flex; gap: 8px; margin-top: 4px;">
-						   <button id="playCam1" class="btn btn-cam btn-cam-icon" title="Play/Stop Cam 1">
-							   <span id="iconPlayCam1" style="display:inline-block;width:100%;height:100%;vertical-align:middle;">
-								   <svg width="100%" height="100%" viewBox="0 0 22 22" fill="#2196f3" style="display:block;"><polygon points="6,4 18,11 6,18"/></svg>
-							   </span>
-						   </button>
-						   <button id="captureCam1" class="btn btn-cam btn-cam-icon" title="Capturar Foto">
-							   <svg width="100%" height="100%" viewBox="0 0 32 32" fill="#555" style="display:block;">
-								   <rect x="4" y="10" width="24" height="14" rx="3" fill="#bbb"/>
-								   <circle cx="16" cy="17" r="6" fill="#2196f3"/>
-								   <rect x="11" y="5" width="10" height="6" rx="2" fill="#bbb"/>
-							   </svg>
-						   </button>
-						<button id="grabar-cam1" class="btn btn-cam btn-cam-icon" title="Grabar video">
-						<svg width="100%" height="100%" viewBox="0 0 32 32" style="display:block;">
-							<rect x="4" y="10" width="16" height="12" rx="2" fill="#d32f2f"/>
-							<circle cx="12" cy="16" r="3" fill="#fff"/>
-							<path d="M20 12 L28 8 L28 24 L20 20 Z" fill="#d32f2f"/>
-							</svg>
-						</button>
-						   </div>
-					   </div>
-				   </div>
-			   <div class="panel-cam" style="margin:0; min-width:260px; max-width:340px; width:300px; height:220px; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:6px; box-sizing:border-box;">
-					   <video id="videoCam2" controls muted playsinline></video>
-					   <div style="display: flex; gap: 8px; margin-top: 4px;">
-						   <button id="playCam2" class="btn btn-cam btn-cam-icon" title="Play/Stop Cam 2">
-							   <span id="iconPlayCam2" style="display:inline-block;width:100%;height:100%;vertical-align:middle;">
-								   <svg width="100%" height="100%" viewBox="0 0 22 22" fill="#2196f3" style="display:block;"><polygon points="6,4 18,11 6,18"/></svg>
-							   </span>
-						   </button>
-						   <button id="captureCam2" class="btn btn-cam btn-cam-icon" title="Capturar Foto">
-							   <svg width="100%" height="100%" viewBox="0 0 32 32" fill="#555" style="display:block;">
-								   <rect x="4" y="10" width="24" height="14" rx="3" fill="#bbb"/>
-								   <circle cx="16" cy="17" r="6" fill="#2196f3"/>
-								   <rect x="11" y="5" width="10" height="6" rx="2" fill="#bbb"/>
-							   </svg>
-						   </button>
-						<button id="grabar-cam2" class="btn btn-cam btn-cam-icon" title="Grabar video">
-						<svg width="100%" height="100%" viewBox="0 0 32 32" style="display:block;">
-							<rect x="4" y="10" width="16" height="12" rx="2" fill="#d32f2f"/>
-							<circle cx="12" cy="16" r="3" fill="#fff"/>
-							<path d="M20 12 L28 8 L28 24 L20 20 Z" fill="#d32f2f"/>
-							</svg>
-						</button>
-						<style>
-							.btn-cam-icon {
-								width: 48px;
-								height: 48px;
-								min-width: 48px;
-								min-height: 48px;
-								padding: 0;
-								display: flex;
-								align-items: center;
-								justify-content: center;
-							}
-							.btn-cam-icon svg {
-								width: 90%;
-								height: 90%;
-							}
-						</style>
-					   </div>
-				   </div>
-			   <div class="panel-cam" style="margin:0; min-width:260px; max-width:340px; width:300px; height:220px; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:6px; box-sizing:border-box;">
-					   <div id="mapa-gps" style="width: 100%; height: 100%; min-width: 0; min-height: 0; border-radius: 8px; background: #232a36;"></div>
+			<div class="cuadro-externo-superior" style="background:#e3eaf2; border-radius:8px; box-shadow:0 2px 12px #0002; padding:6px; display:flex; justify-content:stretch; align-items:stretch; width:100%; max-width:1200px; margin:0 auto; box-sizing:border-box;">
+				<div class="fila-superior">
+					<div class="panel-cam">
+						<video id="videoCam1" controls muted playsinline></video>
+						<div class="cam-controles">
+							<button id="playCam1" class="btn btn-cam btn-cam-icon" title="Play/Stop Cam 1">
+								<span id="iconPlayCam1" style="display:inline-block;width:100%;height:100%;vertical-align:middle;">
+									<svg width="100%" height="100%" viewBox="0 0 22 22" fill="#2196f3" style="display:block;"><polygon points="6,4 18,11 6,18"/></svg>
+								</span>
+							</button>
+							<button id="captureCam1" class="btn btn-cam btn-cam-icon" title="Capturar Foto">
+								<svg width="100%" height="100%" viewBox="0 0 32 32" fill="#555" style="display:block;">
+									<rect x="4" y="10" width="24" height="14" rx="3" fill="#bbb"/>
+									<circle cx="16" cy="17" r="6" fill="#2196f3"/>
+									<rect x="11" y="5" width="10" height="6" rx="2" fill="#bbb"/>
+								</svg>
+							</button>
+							<button id="grabar-cam1" class="btn btn-cam btn-cam-icon" title="Grabar video">
+								<svg width="100%" height="100%" viewBox="0 0 32 32" style="display:block;">
+									<rect x="4" y="10" width="16" height="12" rx="2" fill="#d32f2f"/>
+									<circle cx="12" cy="16" r="3" fill="#fff"/>
+									<path d="M20 12 L28 8 L28 24 L20 20 Z" fill="#d32f2f"/>
+								</svg>
+							</button>
+						</div>
+					</div>
+					<div class="panel-cam">
+						<video id="videoCam2" controls muted playsinline></video>
+						<div class="cam-controles">
+							<button id="playCam2" class="btn btn-cam btn-cam-icon" title="Play/Stop Cam 2">
+								<span id="iconPlayCam2" style="display:inline-block;width:100%;height:100%;vertical-align:middle;">
+									<svg width="100%" height="100%" viewBox="0 0 22 22" fill="#2196f3" style="display:block;"><polygon points="6,4 18,11 6,18"/></svg>
+								</span>
+							</button>
+							<button id="captureCam2" class="btn btn-cam btn-cam-icon" title="Capturar Foto">
+								<svg width="100%" height="100%" viewBox="0 0 32 32" fill="#555" style="display:block;">
+									<rect x="4" y="10" width="24" height="14" rx="3" fill="#bbb"/>
+									<circle cx="16" cy="17" r="6" fill="#2196f3"/>
+									<rect x="11" y="5" width="10" height="6" rx="2" fill="#bbb"/>
+								</svg>
+							</button>
+							<button id="grabar-cam2" class="btn btn-cam btn-cam-icon" title="Grabar video">
+								<svg width="100%" height="100%" viewBox="0 0 32 32" style="display:block;">
+									<rect x="4" y="10" width="16" height="12" rx="2" fill="#d32f2f"/>
+									<circle cx="12" cy="16" r="3" fill="#fff"/>
+									<path d="M20 12 L28 8 L28 24 L20 20 Z" fill="#d32f2f"/>
+								</svg>
+							</button>
+						</div>
+					</div>
+					<div class="panel-cam mapa">
+						<div id="mapa-gps"></div>
+					</div>
 				</div>
 			</div>
 		</div>
-	</div>
 	<div class="cuadro-inferior">
 		<div style="width:100%; display:flex; justify-content:center; align-items:stretch;">
 			<div class="cuadro-externo-inferior" style="background:#e3eaf2; border-radius:8px; box-shadow:0 2px 12px #0002; padding:4px; display:flex; justify-content:center; align-items:center;">

@@ -23,6 +23,7 @@ from funciones import (
     obtener_peso,
     obtener_solar,
     obtener_velocidad_red,
+    obtener_voltaje_raspberry,
     iniciar_gps,
     detener_gps,
     obtener_posicion_gps,
@@ -612,6 +613,50 @@ async def api_config_handler(request):
             }, status=400)
 
 
+async def api_reiniciar_handler(request):
+    """
+    API REST para reiniciar el sistema.
+    POST: Reinicia la Raspberry Pi
+    """
+    try:
+        logger.info("Solicitud de reinicio recibida")
+        # Ejecutar el reinicio en un executor para no bloquear
+        loop = asyncio.get_event_loop()
+        await loop.run_in_executor(None, reiniciar_sistema)
+        return web.json_response({
+            'exito': True,
+            'mensaje': 'Sistema reiniciándose...'
+        })
+    except Exception as e:
+        logger.error(f"Error al reiniciar sistema: {e}")
+        return web.json_response({
+            'exito': False,
+            'error': str(e)
+        }, status=500)
+
+
+async def api_apagar_handler(request):
+    """
+    API REST para apagar el sistema.
+    POST: Apaga la Raspberry Pi
+    """
+    try:
+        logger.info("Solicitud de apagado recibida")
+        # Ejecutar el apagado en un executor para no bloquear
+        loop = asyncio.get_event_loop()
+        await loop.run_in_executor(None, apagar_sistema)
+        return web.json_response({
+            'exito': True,
+            'mensaje': 'Sistema apagándose...'
+        })
+    except Exception as e:
+        logger.error(f"Error al apagar sistema: {e}")
+        return web.json_response({
+            'exito': False,
+            'error': str(e)
+        }, status=500)
+
+
 # ==================== EVENTOS DEL SERVIDOR ====================
 
 async def on_startup(app):
@@ -697,6 +742,9 @@ def crear_app():
     app.router.add_get('/ws', websocket_handler)
     # Endpoint para capturar foto
     app.router.add_post('/api/captura_foto', capturar_foto_handler)
+    # Endpoints para apagar y reiniciar el sistema
+    app.router.add_post('/api/reiniciar', api_reiniciar_handler)
+    app.router.add_post('/api/apagar', api_apagar_handler)
     
     # Archivos estáticos (CSS, JS, imágenes)
     app.router.add_static(
