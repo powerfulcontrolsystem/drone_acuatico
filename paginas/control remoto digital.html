@@ -16,6 +16,33 @@
 		.indicadores-grid {
 			gap: 6px !important;
 		}
+		/* Dividir pantalla en dos mitades */
+		body {
+			margin: 0;
+			padding: 0;
+			height: 100vh;
+			overflow: hidden;
+			display: flex;
+			flex-direction: column;
+		}
+		.cuadro-superior-wrapper {
+			flex: 1;
+			min-height: 50vh;
+			max-height: 50vh;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			overflow: auto;
+		}
+		.cuadro-inferior {
+			flex: 1;
+			min-height: 50vh;
+			max-height: 50vh;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			overflow: auto;
+		}
 	</style>
 
 <!DOCTYPE html>
@@ -56,8 +83,55 @@
 		#btn-izquierda { grid-row: 2; grid-column: 1; }
 		#btn-centro { grid-row: 2; grid-column: 2; }
 		#btn-derecha { grid-row: 2; grid-column: 3; }
-		#btn-abajo { grid-row: 3; grid-column: 2; }
-	</style>
+		#btn-abajo { grid-row: 3; grid-column: 2; }	/* Dividir pantalla en dos mitades */
+	body {
+		margin: 0;
+		padding: 0;
+		height: 100vh;
+		overflow: hidden;
+		display: flex;
+		flex-direction: column;
+	}
+	.cuadro-superior-wrapper {
+		flex: 1;
+		min-height: 50vh;
+		max-height: 50vh;
+		display: flex;
+		align-items: stretch;
+		justify-content: center;
+		overflow: auto;
+		padding: 4px;
+		box-sizing: border-box;
+	}
+	.cuadro-superior-wrapper > div {
+		display: flex;
+		align-items: stretch;
+		height: 100%;
+	}
+	.cuadro-externo-superior {
+		height: 100% !important;
+		margin: 0 !important;
+	}
+	.cuadro-inferior {
+		flex: 1;
+		min-height: 50vh;
+		max-height: 50vh;
+		display: flex;
+		align-items: stretch;
+		justify-content: center;
+		overflow: auto;
+		padding: 4px;
+		box-sizing: border-box;
+	}
+	.cuadro-inferior > div {
+		display: flex;
+		align-items: stretch;
+		height: 100%;
+	}
+	.cuadro-externo-inferior {
+		height: 100% !important;
+		margin: 0 !important;
+	}	</style>
 	<script src="/static/leaflet_loader.js"></script>
 </head>
 <body>
@@ -84,8 +158,9 @@
 				if (menuOpciones.style.display === 'block') menuOpciones.style.display = 'none';
 			});
 		</script>
-			   <div style="width:100%; display:flex; justify-content:center;">
-				   <div class="cuadro-externo-superior" style="background:#e3eaf2; border-radius:14px; box-shadow:0 2px 12px #0002; padding:8px; display:flex; justify-content:center; align-items:center;">
+		<div class="cuadro-superior-wrapper">
+			   <div style="width:100%; display:flex; justify-content:center; align-items:stretch;">
+				   <div class="cuadro-externo-superior" style="background:#e3eaf2; border-radius:8px; box-shadow:0 2px 12px #0002; padding:4px; display:flex; justify-content:center; align-items:center;">
 					   <div class="fila-superior" style="gap:4px; margin:0; display:flex; justify-content:center; align-items:stretch;">
 			   <div class="panel-cam" style="margin:0; min-width:260px; max-width:340px; width:300px; height:220px; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:6px; box-sizing:border-box;">
 					   <video id="videoCam1" controls muted playsinline></video>
@@ -157,9 +232,10 @@
 				</div>
 			</div>
 		</div>
-		<div class="cuadro-inferior">
-			<div style="width:100%; display:flex; justify-content:center;">
-				<div class="cuadro-externo-inferior" style="background:#e3eaf2; border-radius:14px; box-shadow:0 2px 12px #0002; padding:12px 18px; display:flex; justify-content:center; align-items:center;">
+	</div>
+	<div class="cuadro-inferior">
+		<div style="width:100%; display:flex; justify-content:center; align-items:stretch;">
+			<div class="cuadro-externo-inferior" style="background:#e3eaf2; border-radius:8px; box-shadow:0 2px 12px #0002; padding:4px; display:flex; justify-content:center; align-items:center;">
 					<div class="fila-inferior" style="display:flex; justify-content:center; gap:8px;">
 						<div class="panel-bajo" style="margin-left:0;margin-right:0; padding-left:12px; padding-right:12px; box-sizing:border-box;">
 							<!-- Panel de depuración eliminado -->
