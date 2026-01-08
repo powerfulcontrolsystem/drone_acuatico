@@ -260,9 +260,9 @@
 						</div>
 						<div class="panel-bajo" style="margin:0; margin-top:0; display:flex; justify-content:center; align-items:center; min-width:120px; max-width:140px; width:130px; padding:0; box-sizing:border-box;">
 							<div class="gps-botones" style="display:flex; flex-direction:column; gap:2px; align-items:center; padding:0; width:100%; box-sizing:border-box;">
-								<button class="btn btn-gps" id="gps-posicion" style="margin-left:0;margin-right:0;padding-left:6px;padding-right:6px;min-width:120px;max-width:140px;width:100%;box-sizing:border-box;">Posición</button>
-								<button class="btn btn-gps" id="gps-guardar" style="margin-left:0;margin-right:0;padding-left:6px;padding-right:6px;min-width:120px;max-width:140px;width:100%;box-sizing:border-box;">Guardar</button>
-								<button class="btn btn-gps" id="gps-destino" style="margin-left:0;margin-right:0;padding-left:6px;padding-right:6px;min-width:120px;max-width:140px;width:100%;box-sizing:border-box;">Destino</button>
+                                <div style="font-size:0.85em; font-weight:600; color:#6ec1e4; margin-bottom:4px; text-align:center; width:100%;">GPS.</div>
+								<button class="btn btn-gps" id="gps-guardar" style="margin-left:0;margin-right:0;padding-left:6px;padding-right:6px;min-width:120px;max-width:140px;width:100%;box-sizing:border-box;">Guardar ubicación</button>
+								<button class="btn btn-gps" id="gps-destino" style="margin-left:0;margin-right:0;padding-left:6px;padding-right:6px;min-width:120px;max-width:140px;width:100%;box-sizing:border-box;">Ir a destino</button>
 							</div>
 						</div>
 						<div class="panel-bajo" style="margin-left:0;margin-right:0; margin-top:0; padding-left:4px; padding-right:4px; width:100%; box-sizing:border-box;">
@@ -707,6 +707,22 @@
 								console.log('✅ Botón relé', n, 'actualizado');
 							}
 						}
+						// Respuestas GPS
+						if (data.tipo === 'respuesta_gps') {
+							console.log('Respuesta GPS:', data);
+							if (data.exito) {
+								alert('✔ ' + (data.mensaje || 'Ubicación guardada'));
+							} else {
+								alert('✖ ' + (data.mensaje || 'Error al guardar ubicación'));
+							}
+						}
+						if (data.tipo === 'destino_actual') {
+							if (data.exito) {
+								alert('📍 Destino establecido: ' + data.latitud + ', ' + data.longitud);
+							} else if (data.mensaje) {
+								alert('✖ ' + data.mensaje);
+							}
+						}
 					} catch(e) {
 						console.error('Error al parsear mensaje WebSocket:', e, event.data);
 					}
@@ -737,6 +753,44 @@
 						}));
 					});
 				});
+
+				// Eventos GPS
+				const btnGuardarGPS = document.getElementById('gps-guardar');
+				if (btnGuardarGPS) {
+					btnGuardarGPS.addEventListener('click', () => {
+						if (!(window.ws && window.ws.readyState === 1)) {
+							alert('Error: WebSocket no conectado');
+							return;
+						}
+						console.log('Solicitando guardar posición GPS actual...');
+						window.ws.send(JSON.stringify({ tipo: 'gps_guardar' }));
+					});
+				}
+
+				const btnIrDestino = document.getElementById('gps-destino');
+				if (btnIrDestino) {
+					btnIrDestino.addEventListener('click', () => {
+						if (!(window.ws && window.ws.readyState === 1)) {
+							alert('Error: WebSocket no conectado');
+							return;
+						}
+						const entrada = prompt('Ingrese destino como "latitud,longitud" (ej: 4.7110,-74.0721)');
+						if (!entrada) return;
+						const partes = entrada.split(/[,\s]+/).map(s => s.trim()).filter(Boolean);
+						if (partes.length < 2) {
+							alert('Formato inválido. Use: latitud,longitud');
+							return;
+						}
+						const lat = parseFloat(partes[0]);
+						const lon = parseFloat(partes[1]);
+						if (!isFinite(lat) || !isFinite(lon)) {
+							alert('Coordenadas inválidas');
+							return;
+						}
+						console.log('Enviando destino:', lat, lon);
+						window.ws.send(JSON.stringify({ tipo: 'gps_destino', latitud: lat, longitud: lon }));
+					});
+				}
 				conectarWS();
 			});
 	</script>

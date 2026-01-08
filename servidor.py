@@ -44,7 +44,9 @@ from base_de_datos.base_datos import (
     guardar_posicion_gps as guardar_posicion_bd,
     obtener_todos_recorridos,
     guardar_velocidad_actual,
-    obtener_velocidad_actual
+    obtener_velocidad_actual,
+    guardar_destino,
+    obtener_destino
 )
 
 from camera_stream import (
@@ -250,6 +252,7 @@ async def websocket_handler(request):
     try:
         loop = asyncio.get_event_loop()
         config_inicial = await loop.run_in_executor(None, obtener_configuracion) or {}
+        destino_inicial = await loop.run_in_executor(None, obtener_destino)
         
         await ws.send_json({
             'tipo': 'conexion',
@@ -262,7 +265,8 @@ async def websocket_handler(request):
             'bateria': obtener_bateria(),
             'peso': obtener_peso(),
             'solar': obtener_solar(),
-            'gps': obtener_payload_gps()
+            'gps': obtener_payload_gps(),
+            'destino': destino_inicial
         })
     except Exception as e:
         logger.error(f"Error en mensaje inicial WebSocket: {e}")
@@ -402,6 +406,34 @@ async def procesar_mensaje_ws(ws, datos):
             'exito': exito,
             'mensaje': mensaje
         })
+
+    elif tipo == 'gps_destino':
+        try:
+            lat = float(datos.get('latitud'))
+            lon = float(datos.get('longitud'))
+            nombre = datos.get('nombre')
+            ok = guardar_destino(lat, lon, nombre)
+            respuesta = {
+                'tipo': 'destino_actual',
+                'exito': bool(ok),
+                'latitud': lat,
+                'longitud': lon,
+                'nombre': nombre
+            }
+            await ws.send_json(respuesta)
+            # Notificar a todos los clientes conectados
+            if ok:
+                for cliente in list(CLIENTES_WS):
+                    try:
+                        await cliente.send_json(respuesta)
+                    except Exception:
+                        pass
+        except Exception as e:
+            await ws.send_json({
+                'tipo': 'destino_actual',
+                'exito': False,
+                'mensaje': f'Coordenadas inválidas: {e}'
+            })
 
     # Control de cámaras (RTSP→HLS)
     elif tipo == 'camara':

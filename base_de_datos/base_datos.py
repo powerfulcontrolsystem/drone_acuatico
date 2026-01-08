@@ -115,6 +115,17 @@ def inicializar_bd():
                 fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         ''')
+
+        # Tabla DESTINO (un único destino actual)
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS destino (
+                id INTEGER PRIMARY KEY,
+                latitud REAL,
+                longitud REAL,
+                nombre TEXT,
+                fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
         
         conexion.commit()
         
@@ -159,6 +170,10 @@ def inicializar_bd():
         # Crear entradas de relés si no existen
         for i in range(1, 10):
             cursor.execute('INSERT OR IGNORE INTO estado_reles (numero, estado) VALUES (?, ?)', (i, 0))
+        conexion.commit()
+
+        # Asegurar fila única en destino (id=1)
+        cursor.execute('INSERT OR IGNORE INTO destino (id, latitud, longitud, nombre) VALUES (1, NULL, NULL, NULL)')
         conexion.commit()
         
         return True
@@ -666,6 +681,55 @@ def obtener_velocidad_actual():
     except sqlite3.Error as e:
         logger.error(f"Error obteniendo velocidad: {e}")
         return 50
+    finally:
+        conexion.close()
+
+
+def guardar_destino(latitud, longitud, nombre=None):
+    """Guarda el destino actual (lat/lon) en la tabla destino (fila única id=1)."""
+    conexion = obtener_conexion()
+    if not conexion:
+        return False
+    try:
+        cursor = conexion.cursor()
+        cursor.execute('''
+            INSERT INTO destino (id, latitud, longitud, nombre, fecha_actualizacion)
+            VALUES (1, ?, ?, ?, CURRENT_TIMESTAMP)
+            ON CONFLICT(id) DO UPDATE SET
+                latitud = excluded.latitud,
+                longitud = excluded.longitud,
+                nombre = excluded.nombre,
+                fecha_actualizacion = CURRENT_TIMESTAMP
+        ''', (float(latitud), float(longitud), nombre))
+        conexion.commit()
+        return True
+    except sqlite3.Error as e:
+        logger.error(f"Error guardando destino: {e}")
+        return False
+    finally:
+        conexion.close()
+
+
+def obtener_destino():
+    """Obtiene el destino guardado (o None si no hay)."""
+    conexion = obtener_conexion()
+    if not conexion:
+        return None
+    try:
+        cursor = conexion.cursor()
+        cursor.execute('SELECT latitud, longitud, nombre, fecha_actualizacion FROM destino WHERE id = 1')
+        fila = cursor.fetchone()
+        if fila and fila['latitud'] is not None and fila['longitud'] is not None:
+            return {
+                'latitud': float(fila['latitud']),
+                'longitud': float(fila['longitud']),
+                'nombre': fila['nombre'],
+                'fecha_actualizacion': fila['fecha_actualizacion']
+            }
+        return None
+    except sqlite3.Error as e:
+        logger.error(f"Error obteniendo destino: {e}")
+        return None
     finally:
         conexion.close()
 
