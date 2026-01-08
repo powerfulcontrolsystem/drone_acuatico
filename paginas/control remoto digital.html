@@ -7,14 +7,14 @@
 		.btn-gps,
 		.btn-direccion,
 		.btn-rele {
-			margin: 3px !important;
+			margin: 2px !important;
 		}
 		.reles-botones,
 		.velocidades-botones,
 		.gps-botones,
 		.cruz-botones,
 		.indicadores-grid {
-			gap: 6px !important;
+			gap: 2px !important;
 		}
 		/* Dividir pantalla en dos mitades */
 		body {
@@ -60,7 +60,7 @@
 		.reles-botones {
 			display: grid;
 			grid-template-columns: repeat(3, 1fr);
-			gap: 6px !important;
+			gap: 2px !important;
 			margin: 0 !important;
 			width: 100%;
 			max-width: 420px;
@@ -68,7 +68,7 @@
 		@media (max-width: 700px) {
 			.reles-botones {
 				grid-template-columns: 1fr 1fr;
-				gap: 8px;
+				gap: 2px;
 				max-width: 320px;
 			}
 		}
@@ -237,7 +237,7 @@
 		<div style="width:100%; display:flex; justify-content:center; align-items:stretch;">
 			<div class="cuadro-externo-inferior" style="background:#e3eaf2; border-radius:8px; box-shadow:0 2px 12px #0002; padding:4px; display:flex; justify-content:center; align-items:center;">
 					<div class="fila-inferior" style="display:flex; justify-content:center; gap:8px;">
-						<div class="panel-bajo" style="margin-left:0;margin-right:0; padding-left:12px; padding-right:12px; box-sizing:border-box;">
+						<div class="panel-bajo" style="margin:0; padding:0; box-sizing:border-box;">
 							<!-- Panel de depuración eliminado -->
 							<div class="cruz-botones">
 								<button class="btn btn-direccion" id="btn-arriba">▲</button>
@@ -247,26 +247,26 @@
 								<button class="btn btn-direccion" id="btn-abajo">▼</button>
 							</div>
 						</div>
-						<div class="panel-bajo" style="margin-left:0;margin-right:0; display:flex; justify-content:center; align-items:center; min-width:120px; max-width:140px; width:130px; padding-left:12px; padding-right:12px; box-sizing:border-box;">
-							<div class="velocidades-botones" style="display:flex; flex-direction:column; gap:2px; align-items:center; padding-left:2px; padding-right:2px; width:100%; box-sizing:border-box;">
+						<div class="panel-bajo" style="margin:0; display:flex; justify-content:center; align-items:center; min-width:120px; max-width:140px; width:130px; padding:0; box-sizing:border-box;">
+							<div class="velocidades-botones" style="display:flex; flex-direction:column; gap:2px; align-items:center; padding:0; width:100%; box-sizing:border-box;">
 								<button class="btn btn-velocidad" id="vel-lenta" style="margin-left:0;margin-right:0;padding-left:6px;padding-right:6px;min-width:120px;max-width:140px;width:100%;box-sizing:border-box;">Lenta</button>
 								<button class="btn btn-velocidad" id="vel-media" style="margin-left:0;margin-right:0;padding-left:6px;padding-right:6px;min-width:120px;max-width:140px;width:100%;box-sizing:border-box;">Media</button>
 								<button class="btn btn-velocidad" id="vel-rapida" style="margin-left:0;margin-right:0;padding-left:6px;padding-right:6px;min-width:120px;max-width:140px;width:100%;box-sizing:border-box;">Rápida</button>
 							</div>
 						</div>
-						<div class="panel-bajo" style="margin-left:0;margin-right:0; padding-left:12px; padding-right:12px; width:100%; box-sizing:border-box;">
+						<div class="panel-bajo" style="margin:0; padding:0; width:100%; box-sizing:border-box;">
 							<div class="reles-botones" id="reles-botones">
 								<!-- Los botones de relé se generan dinámicamente -->
 							</div>
 						</div>
-						<div class="panel-bajo" style="margin-left:0;margin-right:0; display:flex; justify-content:center; align-items:center; min-width:120px; max-width:140px; width:130px; padding-left:12px; padding-right:12px; box-sizing:border-box;">
-							<div class="gps-botones" style="display:flex; flex-direction:column; gap:2px; align-items:center; padding-left:2px; padding-right:2px; width:100%; box-sizing:border-box;">
+						<div class="panel-bajo" style="margin:0; margin-top:0; display:flex; justify-content:center; align-items:center; min-width:120px; max-width:140px; width:130px; padding:0; box-sizing:border-box;">
+							<div class="gps-botones" style="display:flex; flex-direction:column; gap:2px; align-items:center; padding:0; width:100%; box-sizing:border-box;">
 								<button class="btn btn-gps" id="gps-posicion" style="margin-left:0;margin-right:0;padding-left:6px;padding-right:6px;min-width:120px;max-width:140px;width:100%;box-sizing:border-box;">Posición</button>
 								<button class="btn btn-gps" id="gps-guardar" style="margin-left:0;margin-right:0;padding-left:6px;padding-right:6px;min-width:120px;max-width:140px;width:100%;box-sizing:border-box;">Guardar</button>
 								<button class="btn btn-gps" id="gps-destino" style="margin-left:0;margin-right:0;padding-left:6px;padding-right:6px;min-width:120px;max-width:140px;width:100%;box-sizing:border-box;">Destino</button>
 							</div>
 						</div>
-						<div class="panel-bajo" style="margin-left:0;margin-right:0; padding-left:12px; padding-right:12px; width:100%; box-sizing:border-box;">
+						<div class="panel-bajo" style="margin-left:0;margin-right:0; margin-top:0; padding-left:4px; padding-right:4px; width:100%; box-sizing:border-box;">
 							<table class="tabla-indicadores" style="width:100%; max-width:340px; margin:0 auto; border-collapse:collapse; background:#23272b; border-radius:8px; box-shadow:0 1px 6px #0001; color:#f2f2f2;">
 								<tbody>
 									<tr>
@@ -333,7 +333,6 @@
 			let hlsPlayers = { cam1: null, cam2: null };
 			let playing = { cam1: false, cam2: false };
 			let estadoReles = {};
-			let velocidadActual = 50;
 
 			   function iniciarCamara(videoId, playlist, camKey) {
 				   var video = document.getElementById(videoId);
@@ -580,8 +579,7 @@
 				let nombresReles = window.nombres_reles || {};
 				for (let i = 1; i <= 9; i++) {
 					let nombre = nombresReles[i] || `Relé ${i}`;
-					let estaActivo = !!estadoReles[i];
-					estadoReles[i] = estaActivo;
+					let estaActivo = estadoReles[i] === true;
 					const btn = document.createElement('button');
 					btn.className = `btn btn-rele btn-modern ${estaActivo ? 'activo' : 'inactivo'}`;
 					btn.id = `rele${i}`;
@@ -589,7 +587,7 @@
 					btn.innerHTML = `<span style='font-weight:600;'>${nombre}</span>`;
 					btn.addEventListener('click', () => {
 						if (window.ws && window.ws.readyState === 1) {
-							const nuevoEstado = !estadoReles[i];
+							const nuevoEstado = !(estadoReles[i] === true);
 							// Actualización optimista de UI
 							estadoReles[i] = nuevoEstado;
 							btn.classList.toggle('activo', nuevoEstado);
@@ -603,25 +601,6 @@
 					});
 					contenedor.appendChild(btn);
 				}
-			}
-
-			function aplicarVelocidadUI(nivel) {
-				velocidadActual = nivel;
-				const niveles = [
-					{ id: 'vel-lenta', valor: 30 },
-					{ id: 'vel-media', valor: 60 },
-					{ id: 'vel-rapida', valor: 90 }
-				];
-				niveles.forEach(n => {
-					const b = document.getElementById(n.id);
-					if (!b) return;
-					const activo = n.valor === nivel;
-					b.classList.toggle('activo', activo);
-					b.classList.toggle('inactivo', !activo);
-				});
-				// Actualizar indicador numérico si existe
-				const velValor = document.getElementById('vel-valor');
-				if (velValor) velValor.textContent = Number(nivel).toFixed(0) + ' %';
 			}
 	// toggleRele eliminado, todo se hace por WebSocket
 			function conectarWS() {
@@ -653,15 +632,9 @@
 							if (data.reles) {
 								renderReles(data.reles);
 							}
-							if (typeof data.velocidad !== 'undefined') {
-								aplicarVelocidadUI(Number(data.velocidad));
-							}
 						}
 						if (data.tipo === 'reles' && data.reles) {
 							renderReles(data.reles);
-						}
-						if (data.tipo === 'velocidad' && typeof data.velocidad !== 'undefined') {
-							aplicarVelocidadUI(Number(data.velocidad));
 						}
 						if (data.tipo === 'respuesta_rele' && typeof data.numero !== 'undefined') {
 							const n = Number(data.numero);
@@ -673,35 +646,12 @@
 								btn.classList.toggle('inactivo', !on);
 							}
 						}
-						if (data.tipo === 'respuesta_velocidad' && typeof data.velocidad !== 'undefined') {
-							aplicarVelocidadUI(Number(data.velocidad));
-						}
 					} catch(e) {
 						// Error de parseo
 					}
 				};
 			}
-
-			function wireVelocidadBotones() {
-				const map = [
-					{ id: 'vel-lenta', valor: 30 },
-					{ id: 'vel-media', valor: 60 },
-					{ id: 'vel-rapida', valor: 90 }
-				];
-				map.forEach(cfg => {
-					const btn = document.getElementById(cfg.id);
-					if (!btn) return;
-					btn.addEventListener('click', () => {
-						aplicarVelocidadUI(cfg.valor);
-						if (window.ws && window.ws.readyState === 1) {
-							window.ws.send(JSON.stringify({ tipo: 'velocidad', nivel: cfg.valor }));
-						}
-					});
-				});
-			}
-
 			window.addEventListener('DOMContentLoaded', () => {
-				wireVelocidadBotones();
 				conectarWS();
 			});
 	</script>

@@ -361,7 +361,8 @@ async def procesar_mensaje_ws(ws, datos):
 
         await ws.send_json({
             'tipo': 'respuesta_velocidad',
-            'velocidad': VELOCIDAD_ACTUAL
+            'velocidad': VELOCIDAD_ACTUAL,
+            'exito': True
         })
         # Broadcast a todos los clientes el nivel actualizado
         for cliente in list(CLIENTES_WS):
