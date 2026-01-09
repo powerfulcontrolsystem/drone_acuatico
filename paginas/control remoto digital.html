@@ -401,25 +401,17 @@
 								<!-- Los botones de relé se generan dinámicamente -->
 							</div>
 						</div>
-						<div class="panel-bajo" style="margin:0; margin-top:0; display:flex; justify-content:center; align-items:center; min-width:120px; max-width:140px; width:130px; padding:0; box-sizing:border-box;">
-							<div class="gps-botones" style="display:flex; flex-direction:column; gap:2px; align-items:center; padding:0; width:100%; box-sizing:border-box;">
-                                <div style="font-size:0.85em; font-weight:600; color:#6ec1e4; margin-bottom:4px; text-align:center; width:100%;">GPS.</div>
-                                <input id="gps-nombre" type="text" placeholder="Nombre destino (opcional)" style="width:100%;max-width:140px;min-width:120px;box-sizing:border-box;padding:4px 6px;margin:0;border-radius:6px;border:1px solid #6ec1e4;background:#f3f7fa;color:#232a36;">
-								<button class="btn btn-gps" id="gps-guardar" style="margin-left:0;margin-right:0;padding-left:6px;padding-right:6px;min-width:120px;max-width:140px;width:100%;box-sizing:border-box;">Guardar ubicación</button>
-								<button class="btn btn-gps" id="gps-destino" style="margin-left:0;margin-right:0;padding-left:6px;padding-right:6px;min-width:120px;max-width:140px;width:100%;box-sizing:border-box;">Ir a destino</button>
-							</div>
-						</div>
 						<div class="panel-bajo" style="margin-left:0;margin-right:0; margin-top:0; padding-left:4px; padding-right:4px; width:100%; box-sizing:border-box;">
-							<table class="tabla-indicadores" style="width:100%; max-width:340px; margin:0 auto; border-collapse:collapse; background:#23272b; border-radius:8px; box-shadow:0 1px 6px #0001; color:#f2f2f2;">
+							<table class="tabla-indicadores" style="width:100%; max-width:340px; margin:0 auto; border-collapse:collapse; background:#23272b; border-radius:8px; box-shadow:0 1px 6px #0001; color:#f2f2f2; table-layout:fixed;">
 								<tbody>
 									<tr>
-										<td style="border:1px solid #e0e0e0; padding:6px; text-align:center; background:#23272b; color:#f2f2f2;">
+										<td style="border:1px solid #e0e0e0; padding:6px; text-align:center; background:#23272b; color:#f2f2f2; width:50%;">
 											<span id="indicador-conexion" class="desconectado">
 												<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><circle cx="8" cy="8" r="7" fill="#e53935"/></svg>
 												<span id="texto-conexion" style="color:#e53935; font-weight:600;">Desconectado</span>
 											</span>
 										</td>
-										<td style="border:1px solid #e0e0e0; padding:6px; text-align:center; background:#23272b; color:#f2f2f2;">
+										<td style="border:1px solid #e0e0e0; padding:6px; text-align:center; background:#23272b; color:#f2f2f2; width:50%;">
 											<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><rect x="2" y="4" width="12" height="8" rx="2" fill="#6ec1e4"/></svg>
 											RAM: <span id="ram-valor">--</span>
 										</td>
