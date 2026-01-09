@@ -16,6 +16,7 @@
 			align-items: stretch;
 			justify-items: stretch;
 			margin: 0;
+			overflow: visible;
 		}
 		.panel-cam {
 			margin: 0;
@@ -24,10 +25,12 @@
 			min-height: 260px;
 			display: flex;
 			flex-direction: column;
-			align-items: stretch;
-			justify-content: flex-start;
+			align-items: center;
+			justify-content: center;
 			padding: 4px;
 			box-sizing: border-box;
+			position: relative;
+			overflow: visible;
 		}
 		.panel-cam video {
 			flex: 1 1 0;
@@ -35,28 +38,60 @@
 			min-height: 0;
 			object-fit: contain;
 			border-radius: 8px;
+			display: block;
+			margin: 0 auto;
 		}
 		.cam-controles {
 			display: flex;
 			gap: 8px;
 			margin-top: 4px;
+			justify-content: center;
+			align-items: center;
 		}
 		.panel-cam.mapa {
 			padding: 4px;
 		}
-		.btn-cam-icon {
+		.cam-controles .btn-cam-icon {
 			width: 48px;
 			height: 48px;
 			min-width: 48px;
 			min-height: 48px;
 			padding: 0;
-			display: flex;
+			display: none !important;
 			align-items: center;
 			justify-content: center;
 		}
 		.btn-cam-icon svg {
 			width: 90%;
 			height: 90%;
+		}
+		
+		/* Estilos para el menú flotante de cámara */
+		.menu-cam-flotante {
+			position: absolute;
+			top: 10px;
+			right: 10px;
+			z-index: 1002;
+		}
+		
+		.btn-menu-cam {
+			width: 44px;
+			height: 44px;
+			padding: 0;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			border-radius: 50%;
+			background: #232a36;
+			border: 2px solid #4a9eff;
+			color: #4a9eff;
+			cursor: pointer;
+			transition: all 0.2s ease;
+		}
+		
+		.btn-menu-cam:hover {
+			background: #263043;
+			box-shadow: 0 2px 8px #0003;
 		}
 		.panel-cam.mapa #mapa-gps {
 			flex: 1 1 0;
@@ -165,7 +200,7 @@
 			display: flex;
 			align-items: stretch;
 			justify-content: center;
-			overflow: auto;
+			overflow: visible;
 			padding: 4px;
 			box-sizing: border-box;
 		}
@@ -184,6 +219,7 @@
 			display: flex;
 			justify-content: stretch;
 			align-items: stretch;
+			overflow: visible;
 		}
 		.cuadro-inferior {
 			flex: 1;
@@ -248,6 +284,20 @@
 				<div class="fila-superior">
 					<div class="panel-cam">
 						<video id="videoCam1" controls muted playsinline></video>
+						<div class="menu-cam-flotante">
+							<button class="btn-menu-cam" id="btn-menu-cam1" type="button" aria-label="Opciones Cámara 1">
+								<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4a9eff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+									<circle cx="12" cy="12" r="1"></circle>
+									<circle cx="19" cy="12" r="1"></circle>
+									<circle cx="5" cy="12" r="1"></circle>
+								</svg>
+							</button>
+							<div id="menu-cam1-opciones" class="menu-cam-opciones" style="display:none;">
+								<button class="btn-menu" onclick="document.getElementById('playCam1').click()">▶ Play/Stop</button>
+								<button class="btn-menu" onclick="document.getElementById('captureCam1').click()">📷 Capturar Foto</button>
+								<button class="btn-menu" onclick="document.getElementById('grabar-cam1').click()">⚫ Grabar Video</button>
+							</div>
+						</div>
 						<div class="cam-controles">
 							<button id="playCam1" class="btn btn-cam btn-cam-icon" title="Play/Stop Cam 1">
 								<span id="iconPlayCam1" style="display:inline-block;width:100%;height:100%;vertical-align:middle;">
@@ -270,6 +320,20 @@
 					</div>
 					<div class="panel-cam">
 						<video id="videoCam2" controls muted playsinline></video>
+						<div class="menu-cam-flotante">
+							<button class="btn-menu-cam" id="btn-menu-cam2" type="button" aria-label="Opciones Cámara 2">
+								<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4a9eff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+									<circle cx="12" cy="12" r="1"></circle>
+									<circle cx="19" cy="12" r="1"></circle>
+									<circle cx="5" cy="12" r="1"></circle>
+								</svg>
+							</button>
+							<div id="menu-cam2-opciones" class="menu-cam-opciones" style="display:none;">
+								<button class="btn-menu" onclick="document.getElementById('playCam2').click()">▶ Play/Stop</button>
+								<button class="btn-menu" onclick="document.getElementById('captureCam2').click()">📷 Capturar Foto</button>
+								<button class="btn-menu" onclick="document.getElementById('grabar-cam2').click()">⚫ Grabar Video</button>
+							</div>
+						</div>
 						<div class="cam-controles">
 							<button id="playCam2" class="btn btn-cam btn-cam-icon" title="Play/Stop Cam 2">
 								<span id="iconPlayCam2" style="display:inline-block;width:100%;height:100%;vertical-align:middle;">
@@ -901,6 +965,35 @@
 				}
 				conectarWS();
 			});
+	</script>
+	<script>
+		// Menús flotantes de cámaras - Inicializar después de que el DOM esté listo
+		document.addEventListener('DOMContentLoaded', function() {
+			function initMenuCam(camNum) {
+				const btnMenu = document.getElementById(`btn-menu-cam${camNum}`);
+				const menuOpciones = document.getElementById(`menu-cam${camNum}-opciones`);
+				
+				if (!btnMenu || !menuOpciones) {
+					console.error(`No se encontraron elementos para cámara ${camNum}`);
+					return;
+				}
+				
+				btnMenu.onclick = function(e) {
+					e.stopPropagation();
+					menuOpciones.style.display = menuOpciones.style.display === 'none' ? 'block' : 'none';
+				};
+				
+				// Cerrar menú al clickear fuera
+				document.addEventListener('click', function(e) {
+					if (menuOpciones.style.display === 'block' && !menuOpciones.contains(e.target) && !btnMenu.contains(e.target)) {
+						menuOpciones.style.display = 'none';
+					}
+				});
+			}
+			
+			initMenuCam(1);
+			initMenuCam(2);
+		});
 	</script>
 </body>
 </html>

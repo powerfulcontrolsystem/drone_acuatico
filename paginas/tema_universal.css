@@ -98,6 +98,41 @@
   padding: 10px 0;
   min-width: 260px;
 }
+/* Menús flotantes de cámaras */
+.menu-cam-opciones {
+  display: none;
+  position: absolute;
+  top: 54px;
+  right: 0;
+  background: #232a36;
+  border-radius: 12px;
+  box-shadow: 0 2px 16px #0005;
+  padding: 10px 0;
+  min-width: 200px;
+  z-index: 1001;
+}
+.menu-cam-opciones.visible {
+  display: block;
+}
+.menu-cam-opciones .btn-menu {
+  display: block;
+  width: 100%;
+  padding: 12px 20px;
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  color: #e3e6ee;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: none;
+  font-size: 1em;
+}
+.menu-cam-opciones .btn-menu:hover {
+  background: rgba(33, 150, 243, 0.2);
+  color: #4a9eff;
+}
 .btn {
 	display: inline-block;
 	min-width: 60px;
