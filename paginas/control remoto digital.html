@@ -356,6 +356,20 @@
 					</div>
 					<div class="panel-cam mapa">
 						<div id="mapa-gps"></div>
+						<div class="menu-cam-flotante">
+							<button class="btn-menu-cam" id="btn-menu-mapa" type="button" aria-label="Opciones Mapa">
+								<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4a9eff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+									<circle cx="12" cy="12" r="1"></circle>
+									<circle cx="19" cy="12" r="1"></circle>
+									<circle cx="5" cy="12" r="1"></circle>
+								</svg>
+							</button>
+							<div id="menu-mapa-opciones" class="menu-cam-opciones" style="display:none;">
+								<button class="btn-menu" id="mapa-guardar-ubicacion">📍 Guardar ubicación</button>
+								<button class="btn-menu" onclick="document.getElementById('gps-destino').click()">🎯 Ir a destino</button>
+								<button class="btn-menu" id="mapa-grabar-recorrido">🛤️ Grabar recorrido</button>
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -993,7 +1007,56 @@
 			
 			initMenuCam(1);
 			initMenuCam(2);
+			
+			// Menú flotante del mapa
+			const btnMenuMapa = document.getElementById('btn-menu-mapa');
+			const menuMapaOpciones = document.getElementById('menu-mapa-opciones');
+			
+			if (btnMenuMapa && menuMapaOpciones) {
+				btnMenuMapa.onclick = function(e) {
+					e.stopPropagation();
+					menuMapaOpciones.style.display = menuMapaOpciones.style.display === 'none' ? 'block' : 'none';
+				};
+				
+				document.addEventListener('click', function(e) {
+					if (menuMapaOpciones.style.display === 'block' && !menuMapaOpciones.contains(e.target) && !btnMenuMapa.contains(e.target)) {
+						menuMapaOpciones.style.display = 'none';
+					}
+				});
+			}
+			
+			// Guardar ubicación con entrada de texto
+			const btnGuardarUbicacion = document.getElementById('mapa-guardar-ubicacion');
+			if (btnGuardarUbicacion) {
+				btnGuardarUbicacion.onclick = function() {
+					const nombre = prompt('Nombre de la ubicación (opcional):');
+					if (nombre === null) return; // Usuario canceló
+					
+					const nombreFinal = nombre.trim() || `Ubicación ${new Date().toLocaleString('es-ES', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'})}`;
+					document.getElementById('gps-nombre').value = nombreFinal;
+					document.getElementById('gps-guardar').click();
+					menuMapaOpciones.style.display = 'none';
+				};
+			}
+			
+			// Grabar recorrido
+			const btnGrabarRecorrido = document.getElementById('mapa-grabar-recorrido');
+			if (btnGrabarRecorrido) {
+				let grabandoRecorrido = false;
+				btnGrabarRecorrido.onclick = function() {
+					grabandoRecorrido = !grabandoRecorrido;
+					if (grabandoRecorrido) {
+						this.textContent = '⏹️ Detener recorrido';
+						this.style.background = '#d32f2f';
+						console.log('Iniciando grabación de recorrido...');
+						// Aquí se implementaría la lógica para grabar el recorrido
+					} else {
+						this.textContent = '🛤️ Grabar recorrido';
+						this.style.background = '';
+						console.log('Deteniendo grabación de recorrido...');
+					}
+					menuMapaOpciones.style.display = 'none';
+				};
+			}
 		});
 	</script>
-</body>
-</html>
