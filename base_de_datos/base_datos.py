@@ -122,6 +122,12 @@ def inicializar_bd():
         if 'iniciar_auto_camara2' not in columnas:
             cursor.execute('ALTER TABLE configuracion ADD COLUMN iniciar_auto_camara2 INTEGER DEFAULT 1')
         
+        # Campos de URL RTSP completa (opcional, prioritario sobre campos individuales)
+        if 'rtsp_camara1_url' not in columnas:
+            cursor.execute('ALTER TABLE configuracion ADD COLUMN rtsp_camara1_url TEXT')
+        if 'rtsp_camara2_url' not in columnas:
+            cursor.execute('ALTER TABLE configuracion ADD COLUMN rtsp_camara2_url TEXT')
+        
         conexion.commit()
         
         # Tabla de RECORRIDOS GPS
@@ -258,6 +264,7 @@ def obtener_configuracion():
                 'correo': fila['correo'],
                 'tamano_mapa': fila['tamano_mapa'],
                 'guardar_recorrido': bool(fila['guardar_recorrido']),
+                'rtsp_camara1_url': fila['rtsp_camara1_url'] if 'rtsp_camara1_url' in fila.keys() else '',
                 'onvif_camara1_host': fila['onvif_camara1_host'] if 'onvif_camara1_host' in fila.keys() else '',
                 'onvif_camara1_puerto': fila['onvif_camara1_puerto'] if 'onvif_camara1_puerto' in fila.keys() else 8899,
                 'onvif_camara1_usuario': fila['onvif_camara1_usuario'] if 'onvif_camara1_usuario' in fila.keys() else '',
@@ -265,6 +272,7 @@ def obtener_configuracion():
                 'onvif_camara1_perfil': fila['onvif_camara1_perfil'] if 'onvif_camara1_perfil' in fila.keys() else '',
                 'desactivar_camara1': bool(fila['desactivar_camara1']),
                 'iniciar_auto_camara1': bool(fila['iniciar_auto_camara1']) if 'iniciar_auto_camara1' in fila.keys() else True,
+                'rtsp_camara2_url': fila['rtsp_camara2_url'] if 'rtsp_camara2_url' in fila.keys() else '',
                 'onvif_camara2_host': fila['onvif_camara2_host'] if 'onvif_camara2_host' in fila.keys() else '',
                 'onvif_camara2_puerto': fila['onvif_camara2_puerto'] if 'onvif_camara2_puerto' in fila.keys() else 8899,
                 'onvif_camara2_usuario': fila['onvif_camara2_usuario'] if 'onvif_camara2_usuario' in fila.keys() else '',
@@ -329,6 +337,7 @@ def guardar_configuracion(config):
                 tamano_letra_datos = ?,
                 velocidad_actual = ?,
                 guardar_recorrido = ?,
+                rtsp_camara1_url = ?,
                 onvif_camara1_host = ?,
                 onvif_camara1_puerto = ?,
                 onvif_camara1_usuario = ?,
@@ -336,6 +345,7 @@ def guardar_configuracion(config):
                 onvif_camara1_perfil = ?,
                 desactivar_camara1 = ?,
                 iniciar_auto_camara1 = ?,
+                rtsp_camara2_url = ?,
                 onvif_camara2_host = ?,
                 onvif_camara2_puerto = ?,
                 onvif_camara2_usuario = ?,
@@ -362,6 +372,7 @@ def guardar_configuracion(config):
             int(config.get('tamano_letra_datos', 12)),
             int(config.get('velocidad_actual', 50)),
             int(config.get('guardar_recorrido', True)),
+            config.get('rtsp_camara1_url', ''),
             config.get('onvif_camara1_host', ''),
             int(config.get('onvif_camara1_puerto', 8899)),
             config.get('onvif_camara1_usuario', ''),
@@ -369,6 +380,7 @@ def guardar_configuracion(config):
             config.get('onvif_camara1_perfil', ''),
             int(config.get('desactivar_camara1', False)),
             int(config.get('iniciar_auto_camara1', True)),
+            config.get('rtsp_camara2_url', ''),
             config.get('onvif_camara2_host', ''),
             int(config.get('onvif_camara2_puerto', 8899)),
             config.get('onvif_camara2_usuario', ''),

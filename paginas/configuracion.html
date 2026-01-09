@@ -138,21 +138,31 @@
     <div style="display: flex; flex-direction: column; gap: 18px;">
       <div style="width: 100%; max-width: 600px; margin-bottom: 8px;">
         <h3 style="margin-top:0; color:#6ec1e4;">Cámara 1 (ONVIF)</h3>
+        <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;">
+          <label for="rtspCam1Url">URL RTSP completa <small style="color:#6ec1e4;">(recomendado)</small></label>
+          <input id="rtspCam1Url" type="text" placeholder="rtsp://admin:admin@192.168.1.9:554/live/ch0" style="width:100%; font-family: monospace;" />
+          <small style="color:#888;">O completa los campos individuales abajo:</small>
+        </div>
         <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="onvifCam1Host">IP / Host</label><input id="onvifCam1Host" type="text" placeholder="192.168.1.9" style="width:100%;" /></div>
         <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="onvifCam1Port">Puerto ONVIF</label><input id="onvifCam1Port" type="number" min="1" max="65535" placeholder="8899" style="width:100%;" /></div>
         <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="onvifCam1User">Usuario</label><input id="onvifCam1User" type="text" placeholder="admin" value="admin" style="width:100%;" /></div>
         <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="onvifCam1Pass">Contraseña</label><input id="onvifCam1Pass" type="password" placeholder="admin" value="admin" style="width:100%;" /></div>
-        <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="onvifCam1Perfil">Perfil / Ruta de stream</label><input id="onvifCam1Perfil" type="text" placeholder="Streaming/Channels/101" style="width:100%;" /></div>
+        <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="onvifCam1Perfil">Ruta RTSP del stream <small style="color:#888;">(ej: live/ch0, Streaming/Channels/101)</small></label><input id="onvifCam1Perfil" type="text" placeholder="live/ch0" style="width:100%;" /></div>
         <div class="row" style="display: flex; flex-direction: row; align-items: center; gap: 8px;"><input id="desactivarCamara1" type="checkbox" /><label for="desactivarCamara1">Desactivar Cámara 1</label></div>
         <div class="row" style="display: flex; flex-direction: row; align-items: center; gap: 8px;"><input id="iniciarAutoCamara1" type="checkbox" checked /><label for="iniciarAutoCamara1">✓ Iniciar automáticamente la cámara</label></div>
       </div>
       <div style="width: 100%; max-width: 600px;">
         <h3 style="margin-top:0; color:#6ec1e4;">Cámara 2 (ONVIF)</h3>
+        <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;">
+          <label for="rtspCam2Url">URL RTSP completa <small style="color:#6ec1e4;">(recomendado)</small></label>
+          <input id="rtspCam2Url" type="text" placeholder="rtsp://admin:admin@192.168.1.10:554/live/ch0" style="width:100%; font-family: monospace;" />
+          <small style="color:#888;">O completa los campos individuales abajo:</small>
+        </div>
         <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="onvifCam2Host">IP / Host</label><input id="onvifCam2Host" type="text" placeholder="192.168.1.10" style="width:100%;" /></div>
         <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="onvifCam2Port">Puerto ONVIF</label><input id="onvifCam2Port" type="number" min="1" max="65535" placeholder="8899" style="width:100%;" /></div>
         <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="onvifCam2User">Usuario</label><input id="onvifCam2User" type="text" placeholder="admin" value="admin" style="width:100%;" /></div>
         <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="onvifCam2Pass">Contraseña</label><input id="onvifCam2Pass" type="password" placeholder="admin" value="admin" style="width:100%;" /></div>
-        <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="onvifCam2Perfil">Perfil / Ruta de stream</label><input id="onvifCam2Perfil" type="text" placeholder="Streaming/Channels/101" style="width:100%;" /></div>
+        <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="onvifCam2Perfil">Ruta RTSP del stream <small style="color:#888;">(ej: live/ch0, Streaming/Channels/101)</small></label><input id="onvifCam2Perfil" type="text" placeholder="live/ch0" style="width:100%;" /></div>
         <div class="row" style="display: flex; flex-direction: row; align-items: center; gap: 8px;"><input id="desactivarCamara2" type="checkbox" /><label for="desactivarCamara2">Desactivar Cámara 2</label></div>
         <div class="row" style="display: flex; flex-direction: row; align-items: center; gap: 8px;"><input id="iniciarAutoCamara2" type="checkbox" checked /><label for="iniciarAutoCamara2">✓ Iniciar automáticamente la cámara</label></div>
       </div>
@@ -225,6 +235,7 @@
         tamano_mapa: parseInt(document.getElementById('tamanoMapa').value || '400', 10),
         guardar_recorrido: document.getElementById('guardarRecorrido').checked,
         frecuencia_guardado: parseInt(document.getElementById('frecuenciaGuardado').value || '30', 10),
+        rtsp_camara1_url: document.getElementById('rtspCam1Url').value.trim(),
         onvif_camara1_host: document.getElementById('onvifCam1Host').value.trim(),
         onvif_camara1_puerto: parseInt(document.getElementById('onvifCam1Port').value || '8899', 10),
         onvif_camara1_usuario: document.getElementById('onvifCam1User').value.trim(),
@@ -232,6 +243,7 @@
         onvif_camara1_perfil: document.getElementById('onvifCam1Perfil').value.trim(),
         desactivar_camara1: document.getElementById('desactivarCamara1').checked,
         iniciar_auto_camara1: document.getElementById('iniciarAutoCamara1').checked,
+        rtsp_camara2_url: document.getElementById('rtspCam2Url').value.trim(),
         onvif_camara2_host: document.getElementById('onvifCam2Host').value.trim(),
         onvif_camara2_puerto: parseInt(document.getElementById('onvifCam2Port').value || '8899', 10),
         onvif_camara2_usuario: document.getElementById('onvifCam2User').value.trim(),
@@ -261,6 +273,7 @@
       document.getElementById('tamanoMapa').value = cfg.tamano_mapa || 400;
       document.getElementById('guardarRecorrido').checked = !!cfg.guardar_recorrido;
       document.getElementById('frecuenciaGuardado').value = cfg.frecuencia_guardado || 30;
+      document.getElementById('rtspCam1Url').value = cfg.rtsp_camara1_url || '';
       document.getElementById('onvifCam1Host').value = cfg.onvif_camara1_host || '';
       document.getElementById('onvifCam1Port').value = cfg.onvif_camara1_puerto || 8899;
       document.getElementById('onvifCam1User').value = cfg.onvif_camara1_usuario || 'admin';
@@ -268,6 +281,7 @@
       document.getElementById('onvifCam1Perfil').value = cfg.onvif_camara1_perfil || 'Streaming/Channels/101';
       document.getElementById('desactivarCamara1').checked = !!cfg.desactivar_camara1;
       document.getElementById('iniciarAutoCamara1').checked = (cfg.iniciar_auto_camara1 !== undefined) ? !!cfg.iniciar_auto_camara1 : true;
+      document.getElementById('rtspCam2Url').value = cfg.rtsp_camara2_url || '';
       document.getElementById('onvifCam2Host').value = cfg.onvif_camara2_host || '';
       document.getElementById('onvifCam2Port').value = cfg.onvif_camara2_puerto || 8899;
       document.getElementById('onvifCam2User').value = cfg.onvif_camara2_usuario || 'admin';
@@ -333,7 +347,7 @@
           div.style.alignItems = 'center';
           div.style.flexWrap = 'wrap';
           div.style.padding = '4px 0';
-          div.innerHTML = `<strong>${idx+1}.</strong> ${d.host}:${d.puerto} <span style="color:#6ec1e4;">${d.xaddrs || ''}</span>`;
+          div.innerHTML = `<strong>${idx+1}.</strong> ${d.host}:${d.puerto} <small style="color:#888;">(Servicio: ${d.xaddrs || 'N/A'})</small>`;
           const btn1 = document.createElement('button');
           btn1.className = 'btn';
           btn1.textContent = 'Usar en Cámara 1';

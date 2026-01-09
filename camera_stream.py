@@ -53,9 +53,10 @@ def construir_rtsp_url(config: dict, indice: int, calidad: str = "sd") -> Option
 
 
 def construir_rtsp_candidatos(config: dict, indice: int) -> list[str]:
-    """Construye una lista de URLs RTSP a partir de los parámetros ONVIF.
+    """Construye una lista de URLs RTSP a partir de los parámetros ONVIF o URL completa.
 
-    - Usa host/puerto/usuario/contraseña/perfil configurados para la cámara.
+    - Si existe rtsp_camaraN_url, la usa directamente como primera candidata.
+    - Si no, construye URLs desde host/puerto/usuario/contraseña/perfil ONVIF.
     - Genera candidatos probando puertos habituales: 554 (RTSP) y el puerto
       ONVIF indicado (por defecto 8899) si es diferente.
     """
@@ -63,6 +64,19 @@ def construir_rtsp_candidatos(config: dict, indice: int) -> list[str]:
         if not config:
             return []
 
+        # Obtener URL RTSP completa si existe (prioritaria)
+        url_completa = ""
+        if indice == 1:
+            url_completa = (config.get("rtsp_camara1_url") or "").strip()
+        else:
+            url_completa = (config.get("rtsp_camara2_url") or "").strip()
+        
+        # Si hay URL completa, usarla como primera opción
+        candidatos = []
+        if url_completa and url_completa.startswith("rtsp://"):
+            candidatos.append(url_completa)
+
+        # Construir URLs desde parámetros ONVIF individuales
         if indice == 1:
             host = (config.get("onvif_camara1_host") or "").strip()
             puerto_onvif = int(config.get("onvif_camara1_puerto", 8899) or 8899)
@@ -76,21 +90,24 @@ def construir_rtsp_candidatos(config: dict, indice: int) -> list[str]:
             contrasena = config.get("onvif_camara2_contrasena") or ""
             perfil = (config.get("onvif_camara2_perfil") or "Streaming/Channels/101").strip("/")
 
-        if not host:
-            return []
+        if host:
+            auth = ""
+            if usuario:
+                auth = usuario
+                if contrasena:
+                    auth += f":{contrasena}"
+                auth += "@"
 
-        auth = ""
-        if usuario:
-            auth = usuario
-            if contrasena:
-                auth += f":{contrasena}"
-            auth += "@"
+            puertos = [554]
+            if puerto_onvif not in puertos:
+                puertos.append(puerto_onvif)
 
-        puertos = [554]
-        if puerto_onvif not in puertos:
-            puertos.append(puerto_onvif)
+            # Agregar candidatos desde parámetros ONVIF (si no están ya)
+            for p in puertos:
+                url = f"rtsp://{auth}{host}:{p}/{perfil}"
+                if url not in candidatos:
+                    candidatos.append(url)
 
-        candidatos = [f"rtsp://{auth}{host}:{p}/{perfil}" for p in puertos]
         return candidatos
     except Exception as e:
         logger.error(f"✗ Error construyendo candidatos RTSP desde ONVIF: {e}")
