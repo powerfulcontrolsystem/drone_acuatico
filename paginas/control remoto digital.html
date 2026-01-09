@@ -1000,6 +1000,43 @@
 			initMenuCam(1);
 			initMenuCam(2);
 			
+			// Iniciar automáticamente las cámaras si está configurado
+			async function iniciarCamarasAutomaticamente() {
+				try {
+					const res = await fetch('/api/config');
+					if (res.ok) {
+						const config = await res.json();
+						
+						// Iniciar cámara 1 si está configurada y no está desactivada
+						if (config.iniciar_auto_camara1 !== false && !config.desactivar_camara1) {
+							setTimeout(() => {
+								const btnPlay1 = document.getElementById('playCam1');
+								if (btnPlay1 && !playing.cam1) {
+									btnPlay1.click();
+									console.log('Cámara 1 iniciada automáticamente');
+								}
+							}, 500);
+						}
+						
+						// Iniciar cámara 2 si está configurada y no está desactivada
+						if (config.iniciar_auto_camara2 !== false && !config.desactivar_camara2) {
+							setTimeout(() => {
+								const btnPlay2 = document.getElementById('playCam2');
+								if (btnPlay2 && !playing.cam2) {
+									btnPlay2.click();
+									console.log('Cámara 2 iniciada automáticamente');
+								}
+							}, 700);
+						}
+					}
+				} catch (error) {
+					console.error('Error al cargar configuración para inicio automático:', error);
+				}
+			}
+			
+			// Llamar a la función después de un breve delay para asegurar que todo esté cargado
+			setTimeout(iniciarCamarasAutomaticamente, 1000);
+			
 			// Menú flotante del mapa
 			const btnMenuMapa = document.getElementById('btn-menu-mapa');
 			const menuMapaOpciones = document.getElementById('menu-mapa-opciones');

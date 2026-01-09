@@ -43,33 +43,58 @@ def asegurar_carpetas():
         return False
 
 def construir_rtsp_url(config: dict, indice: int, calidad: str = "sd") -> Optional[str]:
-    """Devuelve la URL RTSP desde la configuración.
+    """Devuelve la primera URL RTSP candidata para compatibilidad hacia atrás.
 
-    Args:
-        config: Diccionario de configuración (desde base_datos.obtener_configuracion()).
-        indice: 1 o 2 para seleccionar cámara.
-        calidad: "sd" o "hd" para escoger el campo adecuado.
+    Mantiene la firma antigua, pero ahora delega a `construir_rtsp_candidatos`
+    y devuelve únicamente la primera URL disponible.
+    """
+    candidatos = construir_rtsp_candidatos(config, indice)
+    return candidatos[0] if candidatos else None
 
-    Returns:
-        URL RTSP normalizada (con prefijo rtsp://) o None si no hay.
+
+def construir_rtsp_candidatos(config: dict, indice: int) -> list[str]:
+    """Construye una lista de URLs RTSP a partir de los parámetros ONVIF.
+
+    - Usa host/puerto/usuario/contraseña/perfil configurados para la cámara.
+    - Genera candidatos probando puertos habituales: 554 (RTSP) y el puerto
+      ONVIF indicado (por defecto 8899) si es diferente.
     """
     try:
         if not config:
-            return None
-        calidad = (calidad or "sd").lower()
+            return []
+
         if indice == 1:
-            key = "url_camara1_hd" if calidad == "hd" else "url_camara1_sd"
+            host = (config.get("onvif_camara1_host") or "").strip()
+            puerto_onvif = int(config.get("onvif_camara1_puerto", 8899) or 8899)
+            usuario = (config.get("onvif_camara1_usuario") or "").strip()
+            contrasena = config.get("onvif_camara1_contrasena") or ""
+            perfil = (config.get("onvif_camara1_perfil") or "Streaming/Channels/101").strip("/")
         else:
-            key = "url_camara2_hd" if calidad == "hd" else "url_camara2_sd"
-        url = (config.get(key) or "").strip()
-        if not url:
-            return None
-        if not url.startswith("rtsp://"):
-            url = f"rtsp://{url}"
-        return url
+            host = (config.get("onvif_camara2_host") or "").strip()
+            puerto_onvif = int(config.get("onvif_camara2_puerto", 8899) or 8899)
+            usuario = (config.get("onvif_camara2_usuario") or "").strip()
+            contrasena = config.get("onvif_camara2_contrasena") or ""
+            perfil = (config.get("onvif_camara2_perfil") or "Streaming/Channels/101").strip("/")
+
+        if not host:
+            return []
+
+        auth = ""
+        if usuario:
+            auth = usuario
+            if contrasena:
+                auth += f":{contrasena}"
+            auth += "@"
+
+        puertos = [554]
+        if puerto_onvif not in puertos:
+            puertos.append(puerto_onvif)
+
+        candidatos = [f"rtsp://{auth}{host}:{p}/{perfil}" for p in puertos]
+        return candidatos
     except Exception as e:
-        logger.error(f"✗ Error construyendo URL RTSP: {e}")
-        return None
+        logger.error(f"✗ Error construyendo candidatos RTSP desde ONVIF: {e}")
+        return []
 
 def _resolver_cam_id(indice_o_id) -> Optional[str]:
     if isinstance(indice_o_id, str):
@@ -94,81 +119,90 @@ def _limpiar_salida(cam_id: str) -> None:
         pass
 
 
-def iniciar_hls(indice_o_id, url_rtsp: Optional[str]) -> Tuple[bool, str]:
+def _iniciar_hls_single(cam_id: str, url_rtsp: str) -> Tuple[bool, str]:
+    """Lanza ffmpeg para una URL específica."""
+    # Verificar ffmpeg
+    ffmpeg = shutil.which("ffmpeg")
+    if not ffmpeg:
+        logger.error("✗ ffmpeg no encontrado en el sistema. Instálelo para HLS.")
+        return False, "ffmpeg no encontrado en el sistema"
+
+    asegurar_carpetas()
+
+    # Detener si ya hay uno
+    if cam_id in PROCESOS:
+        detener_hls(cam_id)
+
+    carpeta = HLS_OUTPUT_DIR / cam_id
+    _limpiar_salida(cam_id)
+
+    playlist_path = carpeta / HLS_PLAYLIST_NAME.get(cam_id, f"{cam_id}.m3u8")
+    segment_pattern = carpeta / f"{cam_id}_%03d.ts"
+
+    cmd = [
+        ffmpeg,
+        "-nostdin",
+        "-loglevel", "error",
+        "-rtsp_transport", "tcp",
+        "-i", url_rtsp,
+        "-an",
+        "-c:v", "copy",
+        "-f", "hls",
+        "-hls_time", "2",
+        "-hls_list_size", "5",
+        "-hls_flags", "delete_segments+program_date_time+append_list",
+        "-hls_segment_filename", str(segment_pattern),
+        str(playlist_path),
+    ]
+
+    proc = subprocess.Popen(cmd)
+    PROCESOS[cam_id] = proc
+    logger.info(f"✓ Iniciando HLS {cam_id} desde {url_rtsp} (PID {proc.pid})")
+
+    for _ in range(6):
+        time.sleep(0.5)
+        if proc.poll() is not None:
+            PROCESOS.pop(cam_id, None)
+            logger.error(f"✗ ffmpeg terminó temprano para {cam_id} (código {proc.returncode})")
+            return False, "No se pudo abrir el RTSP (proceso terminó)"
+        if playlist_path.exists() and playlist_path.stat().st_size > 0:
+            return True, "HLS iniciado"
+    return True, "HLS iniciado (validación pendiente)"
+
+
+def iniciar_hls(indice_o_id, url_rtsp: Optional[str | list[str]]) -> Tuple[bool, str]:
     """Inicia un proceso ffmpeg que convierte RTSP a HLS.
 
-    Args:
-        indice_o_id: 1/2 o "cam1"/"cam2".
-        url_rtsp: URL RTSP completa.
-
-    Returns:
-        (exito, mensaje)
+    Permite una lista de URLs candidatas; intentará en orden hasta que una funcione.
     """
     cam_id = _resolver_cam_id(indice_o_id)
     if not cam_id:
         logger.error(f"✗ Identificador de cámara inválido: {indice_o_id}")
         return False, "Identificador de cámara inválido"
 
-    try:
-        if not url_rtsp:
-            logger.warning(f"⚠ URL RTSP vacía para {cam_id}")
-            return False, "URL RTSP vacía"
+    candidatos = []
+    if isinstance(url_rtsp, (list, tuple)):
+        candidatos = [u for u in url_rtsp if u]
+    elif url_rtsp:
+        candidatos = [url_rtsp]
 
-        # Verificar ffmpeg
-        ffmpeg = shutil.which("ffmpeg")
-        if not ffmpeg:
-            logger.error("✗ ffmpeg no encontrado en el sistema. Instálelo para HLS.")
-            return False, "ffmpeg no encontrado en el sistema"
+    if not candidatos:
+        logger.warning(f"⚠ Sin URLs RTSP candidatas para {cam_id}")
+        return False, "URL RTSP vacía"
 
-        asegurar_carpetas()
-
-        # Detener si ya hay uno
-        if cam_id in PROCESOS:
-            detener_hls(cam_id)
-
-        carpeta = HLS_OUTPUT_DIR / cam_id
-        _limpiar_salida(cam_id)
-
-        playlist_path = carpeta / HLS_PLAYLIST_NAME.get(cam_id, f"{cam_id}.m3u8")
-        segment_pattern = carpeta / f"{cam_id}_%03d.ts"
-
-        # Comando ffmpeg: copiar video para baja carga en la Raspberry
-        cmd = [
-            ffmpeg,
-            "-nostdin",
-            "-loglevel", "error",
-            "-rtsp_transport", "tcp",
-            "-i", url_rtsp,
-            "-an",  # descartar audio para simplificar
-            "-c:v", "copy",
-            "-f", "hls",
-            "-hls_time", "2",
-            "-hls_list_size", "5",
-            "-hls_flags", "delete_segments+program_date_time+append_list",
-            "-hls_segment_filename", str(segment_pattern),
-            str(playlist_path),
-        ]
-
-        proc = subprocess.Popen(cmd)
-        PROCESOS[cam_id] = proc
-        logger.info(f"✓ Iniciando HLS {cam_id} desde {url_rtsp} (PID {proc.pid})")
-
-        # Validación rápida: proceso vivo y playlist creada
-        playlist_path = carpeta / HLS_PLAYLIST_NAME.get(cam_id, f"{cam_id}.m3u8")
-        for _ in range(6):  # ~3s
-            time.sleep(0.5)
-            if proc.poll() is not None:
-                PROCESOS.pop(cam_id, None)
-                logger.error(f"✗ ffmpeg terminó temprano para {cam_id} (código {proc.returncode})")
-                return False, "No se pudo abrir el RTSP (proceso terminó)"
-            if playlist_path.exists() and playlist_path.stat().st_size > 0:
-                return True, "HLS iniciado"
-
-        # Si sigue vivo pero sin playlist, consideramos que sigue en progreso
-        return True, "HLS iniciado (validación pendiente)"
-    except Exception as e:
-        logger.error(f"✗ Error iniciando HLS para {cam_id}: {e}")
-        return False, str(e)
+    ultimo_error = "URL RTSP no válida"
+    for idx, url in enumerate(candidatos, start=1):
+        try:
+            ok, msg = _iniciar_hls_single(cam_id, url)
+            if ok:
+                if idx > 1:
+                    msg = f"{msg} (usando candidato {idx})"
+                return True, msg
+            ultimo_error = msg
+        except Exception as e:  # pragma: no cover (log de robustez)
+            ultimo_error = str(e)
+            logger.error(f"✗ Error iniciando HLS para {cam_id} con candidato {idx}: {e}")
+    return False, ultimo_error
 
 def detener_hls(indice_o_id) -> bool:
     """Detiene el ffmpeg de una cámara y libera recursos."""

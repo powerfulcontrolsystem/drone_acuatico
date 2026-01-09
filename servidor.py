@@ -7,6 +7,9 @@ Servidor HTTP/WebSocket para control remoto del drone
 import asyncio
 import json
 import logging
+import socket
+import uuid
+import re
 from pathlib import Path
 from aiohttp import WSMsgType, web
 
@@ -53,6 +56,7 @@ from base_de_datos.base_datos import (
 from camera_stream import (
     asegurar_carpetas as hls_asegurar,
     construir_rtsp_url,
+    construir_rtsp_candidatos,
     iniciar_hls,
     detener_todos as hls_detener_todos,
     detener_hls
@@ -84,6 +88,74 @@ DATOS_SISTEMA_CACHE = {
     'gps': None,
     'ultima_actualizacion': 0
 }
+
+
+def descubrir_onvif(timeout=3):
+    """Realiza un probe WS-Discovery para cámaras ONVIF en la red local.
+
+    Devuelve una lista de diccionarios con host, puerto (estimado) y XAddrs.
+    """
+    multicast_group = ('239.255.255.250', 3702)
+    message_id = f"uuid:{uuid.uuid4()}"
+    probe = f"""
+<?xml version='1.0' encoding='UTF-8'?>
+<e:Envelope xmlns:e='http://www.w3.org/2003/05/soap-envelope'
+            xmlns:w='http://schemas.xmlsoap.org/ws/2004/08/addressing'
+            xmlns:d='http://schemas.xmlsoap.org/ws/2005/04/discovery'
+            xmlns:dn='http://www.onvif.org/ver10/network/wsdl'>
+  <e:Header>
+    <w:MessageID>{message_id}</w:MessageID>
+    <w:To>urn:schemas-xmlsoap-org:ws:2005:04:discovery</w:To>
+    <w:Action>http://schemas.xmlsoap.org/ws/2005/04/discovery/Probe</w:Action>
+  </e:Header>
+  <e:Body>
+    <d:Probe>
+      <d:Types>dn:NetworkVideoTransmitter</d:Types>
+    </d:Probe>
+  </e:Body>
+</e:Envelope>
+""".strip().encode('utf-8')
+
+    dispositivos = {}
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
+    try:
+        sock.settimeout(timeout)
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        ttl = 1
+        sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, ttl)
+        sock.sendto(probe, multicast_group)
+
+        while True:
+            try:
+                data, addr = sock.recvfrom(8192)
+            except socket.timeout:
+                break
+            except Exception:
+                break
+
+            host = addr[0]
+            txt = data.decode(errors='ignore')
+            # Buscar XAddrs
+            m = re.search(r"<.*?XAddrs.*?>([^<]+)<", txt)
+            xaddrs = m.group(1).strip() if m else ''
+            # Inferir puerto desde XAddrs si aparece, si no usar 8899
+            puerto = 8899
+            m2 = re.search(r"://[^:/]+:(\d+)", xaddrs)
+            if m2:
+                puerto = int(m2.group(1))
+
+            dispositivos[host] = {
+                'host': host,
+                'puerto': puerto,
+                'xaddrs': xaddrs,
+            }
+    finally:
+        try:
+            sock.close()
+        except Exception:
+            pass
+
+    return list(dispositivos.values())
 
 
 def obtener_payload_gps():
@@ -437,18 +509,17 @@ async def procesar_mensaje_ws(ws, datos):
     elif tipo == 'camara':
         indice = int(datos.get('indice', 1))
         accion = datos.get('accion', 'iniciar')
-        calidad = datos.get('calidad', 'sd')  # sd o hd
         cam_id = 'cam1' if indice == 1 else 'cam2'
         loop = asyncio.get_event_loop()
         config = await loop.run_in_executor(None, obtener_configuracion) or {}
         if accion == 'iniciar':
-            rtsp = construir_rtsp_url(config, indice, calidad)
-            exito, mensaje = iniciar_hls(cam_id, rtsp)
+            candidatos = construir_rtsp_candidatos(config, indice)
+            rtsp = candidatos[0] if candidatos else None
+            exito, mensaje = iniciar_hls(cam_id, candidatos)
             await ws.send_json({
                 'tipo': 'camara',
                 'indice': indice,
                 'accion': 'iniciar',
-                'calidad': calidad,
                 'exito': exito,
                 'rtsp': rtsp,
                 'mensaje': mensaje
@@ -609,6 +680,11 @@ async def api_config_handler(request):
                 'error': str(e)
             }, status=400)
 
+async def api_onvif_discover_handler(request):
+    loop = asyncio.get_event_loop()
+    dispositivos = await loop.run_in_executor(None, descubrir_onvif)
+    return web.json_response({'exito': True, 'dispositivos': dispositivos})
+
 
 async def api_reiniciar_handler(request):
     """
@@ -672,10 +748,26 @@ async def on_startup(app):
         VELOCIDAD_ACTUAL = config.get('velocidad_actual', VELOCIDAD_ACTUAL)
         # Preparar carpeta HLS y arrancar cámaras si están configuradas
         hls_asegurar()
-        rtsp1_hd = construir_rtsp_url(config, 1, 'hd')
-        rtsp2_hd = construir_rtsp_url(config, 2, 'hd')
-        iniciar_hls('cam1', rtsp1_hd)
-        iniciar_hls('cam2', rtsp2_hd)
+
+        # Iniciar cámara 1 si está habilitada y con auto-start
+        if not config.get('desactivar_camara1', False) and config.get('iniciar_auto_camara1', True):
+            candidatos1 = construir_rtsp_candidatos(config, 1)
+            if candidatos1:
+                exito, msg = iniciar_hls('cam1', candidatos1)
+                if exito:
+                    logger.info(f"✓ Cámara 1 iniciada (ONVIF): {candidatos1[0]}")
+                else:
+                    logger.warning(f"⚠ No se pudo iniciar cámara 1 (ONVIF): {msg}")
+
+        # Iniciar cámara 2 si está habilitada y con auto-start
+        if not config.get('desactivar_camara2', False) and config.get('iniciar_auto_camara2', True):
+            candidatos2 = construir_rtsp_candidatos(config, 2)
+            if candidatos2:
+                exito, msg = iniciar_hls('cam2', candidatos2)
+                if exito:
+                    logger.info(f"✓ Cámara 2 iniciada (ONVIF): {candidatos2[0]}")
+                else:
+                    logger.warning(f"⚠ No se pudo iniciar cámara 2 (ONVIF): {msg}")
     
     # Cargar estado de relés desde BD
     estados_bd = obtener_estado_reles()
@@ -736,6 +828,7 @@ def crear_app():
     app.router.add_get('/configuracion.html', configuracion_handler)
     app.router.add_get('/api/config', api_config_handler)
     app.router.add_post('/api/config', api_config_handler)
+    app.router.add_get('/api/onvif/discover', api_onvif_discover_handler)
     app.router.add_get('/ws', websocket_handler)
     # Endpoints para apagar y reiniciar el sistema
     app.router.add_post('/api/reiniciar', api_reiniciar_handler)

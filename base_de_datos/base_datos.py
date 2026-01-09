@@ -57,12 +57,22 @@ def inicializar_bd():
                 tamano_mapa INTEGER DEFAULT 400,
                 guardar_recorrido INTEGER DEFAULT 1,
                 frecuencia_guardado INTEGER DEFAULT 30,
-                url_camara1_sd TEXT,
-                url_camara1_hd TEXT,
+                -- Parámetros ONVIF cámara 1
+                onvif_camara1_host TEXT,
+                onvif_camara1_puerto INTEGER DEFAULT 8899,
+                onvif_camara1_usuario TEXT,
+                onvif_camara1_contrasena TEXT,
+                onvif_camara1_perfil TEXT,
                 desactivar_camara1 INTEGER DEFAULT 0,
-                url_camara2_sd TEXT,
-                url_camara2_hd TEXT,
+                iniciar_auto_camara1 INTEGER DEFAULT 1,
+                -- Parámetros ONVIF cámara 2
+                onvif_camara2_host TEXT,
+                onvif_camara2_puerto INTEGER DEFAULT 8899,
+                onvif_camara2_usuario TEXT,
+                onvif_camara2_contrasena TEXT,
+                onvif_camara2_perfil TEXT,
                 desactivar_camara2 INTEGER DEFAULT 0,
+                iniciar_auto_camara2 INTEGER DEFAULT 1,
                 nombre_rele1 TEXT DEFAULT 'Relé 1',
                 nombre_rele2 TEXT DEFAULT 'Relé 2',
                 nombre_rele3 TEXT DEFAULT 'Relé 3',
@@ -77,6 +87,42 @@ def inicializar_bd():
                 fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         ''')
+        
+        # Migrar datos de url_camara1_sd/hd a url_camara1 si existen
+        cursor.execute("PRAGMA table_info(configuracion)")
+        columnas = [col[1] for col in cursor.fetchall()]
+        
+        # Agregar nuevas columnas si no existen
+        # Agregar nuevas columnas ONVIF si no existen
+        if 'onvif_camara1_host' not in columnas:
+            cursor.execute('ALTER TABLE configuracion ADD COLUMN onvif_camara1_host TEXT')
+        if 'onvif_camara1_puerto' not in columnas:
+            cursor.execute('ALTER TABLE configuracion ADD COLUMN onvif_camara1_puerto INTEGER DEFAULT 8899')
+        if 'onvif_camara1_usuario' not in columnas:
+            cursor.execute('ALTER TABLE configuracion ADD COLUMN onvif_camara1_usuario TEXT')
+        if 'onvif_camara1_contrasena' not in columnas:
+            cursor.execute('ALTER TABLE configuracion ADD COLUMN onvif_camara1_contrasena TEXT')
+        if 'onvif_camara1_perfil' not in columnas:
+            cursor.execute('ALTER TABLE configuracion ADD COLUMN onvif_camara1_perfil TEXT')
+
+        if 'onvif_camara2_host' not in columnas:
+            cursor.execute('ALTER TABLE configuracion ADD COLUMN onvif_camara2_host TEXT')
+        if 'onvif_camara2_puerto' not in columnas:
+            cursor.execute('ALTER TABLE configuracion ADD COLUMN onvif_camara2_puerto INTEGER DEFAULT 8899')
+        if 'onvif_camara2_usuario' not in columnas:
+            cursor.execute('ALTER TABLE configuracion ADD COLUMN onvif_camara2_usuario TEXT')
+        if 'onvif_camara2_contrasena' not in columnas:
+            cursor.execute('ALTER TABLE configuracion ADD COLUMN onvif_camara2_contrasena TEXT')
+        if 'onvif_camara2_perfil' not in columnas:
+            cursor.execute('ALTER TABLE configuracion ADD COLUMN onvif_camara2_perfil TEXT')
+
+        if 'iniciar_auto_camara1' not in columnas:
+            cursor.execute('ALTER TABLE configuracion ADD COLUMN iniciar_auto_camara1 INTEGER DEFAULT 1')
+
+        if 'iniciar_auto_camara2' not in columnas:
+            cursor.execute('ALTER TABLE configuracion ADD COLUMN iniciar_auto_camara2 INTEGER DEFAULT 1')
+        
+        conexion.commit()
         
         # Tabla de RECORRIDOS GPS
         cursor.execute('''
@@ -212,12 +258,20 @@ def obtener_configuracion():
                 'correo': fila['correo'],
                 'tamano_mapa': fila['tamano_mapa'],
                 'guardar_recorrido': bool(fila['guardar_recorrido']),
-                'url_camara1_sd': fila['url_camara1_sd'] if 'url_camara1_sd' in fila.keys() else '',
-                'url_camara1_hd': fila['url_camara1_hd'] if 'url_camara1_hd' in fila.keys() else '',
+                'onvif_camara1_host': fila['onvif_camara1_host'] if 'onvif_camara1_host' in fila.keys() else '',
+                'onvif_camara1_puerto': fila['onvif_camara1_puerto'] if 'onvif_camara1_puerto' in fila.keys() else 8899,
+                'onvif_camara1_usuario': fila['onvif_camara1_usuario'] if 'onvif_camara1_usuario' in fila.keys() else '',
+                'onvif_camara1_contrasena': fila['onvif_camara1_contrasena'] if 'onvif_camara1_contrasena' in fila.keys() else '',
+                'onvif_camara1_perfil': fila['onvif_camara1_perfil'] if 'onvif_camara1_perfil' in fila.keys() else '',
                 'desactivar_camara1': bool(fila['desactivar_camara1']),
-                'url_camara2_sd': fila['url_camara2_sd'] if 'url_camara2_sd' in fila.keys() else '',
-                'url_camara2_hd': fila['url_camara2_hd'] if 'url_camara2_hd' in fila.keys() else '',
+                'iniciar_auto_camara1': bool(fila['iniciar_auto_camara1']) if 'iniciar_auto_camara1' in fila.keys() else True,
+                'onvif_camara2_host': fila['onvif_camara2_host'] if 'onvif_camara2_host' in fila.keys() else '',
+                'onvif_camara2_puerto': fila['onvif_camara2_puerto'] if 'onvif_camara2_puerto' in fila.keys() else 8899,
+                'onvif_camara2_usuario': fila['onvif_camara2_usuario'] if 'onvif_camara2_usuario' in fila.keys() else '',
+                'onvif_camara2_contrasena': fila['onvif_camara2_contrasena'] if 'onvif_camara2_contrasena' in fila.keys() else '',
+                'onvif_camara2_perfil': fila['onvif_camara2_perfil'] if 'onvif_camara2_perfil' in fila.keys() else '',
                 'desactivar_camara2': bool(fila['desactivar_camara2']),
+                'iniciar_auto_camara2': bool(fila['iniciar_auto_camara2']) if 'iniciar_auto_camara2' in fila.keys() else True,
                 'tamano_letra_datos': int(fila['tamano_letra_datos']) if 'tamano_letra_datos' in fila.keys() else 12,
                 'velocidad_actual': int(fila['velocidad_actual']) if 'velocidad_actual' in fila.keys() else 50,
                 'reles': {
@@ -275,12 +329,20 @@ def guardar_configuracion(config):
                 tamano_letra_datos = ?,
                 velocidad_actual = ?,
                 guardar_recorrido = ?,
-                url_camara1_sd = ?,
-                url_camara1_hd = ?,
+                onvif_camara1_host = ?,
+                onvif_camara1_puerto = ?,
+                onvif_camara1_usuario = ?,
+                onvif_camara1_contrasena = ?,
+                onvif_camara1_perfil = ?,
                 desactivar_camara1 = ?,
-                url_camara2_sd = ?,
-                url_camara2_hd = ?,
+                iniciar_auto_camara1 = ?,
+                onvif_camara2_host = ?,
+                onvif_camara2_puerto = ?,
+                onvif_camara2_usuario = ?,
+                onvif_camara2_contrasena = ?,
+                onvif_camara2_perfil = ?,
                 desactivar_camara2 = ?,
+                iniciar_auto_camara2 = ?,
                 nombre_rele1 = ?,
                 nombre_rele2 = ?,
                 nombre_rele3 = ?,
@@ -300,12 +362,20 @@ def guardar_configuracion(config):
             int(config.get('tamano_letra_datos', 12)),
             int(config.get('velocidad_actual', 50)),
             int(config.get('guardar_recorrido', True)),
-            config.get('url_camara1_sd', ''),
-            config.get('url_camara1_hd', ''),
+            config.get('onvif_camara1_host', ''),
+            int(config.get('onvif_camara1_puerto', 8899)),
+            config.get('onvif_camara1_usuario', ''),
+            config.get('onvif_camara1_contrasena', ''),
+            config.get('onvif_camara1_perfil', ''),
             int(config.get('desactivar_camara1', False)),
-            config.get('url_camara2_sd', ''),
-            config.get('url_camara2_hd', ''),
+            int(config.get('iniciar_auto_camara1', True)),
+            config.get('onvif_camara2_host', ''),
+            int(config.get('onvif_camara2_puerto', 8899)),
+            config.get('onvif_camara2_usuario', ''),
+            config.get('onvif_camara2_contrasena', ''),
+            config.get('onvif_camara2_perfil', ''),
             int(config.get('desactivar_camara2', False)),
+            int(config.get('iniciar_auto_camara2', True)),
             reles_normalizados.get(1, 'Relé 1') or 'Relé 1',
             reles_normalizados.get(2, 'Relé 2') or 'Relé 2',
             reles_normalizados.get(3, 'Relé 3') or 'Relé 3',

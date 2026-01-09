@@ -109,8 +109,9 @@
 </head>
 <body>
   <main class="config-main" style="max-width: 700px; margin: 32px auto; display: flex; flex-direction: column; align-items: stretch; gap: 28px;">
-        <div style="margin-bottom: 18px; text-align: left;">
+        <div style="margin-bottom: 18px; text-align: left; display: flex; gap: 8px; flex-wrap: wrap;">
           <button class="btn" onclick="window.location.href='/'">⟵ Regresar</button>
+          <button class="btn btn-guardar" onclick="guardarConfig()">💾 Guardar</button>
         </div>
     <!-- Datos generales -->
     <h2 style="margin-top:0; color:#6ec1e4;">Datos generales</h2>
@@ -129,18 +130,31 @@
 
     <!-- Cámaras -->
     <h2 style="margin-top:0; color:#6ec1e4;">Cámaras</h2>
+    <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:8px;">
+      <button class="btn" onclick="buscarOnvif()">🔎 Buscar cámaras ONVIF</button>
+      <span id="onvifStatus" style="color:#6ec1e4; font-weight:600;"></span>
+    </div>
+    <div id="onvifResultados" style="display:flex; flex-direction:column; gap:6px; margin-bottom:12px;"></div>
     <div style="display: flex; flex-direction: column; gap: 18px;">
       <div style="width: 100%; max-width: 600px; margin-bottom: 8px;">
-        <h3 style="margin-top:0; color:#6ec1e4;">Cámara 1</h3>
-        <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="urlCamara1SD">URL RTSP SD</label><input id="urlCamara1SD" type="text" placeholder="rtsp://usuario:clave@192.168.1.9:554/live/ch0" style="width:100%;" /></div>
-        <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="urlCamara1HD">URL RTSP HD/2K</label><input id="urlCamara1HD" type="text" placeholder="rtsp://usuario:clave@192.168.1.9:554/live/ch1" style="width:100%;" /></div>
+        <h3 style="margin-top:0; color:#6ec1e4;">Cámara 1 (ONVIF)</h3>
+        <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="onvifCam1Host">IP / Host</label><input id="onvifCam1Host" type="text" placeholder="192.168.1.9" style="width:100%;" /></div>
+        <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="onvifCam1Port">Puerto ONVIF</label><input id="onvifCam1Port" type="number" min="1" max="65535" placeholder="8899" style="width:100%;" /></div>
+        <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="onvifCam1User">Usuario</label><input id="onvifCam1User" type="text" placeholder="admin" value="admin" style="width:100%;" /></div>
+        <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="onvifCam1Pass">Contraseña</label><input id="onvifCam1Pass" type="password" placeholder="admin" value="admin" style="width:100%;" /></div>
+        <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="onvifCam1Perfil">Perfil / Ruta de stream</label><input id="onvifCam1Perfil" type="text" placeholder="Streaming/Channels/101" style="width:100%;" /></div>
         <div class="row" style="display: flex; flex-direction: row; align-items: center; gap: 8px;"><input id="desactivarCamara1" type="checkbox" /><label for="desactivarCamara1">Desactivar Cámara 1</label></div>
+        <div class="row" style="display: flex; flex-direction: row; align-items: center; gap: 8px;"><input id="iniciarAutoCamara1" type="checkbox" checked /><label for="iniciarAutoCamara1">✓ Iniciar automáticamente la cámara</label></div>
       </div>
       <div style="width: 100%; max-width: 600px;">
-        <h3 style="margin-top:0; color:#6ec1e4;">Cámara 2</h3>
-        <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="urlCamara2SD">URL RTSP SD</label><input id="urlCamara2SD" type="text" placeholder="rtsp://usuario:clave@192.168.1.10:554/live/ch0" style="width:100%;" /></div>
-        <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="urlCamara2HD">URL RTSP HD/2K</label><input id="urlCamara2HD" type="text" placeholder="rtsp://usuario:clave@192.168.1.10:554/live/ch1" style="width:100%;" /></div>
+        <h3 style="margin-top:0; color:#6ec1e4;">Cámara 2 (ONVIF)</h3>
+        <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="onvifCam2Host">IP / Host</label><input id="onvifCam2Host" type="text" placeholder="192.168.1.10" style="width:100%;" /></div>
+        <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="onvifCam2Port">Puerto ONVIF</label><input id="onvifCam2Port" type="number" min="1" max="65535" placeholder="8899" style="width:100%;" /></div>
+        <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="onvifCam2User">Usuario</label><input id="onvifCam2User" type="text" placeholder="admin" value="admin" style="width:100%;" /></div>
+        <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="onvifCam2Pass">Contraseña</label><input id="onvifCam2Pass" type="password" placeholder="admin" value="admin" style="width:100%;" /></div>
+        <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="onvifCam2Perfil">Perfil / Ruta de stream</label><input id="onvifCam2Perfil" type="text" placeholder="Streaming/Channels/101" style="width:100%;" /></div>
         <div class="row" style="display: flex; flex-direction: row; align-items: center; gap: 8px;"><input id="desactivarCamara2" type="checkbox" /><label for="desactivarCamara2">Desactivar Cámara 2</label></div>
+        <div class="row" style="display: flex; flex-direction: row; align-items: center; gap: 8px;"><input id="iniciarAutoCamara2" type="checkbox" checked /><label for="iniciarAutoCamara2">✓ Iniciar automáticamente la cámara</label></div>
       </div>
     </div>
 
@@ -160,8 +174,8 @@
   </main>
 
   <footer style="text-align:center; margin: 24px 0;">
+    <button class="btn" onclick="window.location.href='/'">⟵ Regresar</button>
     <button class="btn btn-guardar" onclick="guardarConfig()">💾 Guardar</button>
-    <button class="btn btn-cargar" onclick="cargarConfig()">⤳ Cargar</button>
   </footer>
   <div id="mensaje" class="msg"></div>
 
@@ -211,12 +225,20 @@
         tamano_mapa: parseInt(document.getElementById('tamanoMapa').value || '400', 10),
         guardar_recorrido: document.getElementById('guardarRecorrido').checked,
         frecuencia_guardado: parseInt(document.getElementById('frecuenciaGuardado').value || '30', 10),
-        url_camara1_sd: document.getElementById('urlCamara1SD').value.trim(),
-        url_camara1_hd: document.getElementById('urlCamara1HD').value.trim(),
+        onvif_camara1_host: document.getElementById('onvifCam1Host').value.trim(),
+        onvif_camara1_puerto: parseInt(document.getElementById('onvifCam1Port').value || '8899', 10),
+        onvif_camara1_usuario: document.getElementById('onvifCam1User').value.trim(),
+        onvif_camara1_contrasena: document.getElementById('onvifCam1Pass').value,
+        onvif_camara1_perfil: document.getElementById('onvifCam1Perfil').value.trim(),
         desactivar_camara1: document.getElementById('desactivarCamara1').checked,
-        url_camara2_sd: document.getElementById('urlCamara2SD').value.trim(),
-        url_camara2_hd: document.getElementById('urlCamara2HD').value.trim(),
+        iniciar_auto_camara1: document.getElementById('iniciarAutoCamara1').checked,
+        onvif_camara2_host: document.getElementById('onvifCam2Host').value.trim(),
+        onvif_camara2_puerto: parseInt(document.getElementById('onvifCam2Port').value || '8899', 10),
+        onvif_camara2_usuario: document.getElementById('onvifCam2User').value.trim(),
+        onvif_camara2_contrasena: document.getElementById('onvifCam2Pass').value,
+        onvif_camara2_perfil: document.getElementById('onvifCam2Perfil').value.trim(),
         desactivar_camara2: document.getElementById('desactivarCamara2').checked,
+        iniciar_auto_camara2: document.getElementById('iniciarAutoCamara2').checked,
         reles: {
           1: document.getElementById('rele1').value.trim(),
           2: document.getElementById('rele2').value.trim(),
@@ -239,12 +261,20 @@
       document.getElementById('tamanoMapa').value = cfg.tamano_mapa || 400;
       document.getElementById('guardarRecorrido').checked = !!cfg.guardar_recorrido;
       document.getElementById('frecuenciaGuardado').value = cfg.frecuencia_guardado || 30;
-      document.getElementById('urlCamara1SD').value = cfg.url_camara1_sd || '';
-      document.getElementById('urlCamara1HD').value = cfg.url_camara1_hd || '';
+      document.getElementById('onvifCam1Host').value = cfg.onvif_camara1_host || '';
+      document.getElementById('onvifCam1Port').value = cfg.onvif_camara1_puerto || 8899;
+      document.getElementById('onvifCam1User').value = cfg.onvif_camara1_usuario || 'admin';
+      document.getElementById('onvifCam1Pass').value = cfg.onvif_camara1_contrasena || 'admin';
+      document.getElementById('onvifCam1Perfil').value = cfg.onvif_camara1_perfil || 'Streaming/Channels/101';
       document.getElementById('desactivarCamara1').checked = !!cfg.desactivar_camara1;
-      document.getElementById('urlCamara2SD').value = cfg.url_camara2_sd || '';
-      document.getElementById('urlCamara2HD').value = cfg.url_camara2_hd || '';
+      document.getElementById('iniciarAutoCamara1').checked = (cfg.iniciar_auto_camara1 !== undefined) ? !!cfg.iniciar_auto_camara1 : true;
+      document.getElementById('onvifCam2Host').value = cfg.onvif_camara2_host || '';
+      document.getElementById('onvifCam2Port').value = cfg.onvif_camara2_puerto || 8899;
+      document.getElementById('onvifCam2User').value = cfg.onvif_camara2_usuario || 'admin';
+      document.getElementById('onvifCam2Pass').value = cfg.onvif_camara2_contrasena || 'admin';
+      document.getElementById('onvifCam2Perfil').value = cfg.onvif_camara2_perfil || 'Streaming/Channels/101';
       document.getElementById('desactivarCamara2').checked = !!cfg.desactivar_camara2;
+      document.getElementById('iniciarAutoCamara2').checked = (cfg.iniciar_auto_camara2 !== undefined) ? !!cfg.iniciar_auto_camara2 : true;
       if (cfg.reles) {
         for (let i = 1; i <= 9; i++) {
           const val = (cfg.reles[i] || '');
@@ -274,6 +304,60 @@
         setMsg('Configuración cargada desde servidor.');
       } catch (e) {
         setMsg('Error cargando configuración del servidor.', false);
+      }
+    }
+
+    // Descubrimiento ONVIF
+    async function buscarOnvif() {
+      const status = document.getElementById('onvifStatus');
+      const cont = document.getElementById('onvifResultados');
+      status.textContent = 'Buscando cámaras ONVIF...';
+      cont.innerHTML = '';
+      try {
+        const res = await fetch('/api/onvif/discover');
+        if (!res.ok) {
+          status.textContent = 'No se pudo buscar cámaras.';
+          return;
+        }
+        const data = await res.json();
+        const dispositivos = data.dispositivos || [];
+        if (!dispositivos.length) {
+          status.textContent = 'No se encontraron cámaras ONVIF.';
+          return;
+        }
+        status.textContent = `Encontradas ${dispositivos.length} cámara(s).`;
+        dispositivos.forEach((d, idx) => {
+          const div = document.createElement('div');
+          div.style.display = 'flex';
+          div.style.gap = '6px';
+          div.style.alignItems = 'center';
+          div.style.flexWrap = 'wrap';
+          div.style.padding = '4px 0';
+          div.innerHTML = `<strong>${idx+1}.</strong> ${d.host}:${d.puerto} <span style="color:#6ec1e4;">${d.xaddrs || ''}</span>`;
+          const btn1 = document.createElement('button');
+          btn1.className = 'btn';
+          btn1.textContent = 'Usar en Cámara 1';
+          btn1.onclick = () => {
+            document.getElementById('onvifCam1Host').value = d.host || '';
+            document.getElementById('onvifCam1Port').value = d.puerto || 8899;
+            document.getElementById('onvifCam1User').value = 'admin';
+            document.getElementById('onvifCam1Pass').value = 'admin';
+          };
+          const btn2 = document.createElement('button');
+          btn2.className = 'btn';
+          btn2.textContent = 'Usar en Cámara 2';
+          btn2.onclick = () => {
+            document.getElementById('onvifCam2Host').value = d.host || '';
+            document.getElementById('onvifCam2Port').value = d.puerto || 8899;
+            document.getElementById('onvifCam2User').value = 'admin';
+            document.getElementById('onvifCam2Pass').value = 'admin';
+          };
+          div.appendChild(btn1);
+          div.appendChild(btn2);
+          cont.appendChild(div);
+        });
+      } catch (e) {
+        status.textContent = 'Error en búsqueda ONVIF.';
       }
     }
 
