@@ -54,6 +54,8 @@ else
     fi
 fi
 echo ""
+# Asegurar carpetas HLS para streams
+mkdir -p hls/cam1 hls/cam2
 
 # 3. Iniciar el servidor
 echo -e "${YELLOW}[3/4] Iniciando servidor...${NC}"
