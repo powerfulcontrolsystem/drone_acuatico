@@ -72,6 +72,9 @@
 			top: 10px;
 			right: 10px;
 			z-index: 1002;
+			display: flex;
+			flex-direction: row;
+			gap: 8px;
 		}
 		
 		.btn-menu-cam {
@@ -92,6 +95,37 @@
 		.btn-menu-cam:hover {
 			background: #263043;
 			box-shadow: 0 2px 8px #0003;
+		}
+
+		.btn-cam-flotante {
+			width: 44px;
+			height: 44px;
+			padding: 0;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			border-radius: 50%;
+			background: #232a36;
+			border: 2px solid #4a9eff;
+			color: #4a9eff;
+			cursor: pointer;
+			transition: all 0.2s ease;
+			box-shadow: 0 2px 8px #0002;
+		}
+
+		.btn-cam-flotante:hover {
+			background: #263043;
+			box-shadow: 0 2px 8px #0003;
+		}
+
+		/* Animación de parpadeo para grabación */
+		@keyframes parpadeoGrabar {
+			0%, 100% { opacity: 1; }
+			50% { opacity: 0.4; }
+		}
+
+		.btn-cam-flotante.grabando {
+			animation: parpadeoGrabar 0.8s infinite;
 		}
 		.panel-cam.mapa #mapa-gps {
 			flex: 1 1 0;
@@ -285,18 +319,23 @@
 					<div class="panel-cam">
 						<video id="videoCam1" controls muted playsinline></video>
 						<div class="menu-cam-flotante">
-							<button class="btn-menu-cam" id="btn-menu-cam1" type="button" aria-label="Opciones Cámara 1">
-								<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4a9eff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-									<circle cx="12" cy="12" r="1"></circle>
-									<circle cx="19" cy="12" r="1"></circle>
-									<circle cx="5" cy="12" r="1"></circle>
+							<button class="btn-cam-flotante" id="btnPlayCam1Float" type="button" title="Play/Stop Cam 1" onclick="document.getElementById('playCam1').click()">
+								<svg id="iconPlayCam1Float" width="22" height="22" viewBox="0 0 32 32" fill="#4a9eff" style="display:block;">
+									<polygon points="10,6 26,16 10,26"/>
 								</svg>
 							</button>
-							<div id="menu-cam1-opciones" class="menu-cam-opciones" style="display:none;">
-								<button class="btn-menu" onclick="document.getElementById('playCam1').click()">▶ Play/Stop</button>
-								<button class="btn-menu" onclick="document.getElementById('captureCam1').click()">📷 Capturar Foto</button>
-								<button class="btn-menu" onclick="document.getElementById('grabar-cam1').click()">⚫ Grabar Video</button>
-							</div>
+							<button class="btn-cam-flotante" id="btnPhotoCam1Float" type="button" title="Capturar Foto Cam 1" onclick="document.getElementById('captureCam1').click()">
+								<svg width="22" height="22" viewBox="0 0 32 32" fill="none" stroke="#4a9eff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:block;">
+									<rect x="6" y="10" width="20" height="12" rx="3" fill="none"></rect>
+									<circle cx="16" cy="16" r="5" fill="#4a9eff"></circle>
+									<rect x="12" y="6" width="8" height="5" rx="2" fill="none"></rect>
+								</svg>
+							</button>
+							<button class="btn-cam-flotante" id="btnRecordCam1Float" type="button" title="Grabar Video Cam 1" onclick="document.getElementById('grabar-cam1').click()">
+								<svg width="22" height="22" viewBox="0 0 32 32" fill="#d32f2f" style="display:block;">
+									<circle cx="16" cy="16" r="10" fill="#d32f2f"></circle>
+								</svg>
+							</button>
 						</div>
 						<div class="cam-controles">
 							<button id="playCam1" class="btn btn-cam btn-cam-icon" title="Play/Stop Cam 1">
@@ -321,18 +360,23 @@
 					<div class="panel-cam">
 						<video id="videoCam2" controls muted playsinline></video>
 						<div class="menu-cam-flotante">
-							<button class="btn-menu-cam" id="btn-menu-cam2" type="button" aria-label="Opciones Cámara 2">
-								<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4a9eff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-									<circle cx="12" cy="12" r="1"></circle>
-									<circle cx="19" cy="12" r="1"></circle>
-									<circle cx="5" cy="12" r="1"></circle>
+							<button class="btn-cam-flotante" id="btnPlayCam2Float" type="button" title="Play/Stop Cam 2" onclick="document.getElementById('playCam2').click()">
+								<svg id="iconPlayCam2Float" width="22" height="22" viewBox="0 0 22 22" fill="#2196f3" style="display:block;">
+									<polygon points="6,4 18,11 6,18"/>
 								</svg>
 							</button>
-							<div id="menu-cam2-opciones" class="menu-cam-opciones" style="display:none;">
-								<button class="btn-menu" onclick="document.getElementById('playCam2').click()">▶ Play/Stop</button>
-								<button class="btn-menu" onclick="document.getElementById('captureCam2').click()">📷 Capturar Foto</button>
-								<button class="btn-menu" onclick="document.getElementById('grabar-cam2').click()">⚫ Grabar Video</button>
-							</div>
+							<button class="btn-cam-flotante" id="btnPhotoCam2Float" type="button" title="Capturar Foto Cam 2" onclick="document.getElementById('captureCam2').click()">
+								<svg width="22" height="22" viewBox="0 0 32 32" fill="#555" style="display:block;">
+									<rect x="4" y="10" width="24" height="14" rx="3" fill="#bbb"/>
+									<circle cx="16" cy="17" r="6" fill="#2196f3"/>
+									<rect x="11" y="5" width="10" height="6" rx="2" fill="#bbb"/>
+								</svg>
+							</button>
+							<button class="btn-cam-flotante" id="btnRecordCam2Float" type="button" title="Grabar Video Cam 2" onclick="document.getElementById('grabar-cam2').click()">
+								<svg width="22" height="22" viewBox="0 0 32 32" fill="#d32f2f" style="display:block;">
+									<circle cx="16" cy="16" r="10" fill="#d32f2f"></circle>
+								</svg>
+							</button>
 						</div>
 						<div class="cam-controles">
 							<button id="playCam2" class="btn btn-cam btn-cam-icon" title="Play/Stop Cam 2">
@@ -475,7 +519,14 @@
 					   if (hlsPlayers[camKey]) {
 						   hlsPlayers[camKey].destroy();
 					   }
-					   var hls = new Hls({lowLatencyMode: true});
+					   var hls = new Hls({
+						   lowLatencyMode: true,
+						   maxBufferLength: 1,
+						   maxMaxBufferLength: 2,
+						   maxBufferSize: 4 * 1000 * 1000,
+						   maxBufferHole: 0.1,
+						   liveSyncDuration: 0.1
+					   });
 					   hls.loadSource(playlist);
 					   hls.attachMedia(video);
 					   hlsPlayers[camKey] = hls;
@@ -500,14 +551,21 @@
 
 			   function toggleCamara(videoId, playlist, camKey, btnId) {
 				   const iconSpan = document.getElementById('icon' + btnId.charAt(0).toUpperCase() + btnId.slice(1));
+				   const floatIconId = 'iconPlay' + camKey.charAt(0).toUpperCase() + camKey.slice(1) + 'Float';
+				   const floatIcon = document.getElementById(floatIconId);
+				   
 				   if (!playing[camKey]) {
 					   iniciarCamara(videoId, playlist, camKey);
 					   // Cambia a icono de Stop
-					   iconSpan.innerHTML = '<svg width="100%" height="100%" viewBox="0 0 22 22" fill="#e53935" style="display:block;"><rect x="6" y="6" width="10" height="10" rx="2"/></svg>';
+					   const stopSvg = '<svg width="100%" height="100%" viewBox="0 0 22 22" fill="#e53935" style="display:block;"><rect x="6" y="6" width="10" height="10" rx="2"/></svg>';
+					   iconSpan.innerHTML = stopSvg;
+					   if (floatIcon) floatIcon.outerHTML = '<svg id="' + floatIconId + '" width="22" height="22" viewBox="0 0 22 22" fill="#e53935" style="display:block;"><rect x="6" y="6" width="10" height="10" rx="2"/></svg>';
 				   } else {
 					   detenerCamara(videoId, camKey);
 					   // Cambia a icono de Play
-					   iconSpan.innerHTML = '<svg width="100%" height="100%" viewBox="0 0 22 22" fill="#2196f3" style="display:block;"><polygon points="6,4 18,11 6,18"/></svg>';
+					   const playSvg = '<svg width="100%" height="100%" viewBox="0 0 22 22" fill="#2196f3" style="display:block;"><polygon points="6,4 18,11 6,18"/></svg>';
+					   iconSpan.innerHTML = playSvg;
+					   if (floatIcon) floatIcon.outerHTML = '<svg id="' + floatIconId + '" width="22" height="22" viewBox="0 0 22 22" fill="#2196f3" style="display:block;"><polygon points="6,4 18,11 6,18"/></svg>';
 				   }
 			   }
 
@@ -575,6 +633,7 @@
 			async function grabarVideo(videoId, camara) {
 				const video = document.getElementById(videoId);
 				const btnGrabar = document.getElementById(`grabar-cam${camara === 'cam1' ? '1' : '2'}`);
+				const btnGrabarFloat = document.getElementById(`btnRecordCam${camara === 'cam1' ? '1' : '2'}Float`);
 				const iconSpan = document.getElementById(`iconGrabarCam${camara === 'cam1' ? '1' : '2'}`);
 				const indicador = document.getElementById('grabando-indicador');
 				const textoCamara = document.getElementById('grabando-camara');
@@ -588,6 +647,7 @@
 					// Detener grabación
 					mediaRecorders[camara].stop();
 					btnGrabar.classList.remove('grabando');
+					if (btnGrabarFloat) btnGrabarFloat.classList.remove('grabando');
 					indicador.classList.remove('activo');
 					return;
 				}
@@ -599,6 +659,7 @@
 				
 				// Mostrar indicador de grabación
 				btnGrabar.classList.add('grabando');
+				if (btnGrabarFloat) btnGrabarFloat.classList.add('grabando');
 				textoCamara.textContent = `Grabando Cámara ${camara === 'cam1' ? '1' : '2'}`;
 				indicador.classList.add('activo');
 				

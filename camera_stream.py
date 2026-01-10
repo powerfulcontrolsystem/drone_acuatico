@@ -165,9 +165,9 @@ def _iniciar_hls_single(cam_id: str, url_rtsp: str) -> Tuple[bool, str]:
         "-an",
         "-c:v", "copy",
         "-f", "hls",
-        "-hls_time", "2",
-        "-hls_list_size", "5",
-        "-hls_flags", "delete_segments+program_date_time+append_list",
+        "-hls_time", "0.5",
+        "-hls_list_size", "3",
+        "-hls_flags", "delete_segments+program_date_time",
         "-hls_segment_filename", str(segment_pattern),
         str(playlist_path),
     ]
