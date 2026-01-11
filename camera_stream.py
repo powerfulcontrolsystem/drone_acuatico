@@ -4,6 +4,8 @@ Módulo para manejo de streaming de cámaras RTSP → HLS con ffmpeg.
 Provee utilidades que usa el servidor:
 - asegurar_carpetas()
 - construir_rtsp_url(config, indice, calidad)
+- obtener_resolucion(config, cam_id)
+- obtener_bitrate(resolucion)
 - iniciar_hls(cam_id, url_rtsp)
 - detener_hls(cam_id)
 - detener_todos()
@@ -27,6 +29,14 @@ HLS_PLAYLIST_NAME = {
     "cam2": "cam2.m3u8",
 }
 
+# Mapa de resoluciones a escalas y bitrates
+RESOLUCION_CONFIG = {
+    "360p": {"scale": "640:360", "bitrate": "1000k", "maxrate": "1500k"},
+    "480p": {"scale": "854:480", "bitrate": "1500k", "maxrate": "2000k"},
+    "720p": {"scale": "1280:720", "bitrate": "2500k", "maxrate": "3500k"},
+    "1080p": {"scale": "1920:1080", "bitrate": "4000k", "maxrate": "5000k"},
+}
+
 # Registro de procesos ffmpeg por cámara
 PROCESOS: Dict[str, subprocess.Popen] = {}
 
@@ -41,6 +51,44 @@ def asegurar_carpetas():
     except Exception as e:
         logger.error(f"✗ Error creando carpetas HLS: {e}")
         return False
+
+
+def obtener_resolucion(config: dict, cam_id: str) -> str:
+    """Obtiene la resolución configurada para una cámara.
+    
+    Args:
+        config: Diccionario de configuración
+        cam_id: 'cam1' o 'cam2'
+    
+    Returns:
+        str: Resolución (ej: '480p', '720p')
+    """
+    indice = 1 if cam_id == 'cam1' else 2
+    modo = config.get(f'camara{indice}_modo_resolucion', 'manual')
+    
+    if modo == 'automatico':
+        # En modo automático, usar lógica basada en velocidad de red
+        # (por ahora retorna default; se puede mejorar)
+        return config.get(f'camara{indice}_resolucion', '480p')
+    else:
+        # Modo manual
+        resolucion = config.get(f'camara{indice}_resolucion', '480p')
+        if resolucion not in RESOLUCION_CONFIG:
+            resolucion = '480p'
+        return resolucion
+
+
+def obtener_bitrate(resolucion: str) -> Tuple[str, str]:
+    """Obtiene bitrate y maxrate para una resolución.
+    
+    Returns:
+        tuple: (bitrate, maxrate)
+    """
+    if resolucion not in RESOLUCION_CONFIG:
+        resolucion = '480p'
+    config = RESOLUCION_CONFIG[resolucion]
+    return config['bitrate'], config['maxrate']
+
 
 def construir_rtsp_url(config: dict, indice: int, calidad: str = "sd") -> Optional[str]:
     """Devuelve la primera URL RTSP candidata para compatibilidad hacia atrás.
@@ -136,8 +184,14 @@ def _limpiar_salida(cam_id: str) -> None:
         pass
 
 
-def _iniciar_hls_single(cam_id: str, url_rtsp: str) -> Tuple[bool, str]:
-    """Lanza ffmpeg para una URL específica."""
+def _iniciar_hls_single(cam_id: str, url_rtsp: str, config: dict = None) -> Tuple[bool, str]:
+    """Lanza ffmpeg para una URL específica.
+    
+    Args:
+        cam_id: 'cam1' o 'cam2'
+        url_rtsp: URL RTSP de la cámara
+        config: Diccionario de configuración (para obtener resolución)
+    """
     # Verificar ffmpeg
     ffmpeg = shutil.which("ffmpeg")
     if not ffmpeg:
@@ -156,6 +210,13 @@ def _iniciar_hls_single(cam_id: str, url_rtsp: str) -> Tuple[bool, str]:
     playlist_path = carpeta / HLS_PLAYLIST_NAME.get(cam_id, f"{cam_id}.m3u8")
     segment_pattern = carpeta / f"{cam_id}_%03d.ts"
 
+    # Obtener resolución configurada
+    resolucion = obtener_resolucion(config or {}, cam_id)
+    bitrate, maxrate = obtener_bitrate(resolucion)
+    escala = RESOLUCION_CONFIG[resolucion]['scale']
+    
+    logger.info(f"HLS {cam_id}: usando {resolucion} ({escala}, {bitrate})")
+
     cmd = [
         ffmpeg,
         "-nostdin",
@@ -163,7 +224,12 @@ def _iniciar_hls_single(cam_id: str, url_rtsp: str) -> Tuple[bool, str]:
         "-rtsp_transport", "tcp",
         "-i", url_rtsp,
         "-an",
-        "-c:v", "copy",
+        "-vf", f"scale={escala}",
+        "-c:v", "libx264",
+        "-preset", "ultrafast",
+        "-b:v", bitrate,
+        "-maxrate", maxrate,
+        "-bufsize", "1000k",
         "-f", "hls",
         "-hls_time", "0.5",
         "-hls_list_size", "3",
@@ -187,10 +253,15 @@ def _iniciar_hls_single(cam_id: str, url_rtsp: str) -> Tuple[bool, str]:
     return True, "HLS iniciado (validación pendiente)"
 
 
-def iniciar_hls(indice_o_id, url_rtsp: Optional[str | list[str]]) -> Tuple[bool, str]:
+def iniciar_hls(indice_o_id, url_rtsp: Optional[str | list[str]], config: dict = None) -> Tuple[bool, str]:
     """Inicia un proceso ffmpeg que convierte RTSP a HLS.
 
     Permite una lista de URLs candidatas; intentará en orden hasta que una funcione.
+    
+    Args:
+        indice_o_id: 1, 2, 'cam1' o 'cam2'
+        url_rtsp: URL RTSP o lista de candidatos
+        config: Diccionario de configuración (para resolución)
     """
     cam_id = _resolver_cam_id(indice_o_id)
     if not cam_id:
@@ -210,7 +281,7 @@ def iniciar_hls(indice_o_id, url_rtsp: Optional[str | list[str]]) -> Tuple[bool,
     ultimo_error = "URL RTSP no válida"
     for idx, url in enumerate(candidatos, start=1):
         try:
-            ok, msg = _iniciar_hls_single(cam_id, url)
+            ok, msg = _iniciar_hls_single(cam_id, url, config)
             if ok:
                 if idx > 1:
                     msg = f"{msg} (usando candidato {idx})"

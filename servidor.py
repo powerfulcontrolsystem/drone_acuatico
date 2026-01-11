@@ -515,7 +515,7 @@ async def procesar_mensaje_ws(ws, datos):
         if accion == 'iniciar':
             candidatos = construir_rtsp_candidatos(config, indice)
             rtsp = candidatos[0] if candidatos else None
-            exito, mensaje = iniciar_hls(cam_id, candidatos)
+            exito, mensaje = iniciar_hls(cam_id, candidatos, config)
             await ws.send_json({
                 'tipo': 'camara',
                 'indice': indice,
@@ -753,7 +753,7 @@ async def on_startup(app):
         if not config.get('desactivar_camara1', False) and config.get('iniciar_auto_camara1', True):
             candidatos1 = construir_rtsp_candidatos(config, 1)
             if candidatos1:
-                exito, msg = iniciar_hls('cam1', candidatos1)
+                exito, msg = iniciar_hls('cam1', candidatos1, config)
                 if exito:
                     logger.info(f"✓ Cámara 1 iniciada (ONVIF): {candidatos1[0]}")
                 else:
@@ -763,7 +763,7 @@ async def on_startup(app):
         if not config.get('desactivar_camara2', False) and config.get('iniciar_auto_camara2', True):
             candidatos2 = construir_rtsp_candidatos(config, 2)
             if candidatos2:
-                exito, msg = iniciar_hls('cam2', candidatos2)
+                exito, msg = iniciar_hls('cam2', candidatos2, config)
                 if exito:
                     logger.info(f"✓ Cámara 2 iniciada (ONVIF): {candidatos2[0]}")
                 else:

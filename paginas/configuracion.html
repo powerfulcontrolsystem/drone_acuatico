@@ -150,6 +150,22 @@
         <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="onvifCam1Perfil">Ruta RTSP del stream <small style="color:#888;">(ej: live/ch0, Streaming/Channels/101)</small></label><input id="onvifCam1Perfil" type="text" placeholder="live/ch0" style="width:100%;" /></div>
         <div class="row" style="display: flex; flex-direction: row; align-items: center; gap: 8px;"><input id="desactivarCamara1" type="checkbox" /><label for="desactivarCamara1">Desactivar Cámara 1</label></div>
         <div class="row" style="display: flex; flex-direction: row; align-items: center; gap: 8px;"><input id="iniciarAutoCamara1" type="checkbox" checked /><label for="iniciarAutoCamara1">✓ Iniciar automáticamente la cámara</label></div>
+        <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;">
+          <label for="modoResolucionCam1">Modo de resolución</label>
+          <select id="modoResolucionCam1" onchange="toggleResolucionManual('cam1')" style="width:100%;">
+            <option value="manual">Manual</option>
+            <option value="automatico">Automático (según velocidad de internet)</option>
+          </select>
+        </div>
+        <div class="row" id="resolucionManualCam1" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;">
+          <label for="resolucionCam1">Resolución</label>
+          <select id="resolucionCam1" style="width:100%;">
+            <option value="360p">360p (640x360) - Latencia mínima</option>
+            <option value="480p" selected>480p (854x480) - Balanceado</option>
+            <option value="720p">720p (1280x720) - Alta calidad</option>
+            <option value="1080p">1080p (1920x1080) - Máxima calidad</option>
+          </select>
+        </div>
       </div>
       <div style="width: 100%; max-width: 600px;">
         <h3 style="margin-top:0; color:#6ec1e4;">Cámara 2 (ONVIF)</h3>
@@ -165,6 +181,22 @@
         <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="onvifCam2Perfil">Ruta RTSP del stream <small style="color:#888;">(ej: live/ch0, Streaming/Channels/101)</small></label><input id="onvifCam2Perfil" type="text" placeholder="live/ch0" style="width:100%;" /></div>
         <div class="row" style="display: flex; flex-direction: row; align-items: center; gap: 8px;"><input id="desactivarCamara2" type="checkbox" /><label for="desactivarCamara2">Desactivar Cámara 2</label></div>
         <div class="row" style="display: flex; flex-direction: row; align-items: center; gap: 8px;"><input id="iniciarAutoCamara2" type="checkbox" checked /><label for="iniciarAutoCamara2">✓ Iniciar automáticamente la cámara</label></div>
+        <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;">
+          <label for="modoResolucionCam2">Modo de resolución</label>
+          <select id="modoResolucionCam2" onchange="toggleResolucionManual('cam2')" style="width:100%;">
+            <option value="manual">Manual</option>
+            <option value="automatico">Automático (según velocidad de internet)</option>
+          </select>
+        </div>
+        <div class="row" id="resolucionManualCam2" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;">
+          <label for="resolucionCam2">Resolución</label>
+          <select id="resolucionCam2" style="width:100%;">
+            <option value="360p">360p (640x360) - Latencia mínima</option>
+            <option value="480p" selected>480p (854x480) - Balanceado</option>
+            <option value="720p">720p (1280x720) - Alta calidad</option>
+            <option value="1080p">1080p (1920x1080) - Máxima calidad</option>
+          </select>
+        </div>
       </div>
     </div>
 
@@ -243,6 +275,8 @@
         onvif_camara1_perfil: document.getElementById('onvifCam1Perfil').value.trim(),
         desactivar_camara1: document.getElementById('desactivarCamara1').checked,
         iniciar_auto_camara1: document.getElementById('iniciarAutoCamara1').checked,
+        camara1_modo_resolucion: document.getElementById('modoResolucionCam1').value,
+        camara1_resolucion: document.getElementById('resolucionCam1').value,
         rtsp_camara2_url: document.getElementById('rtspCam2Url').value.trim(),
         onvif_camara2_host: document.getElementById('onvifCam2Host').value.trim(),
         onvif_camara2_puerto: parseInt(document.getElementById('onvifCam2Port').value || '8899', 10),
@@ -251,6 +285,8 @@
         onvif_camara2_perfil: document.getElementById('onvifCam2Perfil').value.trim(),
         desactivar_camara2: document.getElementById('desactivarCamara2').checked,
         iniciar_auto_camara2: document.getElementById('iniciarAutoCamara2').checked,
+        camara2_modo_resolucion: document.getElementById('modoResolucionCam2').value,
+        camara2_resolucion: document.getElementById('resolucionCam2').value,
         reles: {
           1: document.getElementById('rele1').value.trim(),
           2: document.getElementById('rele2').value.trim(),
@@ -281,6 +317,9 @@
       document.getElementById('onvifCam1Perfil').value = cfg.onvif_camara1_perfil || 'Streaming/Channels/101';
       document.getElementById('desactivarCamara1').checked = !!cfg.desactivar_camara1;
       document.getElementById('iniciarAutoCamara1').checked = (cfg.iniciar_auto_camara1 !== undefined) ? !!cfg.iniciar_auto_camara1 : true;
+      document.getElementById('modoResolucionCam1').value = cfg.camara1_modo_resolucion || 'manual';
+      document.getElementById('resolucionCam1').value = cfg.camara1_resolucion || '480p';
+      toggleResolucionManual('cam1');
       document.getElementById('rtspCam2Url').value = cfg.rtsp_camara2_url || '';
       document.getElementById('onvifCam2Host').value = cfg.onvif_camara2_host || '';
       document.getElementById('onvifCam2Port').value = cfg.onvif_camara2_puerto || 8899;
@@ -289,11 +328,24 @@
       document.getElementById('onvifCam2Perfil').value = cfg.onvif_camara2_perfil || 'Streaming/Channels/101';
       document.getElementById('desactivarCamara2').checked = !!cfg.desactivar_camara2;
       document.getElementById('iniciarAutoCamara2').checked = (cfg.iniciar_auto_camara2 !== undefined) ? !!cfg.iniciar_auto_camara2 : true;
+      document.getElementById('modoResolucionCam2').value = cfg.camara2_modo_resolucion || 'manual';
+      document.getElementById('resolucionCam2').value = cfg.camara2_resolucion || '480p';
+      toggleResolucionManual('cam2');
       if (cfg.reles) {
         for (let i = 1; i <= 9; i++) {
           const val = (cfg.reles[i] || '');
           document.getElementById('rele'+i).value = val;
         }
+      }
+    }
+
+    function toggleResolucionManual(camId) {
+      const modo = document.getElementById(`modoResolucionCam${camId === 'cam1' ? '1' : '2'}`).value;
+      const divManual = document.getElementById(`resolucionManualCam${camId === 'cam1' ? '1' : '2'}`);
+      if (modo === 'manual') {
+        divManual.style.display = 'flex';
+      } else {
+        divManual.style.display = 'none';
       }
     }
 

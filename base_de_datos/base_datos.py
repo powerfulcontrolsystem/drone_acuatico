@@ -128,6 +128,16 @@ def inicializar_bd():
         if 'rtsp_camara2_url' not in columnas:
             cursor.execute('ALTER TABLE configuracion ADD COLUMN rtsp_camara2_url TEXT')
         
+        # Campos de resolución de cámara (modo manual/automático)
+        if 'camara1_modo_resolucion' not in columnas:
+            cursor.execute('ALTER TABLE configuracion ADD COLUMN camara1_modo_resolucion TEXT DEFAULT "manual"')
+        if 'camara1_resolucion' not in columnas:
+            cursor.execute('ALTER TABLE configuracion ADD COLUMN camara1_resolucion TEXT DEFAULT "480p"')
+        if 'camara2_modo_resolucion' not in columnas:
+            cursor.execute('ALTER TABLE configuracion ADD COLUMN camara2_modo_resolucion TEXT DEFAULT "manual"')
+        if 'camara2_resolucion' not in columnas:
+            cursor.execute('ALTER TABLE configuracion ADD COLUMN camara2_resolucion TEXT DEFAULT "480p"')
+        
         conexion.commit()
         
         # Tabla de RECORRIDOS GPS
