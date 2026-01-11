@@ -53,12 +53,13 @@ def asegurar_carpetas():
         return False
 
 
-def obtener_resolucion(config: dict, cam_id: str) -> str:
+def obtener_resolucion(config: dict, cam_id: str, velocidad_kbps: float = None) -> str:
     """Obtiene la resolución configurada para una cámara.
     
     Args:
         config: Diccionario de configuración
         cam_id: 'cam1' o 'cam2'
+        velocidad_kbps: Velocidad de red en Kbps (opcional, para modo automático)
     
     Returns:
         str: Resolución (ej: '480p', '720p')
@@ -67,9 +68,26 @@ def obtener_resolucion(config: dict, cam_id: str) -> str:
     modo = config.get(f'camara{indice}_modo_resolucion', 'manual')
     
     if modo == 'automatico':
-        # En modo automático, usar lógica basada en velocidad de red
-        # (por ahora retorna default; se puede mejorar)
-        return config.get(f'camara{indice}_resolucion', '480p')
+        # Modo automático: ajustar según velocidad de red
+        if velocidad_kbps is None:
+            # Si no tenemos velocidad, usar resolución manual o default
+            return config.get(f'camara{indice}_resolucion', '480p')
+        
+        # Lógica automática basada en velocidad de internet
+        # Convertir Kbps a Mbps para cálculo más claro
+        velocidad_mbps = velocidad_kbps / 1000.0
+        
+        if velocidad_mbps < 2.0:
+            resolucion = '360p'  # Conexión lenta
+        elif velocidad_mbps < 5.0:
+            resolucion = '480p'  # Conexión media
+        elif velocidad_mbps < 10.0:
+            resolucion = '720p'  # Conexión buena
+        else:
+            resolucion = '1080p'  # Conexión excelente
+        
+        logger.info(f"Modo automático {cam_id}: {velocidad_mbps:.1f} Mbps → {resolucion}")
+        return resolucion
     else:
         # Modo manual
         resolucion = config.get(f'camara{indice}_resolucion', '480p')
@@ -184,13 +202,14 @@ def _limpiar_salida(cam_id: str) -> None:
         pass
 
 
-def _iniciar_hls_single(cam_id: str, url_rtsp: str, config: dict = None) -> Tuple[bool, str]:
+def _iniciar_hls_single(cam_id: str, url_rtsp: str, config: dict = None, velocidad_kbps: float = None) -> Tuple[bool, str]:
     """Lanza ffmpeg para una URL específica.
     
     Args:
         cam_id: 'cam1' o 'cam2'
         url_rtsp: URL RTSP de la cámara
         config: Diccionario de configuración (para obtener resolución)
+        velocidad_kbps: Velocidad de red en Kbps (para modo automático)
     """
     # Verificar ffmpeg
     ffmpeg = shutil.which("ffmpeg")
@@ -211,7 +230,7 @@ def _iniciar_hls_single(cam_id: str, url_rtsp: str, config: dict = None) -> Tupl
     segment_pattern = carpeta / f"{cam_id}_%03d.ts"
 
     # Obtener resolución configurada
-    resolucion = obtener_resolucion(config or {}, cam_id)
+    resolucion = obtener_resolucion(config or {}, cam_id, velocidad_kbps)
     bitrate, maxrate = obtener_bitrate(resolucion)
     escala = RESOLUCION_CONFIG[resolucion]['scale']
     
@@ -253,7 +272,7 @@ def _iniciar_hls_single(cam_id: str, url_rtsp: str, config: dict = None) -> Tupl
     return True, "HLS iniciado (validación pendiente)"
 
 
-def iniciar_hls(indice_o_id, url_rtsp: Optional[str | list[str]], config: dict = None) -> Tuple[bool, str]:
+def iniciar_hls(indice_o_id, url_rtsp: Optional[str | list[str]], config: dict = None, velocidad_kbps: float = None) -> Tuple[bool, str]:
     """Inicia un proceso ffmpeg que convierte RTSP a HLS.
 
     Permite una lista de URLs candidatas; intentará en orden hasta que una funcione.
@@ -262,6 +281,7 @@ def iniciar_hls(indice_o_id, url_rtsp: Optional[str | list[str]], config: dict =
         indice_o_id: 1, 2, 'cam1' o 'cam2'
         url_rtsp: URL RTSP o lista de candidatos
         config: Diccionario de configuración (para resolución)
+        velocidad_kbps: Velocidad de red en Kbps (para modo automático)
     """
     cam_id = _resolver_cam_id(indice_o_id)
     if not cam_id:
@@ -281,7 +301,7 @@ def iniciar_hls(indice_o_id, url_rtsp: Optional[str | list[str]], config: dict =
     ultimo_error = "URL RTSP no válida"
     for idx, url in enumerate(candidatos, start=1):
         try:
-            ok, msg = _iniciar_hls_single(cam_id, url, config)
+            ok, msg = _iniciar_hls_single(cam_id, url, config, velocidad_kbps)
             if ok:
                 if idx > 1:
                     msg = f"{msg} (usando candidato {idx})"
