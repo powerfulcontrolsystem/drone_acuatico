@@ -8,6 +8,9 @@
   <style>
     body, .config-main {
       text-align: left !important;
+      background: #0f1218 !important;
+      color: #e5e7eb !important;
+      font-weight: 600 !important;
     }
     .config-main {
       max-width: 98vw;
@@ -52,38 +55,45 @@
     /* Estilos mejorados para inputs y labels */
     input[type="text"],
     input[type="email"],
-    input[type="number"] {
+    input[type="number"],
+    input[type="password"],
+    select,
+    textarea {
       font-size: 18px !important;
       font-family: 'Arial', 'Helvetica', 'Segoe UI', sans-serif !important;
-      font-weight: 500 !important;
+      font-weight: 600 !important;
       padding: 12px 14px !important;
       border-radius: 8px !important;
-      border: 2px solid #4a9eff !important;
-      background: #f8f9fa !important;
-      color: #1a1a1a !important;
+      border: 2px solid #4b5563 !important;
+      background: #111824 !important;
+      color: #e5e7eb !important;
       box-sizing: border-box !important;
       line-height: 1.4 !important;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
     }
     
     input[type="text"]:focus,
     input[type="email"]:focus,
-    input[type="number"]:focus {
+    input[type="number"]:focus,
+    input[type="password"]:focus,
+    select:focus,
+    textarea:focus {
       outline: none !important;
-      border-color: #2196f3 !important;
-      background: #ffffff !important;
-      box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1) !important;
+      border-color: #7dd3fc !important;
+      background: #0b0f16 !important;
+      box-shadow: 0 0 0 3px rgba(125, 211, 252, 0.15) !important;
     }
     
     input::placeholder {
-      color: #888 !important;
+      color: #94a3b8 !important;
       font-size: 16px !important;
-      opacity: 0.7 !important;
+      opacity: 0.8 !important;
     }
     
     label {
       font-size: 16px !important;
-      font-weight: 600 !important;
-      color: #6ec1e4 !important;
+      font-weight: 700 !important;
+      color: #7dd3fc !important;
       font-family: 'Arial', 'Helvetica', 'Segoe UI', sans-serif !important;
     }
     
@@ -91,7 +101,10 @@
     @media (max-width: 480px) {
       input[type="text"],
       input[type="email"],
-      input[type="number"] {
+      input[type="number"],
+      input[type="password"],
+      select,
+      textarea {
         font-size: 16px !important;
         padding: 10px 12px !important;
       }
@@ -146,7 +159,7 @@
         <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="onvifCam1Host">IP / Host</label><input id="onvifCam1Host" type="text" placeholder="192.168.1.9" style="width:100%;" /></div>
         <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="onvifCam1Port">Puerto ONVIF</label><input id="onvifCam1Port" type="number" min="1" max="65535" placeholder="8899" style="width:100%;" /></div>
         <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="onvifCam1User">Usuario</label><input id="onvifCam1User" type="text" placeholder="admin" value="admin" style="width:100%;" /></div>
-        <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="onvifCam1Pass">Contraseña</label><input id="onvifCam1Pass" type="password" placeholder="admin" value="admin" style="width:100%;" /></div>
+        <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="onvifCam1Pass">Contraseña</label><div style="display:flex; gap:8px; align-items:center; width:100%;"><input id="onvifCam1Pass" type="password" placeholder="admin" value="admin" style="width:100%;" /><button class="btn" style="min-width:96px; padding:10px 12px; font-weight:600;" type="button" onclick="togglePassword('onvifCam1Pass', this)">👁 Mostrar</button></div></div>
         <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="onvifCam1Perfil">Ruta RTSP del stream <small style="color:#888;">(ej: live/ch0, Streaming/Channels/101)</small></label><input id="onvifCam1Perfil" type="text" placeholder="live/ch0" style="width:100%;" /></div>
         <div class="row" style="display: flex; flex-direction: row; align-items: center; gap: 8px;"><input id="desactivarCamara1" type="checkbox" /><label for="desactivarCamara1">Desactivar Cámara 1</label></div>
         <div class="row" style="display: flex; flex-direction: row; align-items: center; gap: 8px;"><input id="iniciarAutoCamara1" type="checkbox" checked /><label for="iniciarAutoCamara1">✓ Iniciar automáticamente la cámara</label></div>
@@ -177,7 +190,7 @@
         <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="onvifCam2Host">IP / Host</label><input id="onvifCam2Host" type="text" placeholder="192.168.1.10" style="width:100%;" /></div>
         <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="onvifCam2Port">Puerto ONVIF</label><input id="onvifCam2Port" type="number" min="1" max="65535" placeholder="8899" style="width:100%;" /></div>
         <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="onvifCam2User">Usuario</label><input id="onvifCam2User" type="text" placeholder="admin" value="admin" style="width:100%;" /></div>
-        <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="onvifCam2Pass">Contraseña</label><input id="onvifCam2Pass" type="password" placeholder="admin" value="admin" style="width:100%;" /></div>
+        <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="onvifCam2Pass">Contraseña</label><div style="display:flex; gap:8px; align-items:center; width:100%;"><input id="onvifCam2Pass" type="password" placeholder="admin" value="admin" style="width:100%;" /><button class="btn" style="min-width:96px; padding:10px 12px; font-weight:600;" type="button" onclick="togglePassword('onvifCam2Pass', this)">👁 Mostrar</button></div></div>
         <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="onvifCam2Perfil">Ruta RTSP del stream <small style="color:#888;">(ej: live/ch0, Streaming/Channels/101)</small></label><input id="onvifCam2Perfil" type="text" placeholder="live/ch0" style="width:100%;" /></div>
         <div class="row" style="display: flex; flex-direction: row; align-items: center; gap: 8px;"><input id="desactivarCamara2" type="checkbox" /><label for="desactivarCamara2">Desactivar Cámara 2</label></div>
         <div class="row" style="display: flex; flex-direction: row; align-items: center; gap: 8px;"><input id="iniciarAutoCamara2" type="checkbox" checked /><label for="iniciarAutoCamara2">✓ Iniciar automáticamente la cámara</label></div>
@@ -257,6 +270,16 @@
       el.textContent = texto;
       el.style.color = ok ? '#B2FF59' : '#FFCDD2';
       setTimeout(() => el.textContent = '', 3000);
+    }
+
+    function togglePassword(id, btn) {
+      const input = document.getElementById(id);
+      if (!input) return;
+      const isHidden = input.type === 'password';
+      input.type = isHidden ? 'text' : 'password';
+      if (btn) {
+        btn.textContent = isHidden ? '🙈 Ocultar' : '👁 Mostrar';
+      }
     }
 
     function recogerConfig() {
