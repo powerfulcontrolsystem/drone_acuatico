@@ -23,48 +23,90 @@ echo ""
 
 
 # 1. Limpiar procesos previos y liberar puerto
-echo -e "${YELLOW}[1/5] Limpiando procesos previos...${NC}"
+echo -e "${YELLOW}[1/6] Limpiando procesos previos...${NC}"
 pkill -9 -f "servidor.py" 2>/dev/null || true
 pkill -9 -f "python3" 2>/dev/null || true
 sleep 1
 echo -e "${GREEN}✓ Procesos limpiados${NC}"
 echo ""
 
-# 1. Activar entorno virtual
-echo -e "${YELLOW}[1/4] Activando entorno virtual...${NC}"
+# 2. Verificar/crear entorno virtual
+echo -e "${YELLOW}[2/6] Verificando entorno virtual...${NC}"
+if [ ! -d "venv_pi" ]; then
+    echo -e "${YELLOW}⚠ Entorno virtual no encontrado. Creando...${NC}"
+    python3 -m venv venv_pi
+    if [ $? -eq 0 ]; then
+        echo -e "${GREEN}✓ Entorno virtual creado${NC}"
+    else
+        echo -e "${RED}✗ Error: No se pudo crear el entorno virtual${NC}"
+        echo -e "${YELLOW}Instala python3-venv: sudo apt install python3-venv${NC}"
+        exit 1
+    fi
+else
+    echo -e "${GREEN}✓ Entorno virtual encontrado${NC}"
+fi
+echo ""
+
+# 3. Activar entorno virtual
+echo -e "${YELLOW}[3/6] Activando entorno virtual...${NC}"
 if [ -f "venv_pi/bin/activate" ]; then
     source venv_pi/bin/activate
-    echo -e "${GREEN}✓ Entorno virtual activado${NC}"
+    echo -e "${GREEN}✓ Entorno virtual activado ($(which python3))${NC}"
 else
     echo -e "${RED}✗ Error: No se encontró venv_pi/bin/activate${NC}"
     exit 1
 fi
 echo ""
 
-# 2. Verificar dependencias
-echo -e "${YELLOW}[2/4] Verificando dependencias...${NC}"
-python3 -c "import aiohttp, serial, pynmea2" 2>/dev/null
+# 4. Instalar/actualizar dependencias
+echo -e "${YELLOW}[4/6] Verificando dependencias...${NC}"
+# Comprobamos dependencias críticas (incluye RPi.GPIO para controlar relés físicos)
+python3 - <<'PY'
+try:
+    import aiohttp, serial, pynmea2, RPi.GPIO  # noqa: F401
+    exit(0)
+except Exception:
+    exit(1)
+PY
 if [ $? -eq 0 ]; then
-    echo -e "${GREEN}✓ Dependencias OK${NC}"
+    echo -e "${GREEN}✓ Dependencias instaladas${NC}"
 else
-    echo -e "${YELLOW}⚠ Instalando dependencias...${NC}"
-    pip install -q aiohttp pyserial pynmea2
-    if [ $? -ne 0 ]; then
-        echo -e "${YELLOW}⚠ Algunas dependencias pueden no estar disponibles${NC}"
+    echo -e "${YELLOW}⚠ Instalando dependencias (requirements + RPi.GPIO)...${NC}"
+    if [ -f "requirements.txt" ]; then
+        pip install --upgrade pip -q
+        pip install -r requirements.txt -q
+    else
+        pip install aiohttp pyserial pynmea2 RPi.GPIO --prefer-binary -q
+    fi
+    # Intento explícito de RPi.GPIO en caso de que requirements falle
+    python3 - <<'PY'
+import sys, subprocess
+try:
+    import RPi.GPIO  # noqa: F401
+except Exception:
+    try:
+        subprocess.check_call([sys.executable, '-m', 'pip', 'install', '--prefer-binary', 'RPi.GPIO'])
+    except Exception:
+        sys.exit(1)
+PY
+    if [ $? -eq 0 ]; then
+        echo -e "${GREEN}✓ Dependencias instaladas correctamente${NC}"
+    else
+        echo -e "${YELLOW}⚠ No se pudo instalar RPi.GPIO automáticamente. Si estás en Raspberry Pi, instala con: sudo apt install python3-rpi.gpio${NC}"
     fi
 fi
 echo ""
 # Asegurar carpetas HLS para streams
 mkdir -p hls/cam1 hls/cam2
 
-# 3. Iniciar el servidor
-echo -e "${YELLOW}[3/4] Iniciando servidor...${NC}"
+# 5. Iniciar el servidor
+echo -e "${YELLOW}[5/6] Iniciando servidor...${NC}"
 echo -e "${GREEN}===================================================${NC}"
 echo -e "${GREEN}✓ Servidor en: http://localhost:8080${NC}"
 echo -e "${GREEN}✓ Archivo: servidor.py${NC}"
 echo -e "${GREEN}===================================================${NC}"
 echo ""
-echo -e "${YELLOW}[4/4] Esperando conexiones...${NC}"
+echo -e "${YELLOW}[6/6] Esperando conexiones...${NC}"
 echo -e "${YELLOW}Presiona Ctrl+C para detener${NC}"
 echo ""
 

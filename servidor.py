@@ -323,11 +323,14 @@ async def websocket_handler(request):
         loop = asyncio.get_event_loop()
         config_inicial = await loop.run_in_executor(None, obtener_configuracion) or {}
         destino_inicial = await loop.run_in_executor(None, obtener_destino)
+        reles_desde_bd = await loop.run_in_executor(None, obtener_estado_reles) or {}
+        # Asegurar que las claves de relés sean enteros
+        reles_normalizados = {int(k) if isinstance(k, str) else k: v for k, v in reles_desde_bd.items()}
         
         await ws.send_json({
             'tipo': 'conexion',
             'mensaje': 'WebSocket conectado',
-            'reles': funciones.ESTADO_RELES,
+            'reles': reles_normalizados,
             'nombres_reles': config_inicial.get('reles', {}),
             'velocidad': VELOCIDAD_ACTUAL,
             'ram': obtener_ram(),
@@ -393,12 +396,7 @@ async def procesar_mensaje_ws(ws, datos):
         estado = bool(datos.get('estado', False))
         logger.info(f"Comando de relé recibido: número={numero}, estado={estado}")
         exito, error = controlar_rele(numero, estado)
-        logger.info(f"Resultado de controlar_rele: exito={exito}, error={error}, ESTADO_RELES={funciones.ESTADO_RELES}")
-        
-        # Guardar estado en base de datos para persistencia
-        if exito:
-            guardar_estado_rele(numero, 1 if estado else 0)
-            logger.info(f"Estado del relé {numero} guardado en BD: {'ON' if estado else 'OFF'}")
+        logger.info(f"Resultado de controlar_rele: exito={exito}, error={error}")
         
         await ws.send_json({
             'tipo': 'respuesta_rele',
@@ -410,9 +408,12 @@ async def procesar_mensaje_ws(ws, datos):
 
         # Notificar a todos los clientes el estado actualizado de los relés
         try:
+            reles_bd = obtener_estado_reles() or {}
+            # Asegurar que las claves sean enteros
+            reles_normalizados = {int(k) if isinstance(k, str) else k: v for k, v in reles_bd.items()}
             for cliente in list(CLIENTES_WS):
                 try:
-                    await cliente.send_json({'tipo': 'reles', 'reles': funciones.ESTADO_RELES})
+                    await cliente.send_json({'tipo': 'reles', 'reles': reles_normalizados})
                 except Exception:
                     pass
         except Exception:
@@ -539,7 +540,9 @@ async def procesar_mensaje_ws(ws, datos):
     # Solicitar datos actuales
     elif tipo == 'obtener_datos':
         from base_de_datos.base_datos import obtener_estado_reles
-        await ws.send_json({'tipo': 'reles', 'reles': obtener_estado_reles()})
+        reles_datos = obtener_estado_reles() or {}
+        reles_normalizados = {int(k) if isinstance(k, str) else k: v for k, v in reles_datos.items()}
+        await ws.send_json({'tipo': 'reles', 'reles': reles_normalizados})
         await ws.send_json({'tipo': 'ram', 'datos': obtener_ram()})
         await ws.send_json({'tipo': 'temperatura', 'datos': obtener_temperatura()})
         await ws.send_json({'tipo': 'bateria', 'datos': obtener_bateria()})
