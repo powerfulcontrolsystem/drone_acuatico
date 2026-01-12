@@ -904,6 +904,7 @@ def main():
     # Restaurar estados de relés desde la base de datos
     logger.info("Restaurando estados de relés desde base de datos...")
     estados_guardados = restaurar_estados_reles()
+    import time
     for numero, estado in estados_guardados.items():
         if estado:  # Solo activar los que estaban prendidos
             exito, error = controlar_rele(numero, True)
@@ -911,6 +912,8 @@ def main():
                 logger.info(f"✓ Relé {numero} activado (restaurado desde BD)")
             else:
                 logger.warning(f"⚠ No se pudo activar relé {numero}: {error}")
+            # Delay de 1 segundo entre cada relé para arranque secuencial
+            time.sleep(1)
     
     iniciar_gps()
     

@@ -158,6 +158,7 @@
         </div>
         <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="onvifCam1Host">IP / Host</label><input id="onvifCam1Host" type="text" placeholder="192.168.1.9" style="width:100%;" /></div>
         <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="onvifCam1Port">Puerto ONVIF</label><input id="onvifCam1Port" type="number" min="1" max="65535" placeholder="8899" style="width:100%;" /></div>
+        <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="rtspCam1Port">Puerto RTSP</label><input id="rtspCam1Port" type="number" min="1" max="65535" placeholder="554" style="width:100%;" /></div>
         <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="onvifCam1User">Usuario</label><input id="onvifCam1User" type="text" placeholder="admin" value="admin" style="width:100%;" /></div>
         <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="onvifCam1Pass">Contraseña</label><div style="display:flex; gap:8px; align-items:center; width:100%;"><input id="onvifCam1Pass" type="password" placeholder="admin" value="admin" style="width:100%;" /><button class="btn" style="min-width:96px; padding:10px 12px; font-weight:600;" type="button" onclick="togglePassword('onvifCam1Pass', this)">👁 Mostrar</button></div></div>
         <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="onvifCam1Perfil">Ruta RTSP del stream <small style="color:#888;">(ej: live/ch0, Streaming/Channels/101)</small></label><input id="onvifCam1Perfil" type="text" placeholder="live/ch0" style="width:100%;" /></div>
@@ -189,6 +190,7 @@
         </div>
         <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="onvifCam2Host">IP / Host</label><input id="onvifCam2Host" type="text" placeholder="192.168.1.10" style="width:100%;" /></div>
         <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="onvifCam2Port">Puerto ONVIF</label><input id="onvifCam2Port" type="number" min="1" max="65535" placeholder="8899" style="width:100%;" /></div>
+        <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="rtspCam2Port">Puerto RTSP</label><input id="rtspCam2Port" type="number" min="1" max="65535" placeholder="554" style="width:100%;" /></div>
         <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="onvifCam2User">Usuario</label><input id="onvifCam2User" type="text" placeholder="admin" value="admin" style="width:100%;" /></div>
         <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="onvifCam2Pass">Contraseña</label><div style="display:flex; gap:8px; align-items:center; width:100%;"><input id="onvifCam2Pass" type="password" placeholder="admin" value="admin" style="width:100%;" /><button class="btn" style="min-width:96px; padding:10px 12px; font-weight:600;" type="button" onclick="togglePassword('onvifCam2Pass', this)">👁 Mostrar</button></div></div>
         <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="onvifCam2Perfil">Ruta RTSP del stream <small style="color:#888;">(ej: live/ch0, Streaming/Channels/101)</small></label><input id="onvifCam2Perfil" type="text" placeholder="live/ch0" style="width:100%;" /></div>
@@ -293,6 +295,7 @@
         rtsp_camara1_url: document.getElementById('rtspCam1Url').value.trim(),
         onvif_camara1_host: document.getElementById('onvifCam1Host').value.trim(),
         onvif_camara1_puerto: parseInt(document.getElementById('onvifCam1Port').value || '8899', 10),
+        rtsp_camara1_puerto: parseInt(document.getElementById('rtspCam1Port').value || '554', 10),
         onvif_camara1_usuario: document.getElementById('onvifCam1User').value.trim(),
         onvif_camara1_contrasena: document.getElementById('onvifCam1Pass').value,
         onvif_camara1_perfil: document.getElementById('onvifCam1Perfil').value.trim(),
@@ -303,6 +306,7 @@
         rtsp_camara2_url: document.getElementById('rtspCam2Url').value.trim(),
         onvif_camara2_host: document.getElementById('onvifCam2Host').value.trim(),
         onvif_camara2_puerto: parseInt(document.getElementById('onvifCam2Port').value || '8899', 10),
+        rtsp_camara2_puerto: parseInt(document.getElementById('rtspCam2Port').value || '554', 10),
         onvif_camara2_usuario: document.getElementById('onvifCam2User').value.trim(),
         onvif_camara2_contrasena: document.getElementById('onvifCam2Pass').value,
         onvif_camara2_perfil: document.getElementById('onvifCam2Perfil').value.trim(),
@@ -335,6 +339,7 @@
       document.getElementById('rtspCam1Url').value = cfg.rtsp_camara1_url || '';
       document.getElementById('onvifCam1Host').value = cfg.onvif_camara1_host || '';
       document.getElementById('onvifCam1Port').value = cfg.onvif_camara1_puerto || 8899;
+      document.getElementById('rtspCam1Port').value = cfg.rtsp_camara1_puerto || 554;
       document.getElementById('onvifCam1User').value = cfg.onvif_camara1_usuario || 'admin';
       document.getElementById('onvifCam1Pass').value = cfg.onvif_camara1_contrasena || 'admin';
       document.getElementById('onvifCam1Perfil').value = cfg.onvif_camara1_perfil || 'Streaming/Channels/101';
@@ -346,6 +351,7 @@
       document.getElementById('rtspCam2Url').value = cfg.rtsp_camara2_url || '';
       document.getElementById('onvifCam2Host').value = cfg.onvif_camara2_host || '';
       document.getElementById('onvifCam2Port').value = cfg.onvif_camara2_puerto || 8899;
+      document.getElementById('rtspCam2Port').value = cfg.rtsp_camara2_puerto || 554;
       document.getElementById('onvifCam2User').value = cfg.onvif_camara2_usuario || 'admin';
       document.getElementById('onvifCam2Pass').value = cfg.onvif_camara2_contrasena || 'admin';
       document.getElementById('onvifCam2Perfil').value = cfg.onvif_camara2_perfil || 'Streaming/Channels/101';

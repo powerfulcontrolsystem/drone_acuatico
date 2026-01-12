@@ -146,12 +146,14 @@ def construir_rtsp_candidatos(config: dict, indice: int) -> list[str]:
         if indice == 1:
             host = (config.get("onvif_camara1_host") or "").strip()
             puerto_onvif = int(config.get("onvif_camara1_puerto", 8899) or 8899)
+            puerto_rtsp = int(config.get("rtsp_camara1_puerto", 554) or 554)
             usuario = (config.get("onvif_camara1_usuario") or "").strip()
             contrasena = config.get("onvif_camara1_contrasena") or ""
             perfil = (config.get("onvif_camara1_perfil") or "Streaming/Channels/101").strip("/")
         else:
             host = (config.get("onvif_camara2_host") or "").strip()
             puerto_onvif = int(config.get("onvif_camara2_puerto", 8899) or 8899)
+            puerto_rtsp = int(config.get("rtsp_camara2_puerto", 554) or 554)
             usuario = (config.get("onvif_camara2_usuario") or "").strip()
             contrasena = config.get("onvif_camara2_contrasena") or ""
             perfil = (config.get("onvif_camara2_perfil") or "Streaming/Channels/101").strip("/")
@@ -164,9 +166,11 @@ def construir_rtsp_candidatos(config: dict, indice: int) -> list[str]:
                     auth += f":{contrasena}"
                 auth += "@"
 
-            puertos = [554]
+            puertos = [puerto_rtsp]  # Prioridad: puerto RTSP especificado
             if puerto_onvif not in puertos:
                 puertos.append(puerto_onvif)
+            if 554 not in puertos:
+                puertos.append(554)  # Puerto RTSP estándar
 
             # Agregar candidatos desde parámetros ONVIF (si no están ya)
             for p in puertos:
