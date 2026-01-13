@@ -148,6 +148,13 @@
       <span id="onvifStatus" style="color:#6ec1e4; font-weight:600;"></span>
     </div>
     <div id="onvifResultados" style="display:flex; flex-direction:column; gap:6px; margin-bottom:12px;"></div>
+    
+    <!-- Pantalla Completa -->
+    <h2 style="margin-top:0; color:#6ec1e4;">🖥️ Pantalla</h2>
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <div class="row" style="display: flex; flex-direction: row; align-items: center; gap: 8px;"><input id="pantallasCompleta" type="checkbox" /><label for="pantallasCompleta">✓ Iniciar control remoto con pantalla completa</label></div>
+    </div>
+    
     <div style="display: flex; flex-direction: column; gap: 18px;">
       <div style="width: 100%; max-width: 600px; margin-bottom: 8px;">
         <h3 style="margin-top:0; color:#6ec1e4;">Cámara 1 (ONVIF)</h3>
@@ -212,6 +219,16 @@
             <option value="1080p">1080p (1920x1080) - Máxima calidad</option>
           </select>
         </div>
+      </div>
+    </div>
+
+    <!-- Router 4G -->
+    <h2 style="margin-top:0; color:#6ec1e4;">📡 Router 4G</h2>
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;">
+        <label for="routerIp">IP del Router 4G/5G</label>
+        <input id="routerIp" type="text" placeholder="192.168.1.1" style="width: 100%;" />
+        <small style="color:#888;">Ingresa la IP del panel web del router para acceso rápido desde el menú</small>
       </div>
     </div>
 
@@ -292,6 +309,8 @@
         tamano_mapa: parseInt(document.getElementById('tamanoMapa').value || '400', 10),
         guardar_recorrido: document.getElementById('guardarRecorrido').checked,
         frecuencia_guardado: parseInt(document.getElementById('frecuenciaGuardado').value || '30', 10),
+        router_ip: document.getElementById('routerIp').value.trim(),
+        pantalla_completa: document.getElementById('pantallasCompleta').checked,
         rtsp_camara1_url: document.getElementById('rtspCam1Url').value.trim(),
         onvif_camara1_host: document.getElementById('onvifCam1Host').value.trim(),
         onvif_camara1_puerto: parseInt(document.getElementById('onvifCam1Port').value || '8899', 10),
@@ -336,6 +355,8 @@
       document.getElementById('tamanoMapa').value = cfg.tamano_mapa || 400;
       document.getElementById('guardarRecorrido').checked = !!cfg.guardar_recorrido;
       document.getElementById('frecuenciaGuardado').value = cfg.frecuencia_guardado || 30;
+      document.getElementById('routerIp').value = cfg.router_ip || '';
+      document.getElementById('pantallasCompleta').checked = !!cfg.pantalla_completa;
       document.getElementById('rtspCam1Url').value = cfg.rtsp_camara1_url || '';
       document.getElementById('onvifCam1Host').value = cfg.onvif_camara1_host || '';
       document.getElementById('onvifCam1Port').value = cfg.onvif_camara1_puerto || 8899;

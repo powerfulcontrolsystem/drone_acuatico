@@ -287,6 +287,9 @@
 
 		<!-- Tuerca flotante en esquina superior derecha -->
 		<div id="menu-flotante">
+		<button id="btn-pantalla-completa" class="btn-menu" type="button" aria-label="Pantalla completa" style="position: fixed; bottom: 18px; right: 80px; z-index: 999;">
+			<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#4a9eff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
+		</button>
 		<button id="btn-tuerca" class="btn-menu" type="button" aria-label="Menú de opciones">
 				<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#4a9eff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.09a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.09a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.09a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
 			</button>
@@ -294,12 +297,14 @@
 				<button class="btn-menu" onclick="document.documentElement.requestFullscreen()">🖵 Pantalla completa</button>
 				<button class="btn-menu" onclick="window.location.href='mapa_gps.html'">🧭 Mapa GPS</button>
 				<button class="btn-menu" onclick="window.location.href='configuracion.html'">⚙️ Configuración</button>
+				<button class="btn-menu" onclick="abrirRouter()">📡 Router 4G/5G</button>
 				<button class="btn-menu" onclick="if(confirm('¿Reiniciar el sistema?')) fetch('/api/reiniciar', {method:'POST'}).then(()=>window.location.reload())">🔄 Reiniciar</button>
 				<button class="btn-menu" onclick="if(confirm('¿Apagar el sistema?')) fetch('/api/apagar', {method:'POST'})">⏻ Apagar</button>
 			</div>
 		</div>
 		<script>
 			const btnTuerca = document.getElementById('btn-tuerca');
+			const btnPantallaCompleta = document.getElementById('btn-pantalla-completa');
 			const menuOpciones = document.getElementById('menu-opciones');
 			btnTuerca.onclick = function(e) {
 				e.stopPropagation();
@@ -308,6 +313,58 @@
 			document.addEventListener('click', function(e) {
 				if (menuOpciones.style.display === 'block') menuOpciones.style.display = 'none';
 			});
+
+			// Botón pantalla completa
+			btnPantallaCompleta.onclick = function(e) {
+				e.stopPropagation();
+				document.documentElement.requestFullscreen().catch(err => console.log('Error fullscreen:', err));
+			};
+
+			// Verificar si debe iniciar con pantalla completa
+			async function verificarPantallaCompleta() {
+				try {
+					const res = await fetch('/api/config');
+					if (res.ok) {
+						const cfg = await res.json();
+						if (cfg.pantalla_completa) {
+							// Esperar un momento para asegurar que el DOM esté listo
+							setTimeout(() => {
+								document.documentElement.requestFullscreen().catch(err => console.log('Fullscreen automático falló:', err));
+							}, 500);
+						}
+					}
+				} catch (e) {
+					console.log('Error verificando pantalla completa:', e);
+				}
+			}
+
+			// Llamar función al cargar página
+			window.addEventListener('load', verificarPantallaCompleta);
+
+			// Función para abrir el router
+			async function abrirRouter() {
+				try {
+					const res = await fetch('/api/config');
+					if (!res.ok) {
+						alert('No se pudo obtener la configuración del router');
+						return;
+					}
+					const config = await res.json();
+					const routerIp = config.router_ip;
+					if (!routerIp || routerIp.trim() === '') {
+						alert('⚠️ No hay dirección IP del router configurada.\n\nPor favor, configura la IP del router en Configuración.');
+						return;
+					}
+					// Agregar http:// si no tiene protocolo
+					let url = routerIp.trim();
+					if (!url.startsWith('http://') && !url.startsWith('https://')) {
+						url = 'http://' + url;
+					}
+					window.open(url, '_blank');
+				} catch (e) {
+					alert('Error al intentar abrir el router: ' + e.message);
+				}
+			}
 		</script>
 		<script>
 			// El mapa se inicializará automáticamente cuando lleguen datos GPS del WebSocket
@@ -451,8 +508,8 @@
 							<div style="font-size:0.85em; font-weight:600; color:#6ec1e4; margin-bottom:4px; text-align:center; width:100%;">Indicadores</div>
 							<table class="tabla-indicadores" style="width:100%; max-width:440px; margin:0 auto; border-collapse:collapse; background:#23272b; border-radius:8px; box-shadow:0 1px 6px #0001; color:#f2f2f2; table-layout:fixed; font-family:'Space Grotesk','Segoe UI',sans-serif;">
 								<colgroup>
-									<col style="width:30%">
-									<col style="width:30%">
+									<col style="width:50%">
+									<col style="width:50%">
 								</colgroup>
 								<tbody>
 									<tr>
@@ -484,7 +541,7 @@
 										</td>
 										<td style="border:1px solid #e0e0e0; padding:6px; text-align:center; background:#23272b; color:#f2f2f2;">
 											<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><path d="M8 2 A6 6 0 1 1 7.99 2" stroke="#6ec1e4" stroke-width="2" fill="none"/><circle cx="8" cy="8" r="2" fill="#6ec1e4"/></svg>
-											Velocidad: <span id="vel-valor">--</span>
+											Vel: <span id="vel-valor">--</span>
 										</td>
 									</tr>
 									<tr>
@@ -520,68 +577,95 @@
 			let playing = { cam1: false, cam2: false };
 			let estadoReles = {};
 
-			   function iniciarCamara(videoId, playlist, camKey) {
-				   var video = document.getElementById(videoId);
-				   if (window.Hls && Hls.isSupported()) {
-					   if (hlsPlayers[camKey]) {
-						   hlsPlayers[camKey].destroy();
-					   }
-					   var hls = new Hls({
-						   lowLatencyMode: true,
-						   maxBufferLength: 1,
-						   maxMaxBufferLength: 2,
-						   maxBufferSize: 4 * 1000 * 1000,
-						   maxBufferHole: 0.1,
-						   liveSyncDuration: 0.1
-					   });
-					   hls.loadSource(playlist);
-					   hls.attachMedia(video);
-					   hlsPlayers[camKey] = hls;
-				   } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-					   video.src = playlist;
-				   }
-				   video.play();
-				   playing[camKey] = true;
-			   }
+		// Variables para calcular velocidad en tiempo real basada en GPS
+		let ultimaPosicionGPS = { lat: null, lon: null, tiempo: null };
 
-			   function detenerCamara(videoId, camKey) {
-				   var video = document.getElementById(videoId);
-				   if (window.Hls && Hls.isSupported() && hlsPlayers[camKey]) {
-					   hlsPlayers[camKey].destroy();
-					   hlsPlayers[camKey] = null;
-				   }
-				   video.pause();
-				   video.removeAttribute('src');
-				   video.load();
-				   playing[camKey] = false;
-			   }
+		// Función para calcular distancia entre dos puntos GPS (Haversine formula)
+		function calcularDistanciaGPS(lat1, lon1, lat2, lon2) {
+			const R = 6371; // Radio de la Tierra en km
+			const dLat = (lat2 - lat1) * Math.PI / 180;
+			const dLon = (lon2 - lon1) * Math.PI / 180;
+			const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+				  Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+				  Math.sin(dLon/2) * Math.sin(dLon/2);
+			const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+			return R * c; // Distancia en km
+		}
 
-			   function toggleCamara(videoId, playlist, camKey, btnId) {
-				   const iconSpan = document.getElementById('icon' + btnId.charAt(0).toUpperCase() + btnId.slice(1));
-				   const floatIconId = 'iconPlay' + camKey.charAt(0).toUpperCase() + camKey.slice(1) + 'Float';
-				   const floatIcon = document.getElementById(floatIconId);
-				   
-				   if (!playing[camKey]) {
-					   iniciarCamara(videoId, playlist, camKey);
-					   // Cambia a icono de Stop
-					   const stopSvg = '<svg width="100%" height="100%" viewBox="0 0 22 22" fill="#e53935" style="display:block;"><rect x="6" y="6" width="10" height="10" rx="2"/></svg>';
-					   iconSpan.innerHTML = stopSvg;
-					   if (floatIcon) floatIcon.outerHTML = '<svg id="' + floatIconId + '" width="22" height="22" viewBox="0 0 22 22" fill="#e53935" style="display:block;"><rect x="6" y="6" width="10" height="10" rx="2"/></svg>';
-				   } else {
-					   detenerCamara(videoId, camKey);
-					   // Cambia a icono de Play
-					   const playSvg = '<svg width="100%" height="100%" viewBox="0 0 22 22" fill="#2196f3" style="display:block;"><polygon points="6,4 18,11 6,18"/></svg>';
-					   iconSpan.innerHTML = playSvg;
-					   if (floatIcon) floatIcon.outerHTML = '<svg id="' + floatIconId + '" width="22" height="22" viewBox="0 0 22 22" fill="#2196f3" style="display:block;"><polygon points="6,4 18,11 6,18"/></svg>';
-				   }
-			   }
+		// Función para calcular velocidad en km/h basada en cambios de GPS
+		function calcularVelocidadGPS(latActual, lonActual) {
+			const ahora = Date.now();
+			if (ultimaPosicionGPS.lat === null || ultimaPosicionGPS.lon === null || ultimaPosicionGPS.tiempo === null) {
+				ultimaPosicionGPS = { lat: latActual, lon: lonActual, tiempo: ahora };
+				return 0; // Primera lectura
+			}
+			const distancia = calcularDistanciaGPS(ultimaPosicionGPS.lat, ultimaPosicionGPS.lon, latActual, lonActual);
+			const tiempoTranscurrido = (ahora - ultimaPosicionGPS.tiempo) / 3600000; // Convertir ms a horas
+			const velocidad = tiempoTranscurrido > 0 ? distancia / tiempoTranscurrido : 0;
+			ultimaPosicionGPS = { lat: latActual, lon: lonActual, tiempo: ahora };
+			return velocidad;
+		}
 
-			   document.getElementById('playCam1').onclick = function() {
-				   toggleCamara('videoCam1', '/hls/cam1/cam1.m3u8', 'cam1', 'playCam1');
-			   };
-			   document.getElementById('playCam2').onclick = function() {
-				   toggleCamara('videoCam2', '/hls/cam2/cam2.m3u8', 'cam2', 'playCam2');
-			   };
+		// --- Play/Stop y Captura ---
+		function iniciarCamara(videoId, playlist, camKey) {
+			var video = document.getElementById(videoId);
+			if (window.Hls && Hls.isSupported()) {
+				var hls = new Hls({
+					lowLatencyMode: true,
+					maxBufferLength: 1,
+					maxMaxBufferLength: 2,
+					maxBufferSize: 4 * 1000 * 1000,
+					maxBufferHole: 0.1,
+					liveSyncDuration: 0.1
+				});
+				hls.loadSource(playlist);
+				hls.attachMedia(video);
+				hlsPlayers[camKey] = hls;
+			} else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+				video.src = playlist;
+			}
+			video.play();
+			playing[camKey] = true;
+		}
+
+		function detenerCamara(videoId, camKey) {
+			var video = document.getElementById(videoId);
+			if (window.Hls && Hls.isSupported() && hlsPlayers[camKey]) {
+				hlsPlayers[camKey].destroy();
+				hlsPlayers[camKey] = null;
+			}
+			video.pause();
+			video.removeAttribute('src');
+			video.load();
+			playing[camKey] = false;
+		}
+
+		function toggleCamara(videoId, playlist, camKey, btnId) {
+			const iconSpan = document.getElementById('icon' + btnId.charAt(0).toUpperCase() + btnId.slice(1));
+			const floatIconId = 'iconPlay' + camKey.charAt(0).toUpperCase() + camKey.slice(1) + 'Float';
+			const floatIcon = document.getElementById(floatIconId);
+			
+			if (!playing[camKey]) {
+				iniciarCamara(videoId, playlist, camKey);
+				// Cambia a icono de Stop
+				const stopSvg = '<svg width="100%" height="100%" viewBox="0 0 22 22" fill="#e53935" style="display:block;"><rect x="6" y="6" width="10" height="10" rx="2"/></svg>';
+				iconSpan.innerHTML = stopSvg;
+				if (floatIcon) floatIcon.outerHTML = '<svg id="' + floatIconId + '" width="22" height="22" viewBox="0 0 22 22" fill="#e53935" style="display:block;"><rect x="6" y="6" width="10" height="10" rx="2"/></svg>';
+			} else {
+				detenerCamara(videoId, camKey);
+				// Cambia a icono de Play
+				const playSvg = '<svg width="100%" height="100%" viewBox="0 0 22 22" fill="#2196f3" style="display:block;"><polygon points="6,4 18,11 6,18"/></svg>';
+				iconSpan.innerHTML = playSvg;
+				if (floatIcon) floatIcon.outerHTML = '<svg id="' + floatIconId + '" width="22" height="22" viewBox="0 0 22 22" fill="#2196f3" style="display:block;"><polygon points="6,4 18,11 6,18"/></svg>';
+			}
+		}
+
+		document.getElementById('playCam1').onclick = function() {
+			toggleCamara('videoCam1', '/hls/cam1/cam1.m3u8', 'cam1', 'playCam1');
+		};
+		document.getElementById('playCam2').onclick = function() {
+			toggleCamara('videoCam2', '/hls/cam2/cam2.m3u8', 'cam2', 'playCam2');
+		};
 
 
 			// --- Captura de Foto ---
@@ -767,37 +851,31 @@
 				} else {
 					document.getElementById('red-valor').textContent = '--';
 				}
-				// Velocidad
-				if (data.velocidad !== undefined && data.velocidad !== null) {
-					document.getElementById('vel-valor').textContent = Number(data.velocidad).toFixed(2) + ' km/h';
-				} else {
-					document.getElementById('vel-valor').textContent = '--';
-				}
-				// Solar
-				if (data.solar && typeof data.solar !== 'undefined') {
-					document.getElementById('solar-valor').textContent = Number(data.solar).toFixed(1) + ' W';
-				} else {
-					document.getElementById('solar-valor').textContent = '--';
-				}
-				// Peso
-				if (data.peso && typeof data.peso.peso_kg !== 'undefined') {
-					document.getElementById('peso-valor').textContent = Number(data.peso.peso_kg).toFixed(2) + ' kg';
-				} else {
-					document.getElementById('peso-valor').textContent = '--';
-				}
 				// GPS Lat/Lon y mapa
+				let velocidadGPS = null;
 				if (data.gps && data.gps.latitud && data.gps.longitud) {
 					let lat = Number(data.gps.latitud);
 					let lon = Number(data.gps.longitud);
 					let gpsActivo = data.gps.valido === true;
-					document.getElementById('gps-lat').textContent = isNaN(lat) ? '--' : lat.toFixed(1);
-					document.getElementById('gps-lon').textContent = isNaN(lon) ? '--' : lon.toFixed(1);
+					document.getElementById('gps-lat').textContent = isNaN(lat) ? '--' : lat.toFixed(5);
+					document.getElementById('gps-lon').textContent = isNaN(lon) ? '--' : lon.toFixed(5);
 					if (!isNaN(lat) && !isNaN(lon)) {
 						mostrarMapaGPS(lat, lon, gpsActivo);
+						// Calcular velocidad en tiempo real basada en GPS
+						velocidadGPS = calcularVelocidadGPS(lat, lon);
 					}
 				} else {
 					document.getElementById('gps-lat').textContent = '--';
 					document.getElementById('gps-lon').textContent = '--';
+				}
+
+				// Velocidad (usar calculada de GPS o la del servidor como fallback)
+				if (velocidadGPS !== null) {
+					document.getElementById('vel-valor').textContent = velocidadGPS.toFixed(2) + ' km/h';
+				} else if (data.velocidad !== undefined && data.velocidad !== null) {
+					document.getElementById('vel-valor').textContent = Number(data.velocidad).toFixed(2) + ' km/h';
+				} else {
+					document.getElementById('vel-valor').textContent = '--';
 				}
 			}
 			// Relés
