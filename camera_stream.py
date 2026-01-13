@@ -148,14 +148,15 @@ def construir_rtsp_candidatos(config: dict, indice: int) -> list[str]:
             puerto_onvif = int(config.get("onvif_camara1_puerto", 8899) or 8899)
             puerto_rtsp = int(config.get("rtsp_camara1_puerto", 554) or 554)
             usuario = (config.get("onvif_camara1_usuario") or "").strip()
-            contrasena = config.get("onvif_camara1_contrasena") or ""
+            contrasena = (config.get("onvif_camara1_contrasena") or "").strip()
             perfil = (config.get("onvif_camara1_perfil") or "Streaming/Channels/101").strip("/")
+            logger.debug(f"CAM1 DEBUG: host={host}, usuario={usuario}, contrasena={contrasena}, perfil={perfil}")
         else:
             host = (config.get("onvif_camara2_host") or "").strip()
             puerto_onvif = int(config.get("onvif_camara2_puerto", 8899) or 8899)
             puerto_rtsp = int(config.get("rtsp_camara2_puerto", 554) or 554)
             usuario = (config.get("onvif_camara2_usuario") or "").strip()
-            contrasena = config.get("onvif_camara2_contrasena") or ""
+            contrasena = (config.get("onvif_camara2_contrasena") or "").strip()
             perfil = (config.get("onvif_camara2_perfil") or "Streaming/Channels/101").strip("/")
 
         if host:

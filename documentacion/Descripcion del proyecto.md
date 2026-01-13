@@ -1,11 +1,16 @@
 
 # DRONE ACUÁTICO 
 
+## conexion a raspberry
+usuario: admin
+clave: admin
+ip: 192.168.1.18
+
 ## ubicación del proyecto en pc Windows
-D:\Drone acuatico
+
 
 ## ubicación del proyecto en la raspberry
-home/admin/drone acuatico
+home/pi/drone_acuatico
 
 ## DESCRIPCIÓN
 El dron acuático está diseñado para ofrecer una experiencia de pesca inteligente y navegación autónoma. Se alimenta de energía solar, cuenta con una batería de alta capacidad y dispone de cuatro motores brushless para garantizar una movilidad precisa.
@@ -173,10 +178,7 @@ Todo lo relacionado con la pagina, es decir el archivo html, java etc, debe esta
 - El codigo python debe estar separado organizado por funciones.
 -
 
-## conexion a raspberry
-usuario: admin
-clave: admin
-ip: 192.168.1.15
+
 
 ## Base de datos drone-acuatico
 la base de datos se llamara: drone-acuatico
