@@ -292,6 +292,7 @@
 			</button>
 			<div id="menu-opciones" style="display:none;">
 				<button class="btn-menu" onclick="document.documentElement.requestFullscreen()">🖵 Pantalla completa</button>
+				<button class="btn-menu" onclick="window.location.href='mapa_gps.html'">🧭 Mapa GPS</button>
 				<button class="btn-menu" onclick="window.location.href='configuracion.html'">⚙️ Configuración</button>
 				<button class="btn-menu" onclick="if(confirm('¿Reiniciar el sistema?')) fetch('/api/reiniciar', {method:'POST'}).then(()=>window.location.reload())">🔄 Reiniciar</button>
 				<button class="btn-menu" onclick="if(confirm('¿Apagar el sistema?')) fetch('/api/apagar', {method:'POST'})">⏻ Apagar</button>
@@ -441,21 +442,27 @@
 							</div>
 						</div>
 						<div class="panel-bajo" style="margin:0; padding:0; width:100%; box-sizing:border-box;">
+							<div style="font-size:0.85em; font-weight:600; color:#6ec1e4; margin-bottom:4px; text-align:center; width:100%;">Panel de control</div>
 							<div class="reles-botones" id="reles-botones">
 								<!-- Los botones de relé se generan dinámicamente -->
 							</div>
 						</div>
 						<div class="panel-bajo" style="margin-left:0;margin-right:0; margin-top:0; padding-left:4px; padding-right:4px; width:100%; box-sizing:border-box;">
-							<table class="tabla-indicadores" style="width:100%; max-width:340px; margin:0 auto; border-collapse:collapse; background:#23272b; border-radius:8px; box-shadow:0 1px 6px #0001; color:#f2f2f2; table-layout:fixed;">
+							<div style="font-size:0.85em; font-weight:600; color:#6ec1e4; margin-bottom:4px; text-align:center; width:100%;">Indicadores</div>
+							<table class="tabla-indicadores" style="width:100%; max-width:440px; margin:0 auto; border-collapse:collapse; background:#23272b; border-radius:8px; box-shadow:0 1px 6px #0001; color:#f2f2f2; table-layout:fixed; font-family:'Space Grotesk','Segoe UI',sans-serif;">
+								<colgroup>
+									<col style="width:30%">
+									<col style="width:30%">
+								</colgroup>
 								<tbody>
 									<tr>
-										<td style="border:1px solid #e0e0e0; padding:6px; text-align:center; background:#23272b; color:#f2f2f2; width:50%;">
+										<td style="border:1px solid #e0e0e0; padding:6px; text-align:center; background:#23272b; color:#f2f2f2;">
 											<span id="indicador-conexion" class="desconectado">
 												<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><circle cx="8" cy="8" r="7" fill="#e53935"/></svg>
 												<span id="texto-conexion" style="color:#e53935; font-weight:600;">Desconectado</span>
 											</span>
 										</td>
-										<td style="border:1px solid #e0e0e0; padding:6px; text-align:center; background:#23272b; color:#f2f2f2; width:50%;">
+										<td style="border:1px solid #e0e0e0; padding:6px; text-align:center; background:#23272b; color:#f2f2f2;">
 											<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><rect x="2" y="4" width="12" height="8" rx="2" fill="#6ec1e4"/></svg>
 											RAM: <span id="ram-valor">--</span>
 										</td>

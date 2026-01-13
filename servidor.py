@@ -47,6 +47,8 @@ from base_de_datos.base_datos import (
     iniciar_recorrido,
     guardar_posicion_gps as guardar_posicion_bd,
     obtener_todos_recorridos,
+    obtener_recorrido,
+    obtener_ubicaciones,
     guardar_velocidad_actual,
     obtener_velocidad_actual,
     guardar_destino,
@@ -641,6 +643,14 @@ async def configuracion_handler(request):
     return web.FileResponse(archivo)
 
 
+async def mapa_gps_handler(request):
+    """Manejador de la página de mapa GPS (ubicaciones y recorridos)."""
+    archivo = Path(__file__).parent / 'paginas' / 'mapa_gps.html'
+    if not archivo.exists():
+        return web.json_response({'error': 'Página de mapa no encontrada'}, status=404)
+    return web.FileResponse(archivo)
+
+
 async def api_config_handler(request):
     """
     API REST para obtener y guardar configuración.
@@ -734,6 +744,37 @@ async def api_apagar_handler(request):
             'exito': False,
             'error': str(e)
         }, status=500)
+
+
+async def api_ubicaciones_handler(request):
+    """Devuelve ubicaciones guardadas con filtros opcionales."""
+    categoria = request.query.get('categoria') or None
+    busqueda = request.query.get('q') or request.query.get('busqueda') or None
+    loop = asyncio.get_event_loop()
+    ubicaciones = await loop.run_in_executor(None, lambda: obtener_ubicaciones(categoria, busqueda))
+    return web.json_response({'exito': True, 'ubicaciones': ubicaciones})
+
+
+async def api_recorridos_handler(request):
+    """Lista los recorridos GPS (opcionalmente solo activos)."""
+    activos_flag = (request.query.get('activos') or '').lower() in ('1', 'true', 'si', 'sí', 'yes')
+    loop = asyncio.get_event_loop()
+    recorridos = await loop.run_in_executor(None, lambda: obtener_todos_recorridos(activos_flag))
+    return web.json_response({'exito': True, 'recorridos': recorridos})
+
+
+async def api_recorrido_detalle_handler(request):
+    """Devuelve un recorrido con todas sus posiciones."""
+    try:
+        recorrido_id = int(request.match_info.get('recorrido_id', '0'))
+    except ValueError:
+        return web.json_response({'exito': False, 'error': 'ID de recorrido inválido'}, status=400)
+
+    loop = asyncio.get_event_loop()
+    detalle = await loop.run_in_executor(None, lambda: obtener_recorrido(recorrido_id))
+    if not detalle:
+        return web.json_response({'exito': False, 'error': 'Recorrido no encontrado'}, status=404)
+    return web.json_response({'exito': True, 'recorrido': detalle})
 
 
 # ==================== EVENTOS DEL SERVIDOR ====================
@@ -836,9 +877,13 @@ def crear_app():
     # Rutas HTTP
     app.router.add_get('/', index_handler)
     app.router.add_get('/configuracion.html', configuracion_handler)
+    app.router.add_get('/mapa_gps.html', mapa_gps_handler)
     app.router.add_get('/api/config', api_config_handler)
     app.router.add_post('/api/config', api_config_handler)
     app.router.add_get('/api/onvif/discover', api_onvif_discover_handler)
+    app.router.add_get('/api/ubicaciones', api_ubicaciones_handler)
+    app.router.add_get('/api/recorridos', api_recorridos_handler)
+    app.router.add_get('/api/recorridos/{recorrido_id}', api_recorrido_detalle_handler)
     app.router.add_get('/ws', websocket_handler)
     # Endpoints para apagar y reiniciar el sistema
     app.router.add_post('/api/reiniciar', api_reiniciar_handler)

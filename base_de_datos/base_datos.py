@@ -189,6 +189,35 @@ def inicializar_bd():
             )
         ''')
         
+        # Tabla UBICACIONES GUARDADAS (favoritos/puntos de interés)
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS ubicaciones_guardadas (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                nombre TEXT NOT NULL,
+                descripcion TEXT,
+                latitud REAL NOT NULL,
+                longitud REAL NOT NULL,
+                icono TEXT DEFAULT 'marker',
+                color TEXT DEFAULT '#3b82f6',
+                categoria TEXT DEFAULT 'general',
+                fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
+        
+        # Tabla HISTORIAL GPS (últimas posiciones sin recorrido)
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS historial_gps (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                latitud REAL NOT NULL,
+                longitud REAL NOT NULL,
+                altitud REAL,
+                velocidad REAL,
+                satelites INTEGER,
+                timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
+        
         conexion.commit()
         
         # Asegurar columnas nuevas en BD existente (migración)
@@ -917,6 +946,426 @@ def guardar_tema(tema_oscuro):
     except sqlite3.Error as e:
         logger.error(f"Error guardando tema: {e}")
         return False
+    
+    finally:
+        conexion.close()
+
+
+# ==================== FUNCIONES DE UBICACIONES GUARDADAS ====================
+
+def guardar_ubicacion(nombre, latitud, longitud, descripcion=None, icono='marker', color='#3b82f6', categoria='general'):
+    """
+    Guarda una nueva ubicación en favoritos.
+    
+    Args:
+        nombre (str): Nombre de la ubicación
+        latitud (float): Latitud
+        longitud (float): Longitud
+        descripcion (str): Descripción opcional
+        icono (str): Tipo de icono
+        color (str): Color del marcador
+        categoria (str): Categoría de la ubicación
+    
+    Returns:
+        int: ID de la ubicación creada, o None si hay error
+    """
+    conexion = obtener_conexion()
+    if not conexion:
+        return None
+    
+    try:
+        cursor = conexion.cursor()
+        cursor.execute('''
+            INSERT INTO ubicaciones_guardadas 
+            (nombre, descripcion, latitud, longitud, icono, color, categoria)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        ''', (nombre, descripcion, latitud, longitud, icono, color, categoria))
+        conexion.commit()
+        ubicacion_id = cursor.lastrowid
+        logger.info(f"Ubicación guardada: ID={ubicacion_id}, Nombre={nombre}")
+        return ubicacion_id
+    
+    except sqlite3.Error as e:
+        logger.error(f"Error guardando ubicación: {e}")
+        return None
+    
+    finally:
+        conexion.close()
+
+
+def obtener_ubicaciones(categoria=None, busqueda=None):
+    """
+    Obtiene todas las ubicaciones guardadas, opcionalmente filtradas.
+    
+    Args:
+        categoria (str): Filtrar por categoría
+        busqueda (str): Buscar en nombre y descripción
+    
+    Returns:
+        list: Lista de ubicaciones
+    """
+    conexion = obtener_conexion()
+    if not conexion:
+        return []
+    
+    try:
+        cursor = conexion.cursor()
+        
+        query = 'SELECT * FROM ubicaciones_guardadas WHERE 1=1'
+        params = []
+        
+        if categoria:
+            query += ' AND categoria = ?'
+            params.append(categoria)
+        
+        if busqueda:
+            query += ' AND (nombre LIKE ? OR descripcion LIKE ?)'
+            params.extend([f'%{busqueda}%', f'%{busqueda}%'])
+        
+        query += ' ORDER BY fecha_creacion DESC'
+        
+        cursor.execute(query, params)
+        
+        ubicaciones = [
+            {
+                'id': row['id'],
+                'nombre': row['nombre'],
+                'descripcion': row['descripcion'],
+                'latitud': row['latitud'],
+                'longitud': row['longitud'],
+                'icono': row['icono'],
+                'color': row['color'],
+                'categoria': row['categoria'],
+                'fecha_creacion': row['fecha_creacion'],
+                'fecha_actualizacion': row['fecha_actualizacion']
+            }
+            for row in cursor.fetchall()
+        ]
+        
+        return ubicaciones
+    
+    except sqlite3.Error as e:
+        logger.error(f"Error obteniendo ubicaciones: {e}")
+        return []
+    
+    finally:
+        conexion.close()
+
+
+def obtener_ubicacion(ubicacion_id):
+    """
+    Obtiene una ubicación específica por ID.
+    
+    Args:
+        ubicacion_id (int): ID de la ubicación
+    
+    Returns:
+        dict: Datos de la ubicación o None
+    """
+    conexion = obtener_conexion()
+    if not conexion:
+        return None
+    
+    try:
+        cursor = conexion.cursor()
+        cursor.execute('SELECT * FROM ubicaciones_guardadas WHERE id = ?', (ubicacion_id,))
+        row = cursor.fetchone()
+        
+        if row:
+            return {
+                'id': row['id'],
+                'nombre': row['nombre'],
+                'descripcion': row['descripcion'],
+                'latitud': row['latitud'],
+                'longitud': row['longitud'],
+                'icono': row['icono'],
+                'color': row['color'],
+                'categoria': row['categoria'],
+                'fecha_creacion': row['fecha_creacion'],
+                'fecha_actualizacion': row['fecha_actualizacion']
+            }
+        return None
+    
+    except sqlite3.Error as e:
+        logger.error(f"Error obteniendo ubicación: {e}")
+        return None
+    
+    finally:
+        conexion.close()
+
+
+def actualizar_ubicacion(ubicacion_id, nombre=None, descripcion=None, latitud=None, longitud=None, 
+                         icono=None, color=None, categoria=None):
+    """
+    Actualiza una ubicación existente.
+    
+    Args:
+        ubicacion_id (int): ID de la ubicación a actualizar
+        Otros: Campos opcionales a actualizar
+    
+    Returns:
+        bool: True si se actualizó correctamente
+    """
+    conexion = obtener_conexion()
+    if not conexion:
+        return False
+    
+    try:
+        cursor = conexion.cursor()
+        
+        # Construir query dinámico
+        updates = []
+        params = []
+        
+        if nombre is not None:
+            updates.append('nombre = ?')
+            params.append(nombre)
+        if descripcion is not None:
+            updates.append('descripcion = ?')
+            params.append(descripcion)
+        if latitud is not None:
+            updates.append('latitud = ?')
+            params.append(latitud)
+        if longitud is not None:
+            updates.append('longitud = ?')
+            params.append(longitud)
+        if icono is not None:
+            updates.append('icono = ?')
+            params.append(icono)
+        if color is not None:
+            updates.append('color = ?')
+            params.append(color)
+        if categoria is not None:
+            updates.append('categoria = ?')
+            params.append(categoria)
+        
+        if not updates:
+            return True  # Nada que actualizar
+        
+        updates.append('fecha_actualizacion = CURRENT_TIMESTAMP')
+        params.append(ubicacion_id)
+        
+        query = f"UPDATE ubicaciones_guardadas SET {', '.join(updates)} WHERE id = ?"
+        cursor.execute(query, params)
+        conexion.commit()
+        
+        logger.info(f"Ubicación actualizada: ID={ubicacion_id}")
+        return True
+    
+    except sqlite3.Error as e:
+        logger.error(f"Error actualizando ubicación: {e}")
+        return False
+    
+    finally:
+        conexion.close()
+
+
+def eliminar_ubicacion(ubicacion_id):
+    """
+    Elimina una ubicación guardada.
+    
+    Args:
+        ubicacion_id (int): ID de la ubicación a eliminar
+    
+    Returns:
+        bool: True si se eliminó correctamente
+    """
+    conexion = obtener_conexion()
+    if not conexion:
+        return False
+    
+    try:
+        cursor = conexion.cursor()
+        cursor.execute('DELETE FROM ubicaciones_guardadas WHERE id = ?', (ubicacion_id,))
+        conexion.commit()
+        logger.info(f"Ubicación eliminada: ID={ubicacion_id}")
+        return True
+    
+    except sqlite3.Error as e:
+        logger.error(f"Error eliminando ubicación: {e}")
+        return False
+    
+    finally:
+        conexion.close()
+
+
+# ==================== FUNCIONES DE HISTORIAL GPS ====================
+
+def guardar_historial_gps(latitud, longitud, altitud=None, velocidad=None, satelites=None):
+    """
+    Guarda una posición en el historial GPS (independiente de recorridos).
+    Mantiene solo las últimas 1000 posiciones.
+    
+    Args:
+        latitud (float): Latitud
+        longitud (float): Longitud
+        altitud (float): Altitud opcional
+        velocidad (float): Velocidad opcional
+        satelites (int): Número de satélites opcional
+    
+    Returns:
+        int: ID del registro o None
+    """
+    conexion = obtener_conexion()
+    if not conexion:
+        return None
+    
+    try:
+        cursor = conexion.cursor()
+        
+        # Insertar nueva posición
+        cursor.execute('''
+            INSERT INTO historial_gps (latitud, longitud, altitud, velocidad, satelites)
+            VALUES (?, ?, ?, ?, ?)
+        ''', (latitud, longitud, altitud, velocidad, satelites))
+        
+        # Mantener solo los últimos 1000 registros
+        cursor.execute('''
+            DELETE FROM historial_gps 
+            WHERE id NOT IN (
+                SELECT id FROM historial_gps ORDER BY timestamp DESC LIMIT 1000
+            )
+        ''')
+        
+        conexion.commit()
+        return cursor.lastrowid
+    
+    except sqlite3.Error as e:
+        logger.error(f"Error guardando historial GPS: {e}")
+        return None
+    
+    finally:
+        conexion.close()
+
+
+def obtener_historial_gps(limite=100):
+    """
+    Obtiene las últimas posiciones del historial GPS.
+    
+    Args:
+        limite (int): Número máximo de registros a devolver
+    
+    Returns:
+        list: Lista de posiciones del historial
+    """
+    conexion = obtener_conexion()
+    if not conexion:
+        return []
+    
+    try:
+        cursor = conexion.cursor()
+        cursor.execute('''
+            SELECT * FROM historial_gps 
+            ORDER BY timestamp DESC 
+            LIMIT ?
+        ''', (limite,))
+        
+        historial = [
+            {
+                'id': row['id'],
+                'latitud': row['latitud'],
+                'longitud': row['longitud'],
+                'altitud': row['altitud'],
+                'velocidad': row['velocidad'],
+                'satelites': row['satelites'],
+                'timestamp': row['timestamp']
+            }
+            for row in cursor.fetchall()
+        ]
+        
+        return historial
+    
+    except sqlite3.Error as e:
+        logger.error(f"Error obteniendo historial GPS: {e}")
+        return []
+    
+    finally:
+        conexion.close()
+
+
+def limpiar_historial_gps():
+    """
+    Elimina todo el historial GPS.
+    
+    Returns:
+        bool: True si se limpió correctamente
+    """
+    conexion = obtener_conexion()
+    if not conexion:
+        return False
+    
+    try:
+        cursor = conexion.cursor()
+        cursor.execute('DELETE FROM historial_gps')
+        conexion.commit()
+        logger.info("Historial GPS limpiado")
+        return True
+    
+    except sqlite3.Error as e:
+        logger.error(f"Error limpiando historial GPS: {e}")
+        return False
+    
+    finally:
+        conexion.close()
+
+
+def obtener_estadisticas_gps():
+    """
+    Obtiene estadísticas del historial GPS.
+    
+    Returns:
+        dict: Estadísticas del historial
+    """
+    conexion = obtener_conexion()
+    if not conexion:
+        return {}
+    
+    try:
+        cursor = conexion.cursor()
+        
+        # Total de registros
+        cursor.execute('SELECT COUNT(*) as total FROM historial_gps')
+        total = cursor.fetchone()['total']
+        
+        # Rango de fechas
+        cursor.execute('SELECT MIN(timestamp) as primera, MAX(timestamp) as ultima FROM historial_gps')
+        fechas = cursor.fetchone()
+        
+        # Promedios
+        cursor.execute('''
+            SELECT 
+                AVG(velocidad) as vel_promedio,
+                MAX(velocidad) as vel_maxima,
+                AVG(altitud) as alt_promedio,
+                AVG(satelites) as sat_promedio
+            FROM historial_gps 
+            WHERE velocidad IS NOT NULL OR altitud IS NOT NULL
+        ''')
+        promedios = cursor.fetchone()
+        
+        # Total de recorridos
+        cursor.execute('SELECT COUNT(*) as total FROM recorridos_gps')
+        total_recorridos = cursor.fetchone()['total']
+        
+        # Total de ubicaciones guardadas
+        cursor.execute('SELECT COUNT(*) as total FROM ubicaciones_guardadas')
+        total_ubicaciones = cursor.fetchone()['total']
+        
+        return {
+            'total_registros': total,
+            'primera_posicion': fechas['primera'],
+            'ultima_posicion': fechas['ultima'],
+            'velocidad_promedio': round(promedios['vel_promedio'] or 0, 2),
+            'velocidad_maxima': round(promedios['vel_maxima'] or 0, 2),
+            'altitud_promedio': round(promedios['alt_promedio'] or 0, 2),
+            'satelites_promedio': round(promedios['sat_promedio'] or 0, 1),
+            'total_recorridos': total_recorridos,
+            'total_ubicaciones': total_ubicaciones
+        }
+    
+    except sqlite3.Error as e:
+        logger.error(f"Error obteniendo estadísticas GPS: {e}")
+        return {}
     
     finally:
         conexion.close()

@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mapa GPS - Drone Acuático</title>
+  <link rel="stylesheet" href="/static/tema_universal.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha512-1w2b6g9wG7qw0q9H5cRQE0b+NIR1+nJZqFuV8X+0GOdTv/8jc0cJd1BxHnOMV2Sl8v+M0nZ8A6+uH0jcWkG8hQ==" crossorigin="" />
+  <style>
+    :root {
+      --panel-bg: linear-gradient(145deg, #10141d, #0b0f16);
+      --panel-border: #1f2937;
+      --accent: #5ad3f0;
+      --accent-2: #8b5cf6;
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+      --success: #34d399;
+      --card-shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: radial-gradient(circle at 10% 20%, rgba(46, 139, 192, 0.12), transparent 25%),
+                  radial-gradient(circle at 90% 10%, rgba(139, 92, 246, 0.15), transparent 30%),
+                  #0b0f16;
+      color: var(--text);
+      font-family: 'Space Grotesk', 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 14px;
+      gap: 12px;
+    }
+    header.topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      background: rgba(17, 24, 39, 0.7);
+      border: 1px solid #111827;
+      border-radius: 14px;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.25);
+      backdrop-filter: blur(8px);
+    }
+    .title {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .title h1 {
+      margin: 0;
+      font-size: 1.4rem;
+      letter-spacing: 0.01em;
+      color: #c7d2fe;
+    }
+    .title span {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+    .actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    main.layout {
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      gap: 12px;
+      width: 100%;
+      flex: 1 1 auto;
+    }
+    .panel {
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 16px;
+      padding: 14px;
+      box-shadow: var(--card-shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .panel h2 {
+      margin: 0;
+      color: var(--accent);
+      letter-spacing: 0.01em;
+      font-size: 1.08rem;
+    }
+    .panel .help {
+      color: var(--muted);
+      font-size: 0.95rem;
+      margin: 0;
+    }
+    .field-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: center;
+    }
+    input[type="text"], select {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1.5px solid #1f2937;
+      background: #0f1624;
+      color: var(--text);
+      font-size: 1rem;
+      font-family: inherit;
+      outline: none;
+      transition: border 0.2s, box-shadow 0.2s;
+    }
+    input[type="text"]:focus, select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(90, 211, 240, 0.18);
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(90, 211, 240, 0.1);
+      color: var(--text);
+      font-size: 0.9rem;
+      border: 1px solid rgba(90, 211, 240, 0.3);
+    }
+    .pill .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+    .list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 50vh;
+      overflow: auto;
+      padding-right: 4px;
+    }
+    .card {
+      border: 1px solid #1f2937;
+      background: rgba(15, 22, 36, 0.9);
+      border-radius: 12px;
+      padding: 10px 12px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      cursor: pointer;
+      transition: border 0.2s, transform 0.2s;
+    }
+    .card:hover { border-color: var(--accent); transform: translateY(-1px); }
+    .card .title-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .card h3 { margin: 0; font-size: 1rem; }
+    .card .meta { color: var(--muted); font-size: 0.9rem; }
+    .card .badge {
+      padding: 4px 8px;
+      border-radius: 8px;
+      background: rgba(139, 92, 246, 0.15);
+      color: #d8b4fe;
+      border: 1px solid rgba(139, 92, 246, 0.35);
+      font-weight: 600;
+      font-size: 0.85rem;
+      height: fit-content;
+    }
+    .map-panel { position: relative; overflow: hidden; }
+    #mapa {
+      width: 100%;
+      height: calc(100vh - 120px);
+      min-height: 420px;
+      border-radius: 16px;
+      border: 1px solid #1f2937;
+      box-shadow: var(--card-shadow);
+    }
+    .floating-status {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      padding: 10px 12px;
+      background: rgba(17,24,39,0.78);
+      border: 1px solid #1f2937;
+      border-radius: 12px;
+      color: var(--text);
+      backdrop-filter: blur(6px);
+      box-shadow: 0 10px 28px rgba(0,0,0,0.3);
+      font-size: 0.95rem;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 260px;
+    }
+    .floating-status strong { color: var(--accent); }
+    .inline-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+    .btn.inline { padding: 8px 12px; font-size: 0.96rem; margin: 0; }
+    .message { color: var(--muted); font-size: 0.95rem; min-height: 22px; }
+    @media (max-width: 1080px) {
+      main.layout { grid-template-columns: 1fr; }
+      #mapa { height: 58vh; }
+      .list { max-height: none; }
+    }
+    @media (max-width: 640px) {
+      header.topbar { flex-direction: column; align-items: flex-start; }
+      .actions { width: 100%; }
+      .inline-actions { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="title">
+      <h1>Mapa GPS</h1>
+      <span>Ubicaciones guardadas y recorridos del drone</span>
+    </div>
+    <div class="actions">
+      <button class="btn" onclick="window.location.href='/'">⟵ Control</button>
+      <button class="btn" onclick="window.location.href='configuracion.html'">⚙️ Configuración</button>
+      <button class="btn" onclick="recargarTodo()">⟳ Recargar datos</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <div class="panel">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <h2>Ubicaciones guardadas</h2>
+        <span class="pill"><span class="dot"></span>Favoritos BD</span>
+      </div>
+      <p class="help">Busca por nombre o descripción y muéstralos en el mapa.</p>
+      <div class="field-row">
+        <input id="busquedaUbicacion" type="text" placeholder="Buscar ubicaciones..." onkeydown="if(event.key==='Enter'){cargarUbicaciones();}" />
+        <button class="btn inline" onclick="cargarUbicaciones()">🔎 Buscar</button>
+      </div>
+      <div class="field-row">
+        <select id="categoriaFiltro" onchange="cargarUbicaciones()">
+          <option value="">Todas las categorías</option>
+          <option value="general">General</option>
+          <option value="zona">Zona</option>
+          <option value="peligro">Peligro</option>
+          <option value="muestra">Muestra</option>
+        </select>
+        <button class="btn inline" onclick="limpiarUbicaciones()">🧹 Limpiar</button>
+      </div>
+      <div id="listaUbicaciones" class="list"></div>
+      <div class="message" id="msgUbicaciones"></div>
+    </div>
+
+    <div class="panel">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <h2>Recorridos guardados</h2>
+        <span class="pill" style="border-color: rgba(139,92,246,0.4); background: rgba(139,92,246,0.12);"><span class="dot" style="background: var(--accent-2);"></span>Historial</span>
+      </div>
+      <p class="help">Elige un recorrido para visualizar su trazo y puntos.</p>
+      <div class="field-row">
+        <select id="recorridoSelect" onchange="seleccionarRecorrido()">
+          <option value="">Selecciona un recorrido</option>
+        </select>
+        <button class="btn inline" onclick="cargarRecorridos()">↻ Actualizar</button>
+      </div>
+      <div id="resumenRecorrido" class="message"></div>
+      <div class="inline-actions">
+        <button class="btn inline" onclick="centrarMapa()">📍 Centrar mapa</button>
+        <button class="btn inline" onclick="limpiarRecorrido()">🗑 Ocultar recorrido</button>
+      </div>
+      <div id="listaRecorridos" class="list"></div>
+      <div class="message" id="msgRecorridos"></div>
+    </div>
+
+    <div class="panel map-panel">
+      <div id="mapa"></div>
+      <div class="floating-status" id="estadoFlotante">
+        <div><strong>Marcadores:</strong> <span id="conteoUbicaciones">0</span></div>
+        <div><strong>Recorrido:</strong> <span id="estadoRecorrido">Ninguno</span></div>
+        <div class="inline-actions">
+          <button class="btn inline" onclick="mapa?.zoomIn()">＋ Zoom</button>
+          <button class="btn inline" onclick="mapa?.zoomOut()">－ Zoom</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha512-VuZ4A3C7eoCHCqkfNNpJBbGAbIYW/W2PASi6DPd7OJbRRqtD9h5pz50jdK4Zk90un0n0KBPXn1oULICwhf66Rw==" crossorigin=""></script>
+  <script>
+    let mapa;
+    let capaUbicaciones = L.layerGroup();
+    let capaRecorrido = L.layerGroup();
+    let polilineaRecorrido = null;
+    let marcadorInicio = null;
+    let marcadorFin = null;
+
+    function initMapa() {
+      mapa = L.map('mapa', {
+        zoomControl: false,
+        worldCopyJump: true
+      }).setView([0, 0], 2);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap'
+      }).addTo(mapa);
+      capaUbicaciones.addTo(mapa);
+      capaRecorrido.addTo(mapa);
+    }
+
+    function setMensaje(id, texto, ok = true) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.textContent = texto || '';
+      el.style.color = ok ? '#9ae6b4' : '#fca5a5';
+    }
+
+    function limpiarUbicaciones() {
+      document.getElementById('busquedaUbicacion').value = '';
+      document.getElementById('categoriaFiltro').value = '';
+      capaUbicaciones.clearLayers();
+      document.getElementById('listaUbicaciones').innerHTML = '';
+      document.getElementById('conteoUbicaciones').textContent = '0';
+      setMensaje('msgUbicaciones', '');
+    }
+
+    async function cargarUbicaciones() {
+      const q = document.getElementById('busquedaUbicacion').value.trim();
+      const categoria = document.getElementById('categoriaFiltro').value;
+      const url = new URL(window.location.origin + '/api/ubicaciones');
+      if (q) url.searchParams.set('q', q);
+      if (categoria) url.searchParams.set('categoria', categoria);
+      setMensaje('msgUbicaciones', 'Buscando ubicaciones...');
+      try {
+        const res = await fetch(url.toString());
+        const data = await res.json();
+        if (!data.exito) throw new Error(data.error || 'Error consultando ubicaciones');
+        renderUbicaciones(data.ubicaciones || []);
+        setMensaje('msgUbicaciones', `${data.ubicaciones.length} ubicaciones encontradas.`);
+      } catch (e) {
+        console.error(e);
+        setMensaje('msgUbicaciones', e.message || 'No se pudieron cargar ubicaciones', false);
+      }
+    }
+
+    function renderUbicaciones(ubicaciones) {
+      capaUbicaciones.clearLayers();
+      const lista = document.getElementById('listaUbicaciones');
+      lista.innerHTML = '';
+      document.getElementById('conteoUbicaciones').textContent = ubicaciones.length;
+      if (!ubicaciones.length) return;
+      const bounds = [];
+
+      ubicaciones.forEach(u => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <div>
+            <div class="title-row">
+              <h3>${u.nombre || 'Sin nombre'}</h3>
+            </div>
+            <div class="meta">${u.descripcion || 'Sin descripción'}</div>
+            <div class="meta">${u.latitud?.toFixed ? u.latitud.toFixed(5) : u.latitud}, ${u.longitud?.toFixed ? u.longitud.toFixed(5) : u.longitud}</div>
+          </div>
+          <div class="badge">${u.categoria || 'general'}</div>
+        `;
+        card.onclick = () => enfocarUbicacion(u);
+        lista.appendChild(card);
+
+        const marker = L.circleMarker([u.latitud, u.longitud], {
+          radius: 8,
+          color: u.color || '#5ad3f0',
+          fillColor: u.color || '#5ad3f0',
+          fillOpacity: 0.25,
+          weight: 2
+        }).bindPopup(`<strong>${u.nombre || 'Ubicación'}</strong><br>${u.descripcion || ''}`);
+        marker.addTo(capaUbicaciones);
+        bounds.push([u.latitud, u.longitud]);
+      });
+
+      if (bounds.length) {
+        mapa.fitBounds(bounds, { padding: [30, 30] });
+      }
+    }
+
+    function enfocarUbicacion(u) {
+      if (!mapa || !u) return;
+      mapa.setView([u.latitud, u.longitud], Math.max(mapa.getZoom(), 14));
+      const popup = L.popup().setLatLng([u.latitud, u.longitud]).setContent(`<strong>${u.nombre || 'Ubicación'}</strong><br>${u.descripcion || ''}`);
+      popup.openOn(mapa);
+    }
+
+    async function cargarRecorridos() {
+      setMensaje('msgRecorridos', 'Leyendo recorridos...');
+      try {
+        const res = await fetch('/api/recorridos');
+        const data = await res.json();
+        if (!data.exito) throw new Error(data.error || 'Error consultando recorridos');
+        renderRecorridos(data.recorridos || []);
+        setMensaje('msgRecorridos', `${data.recorridos.length} recorridos disponibles.`);
+      } catch (e) {
+        console.error(e);
+        setMensaje('msgRecorridos', e.message || 'No se pudieron cargar recorridos', false);
+      }
+    }
+
+    function renderRecorridos(recorridos) {
+      const select = document.getElementById('recorridoSelect');
+      const lista = document.getElementById('listaRecorridos');
+      select.innerHTML = '<option value="">Selecciona un recorrido</option>';
+      lista.innerHTML = '';
+
+      recorridos.forEach(r => {
+        const opt = document.createElement('option');
+        opt.value = r.id;
+        opt.textContent = `${r.nombre} — ${r.fecha_inicio || ''}`;
+        select.appendChild(opt);
+
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.onclick = () => seleccionarRecorrido(r.id);
+        card.innerHTML = `
+          <div>
+            <div class="title-row"><h3>${r.nombre}</h3></div>
+            <div class="meta">Inicio: ${r.fecha_inicio || 'N/D'}${r.fecha_fin ? ' • Fin: ' + r.fecha_fin : ''}</div>
+          </div>
+          <div class="badge">${r.activo ? 'Activo' : 'Cerrado'}</div>
+        `;
+        lista.appendChild(card);
+      });
+    }
+
+    async function seleccionarRecorrido(recorridoId) {
+      const id = recorridoId || document.getElementById('recorridoSelect').value;
+      if (!id) return;
+      setMensaje('msgRecorridos', 'Cargando recorrido...');
+      try {
+        const res = await fetch(`/api/recorridos/${id}`);
+        const data = await res.json();
+        if (!data.exito) throw new Error(data.error || 'Recorrido no encontrado');
+        dibujarRecorrido(data.recorrido);
+        setMensaje('msgRecorridos', 'Recorrido cargado.');
+      } catch (e) {
+        console.error(e);
+        setMensaje('msgRecorridos', e.message || 'No se pudo cargar el recorrido', false);
+      }
+    }
+
+    function haversineKm(p1, p2) {
+      const R = 6371;
+      const dLat = (p2.lat - p1.lat) * Math.PI / 180;
+      const dLon = (p2.lon - p1.lon) * Math.PI / 180;
+      const lat1 = p1.lat * Math.PI / 180;
+      const lat2 = p2.lat * Math.PI / 180;
+      const a = Math.sin(dLat / 2) ** 2 + Math.sin(dLon / 2) ** 2 * Math.cos(lat1) * Math.cos(lat2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      return R * c;
+    }
+
+    function dibujarRecorrido(recorrido) {
+      capaRecorrido.clearLayers();
+      polilineaRecorrido = null;
+      marcadorInicio = null;
+      marcadorFin = null;
+      document.getElementById('estadoRecorrido').textContent = recorrido.nombre || 'Recorrido';
+
+      const puntos = (recorrido.posiciones || []).map(p => ({ lat: p.latitud, lon: p.longitud }));
+      if (!puntos.length) {
+        setMensaje('msgRecorridos', 'El recorrido no tiene puntos', false);
+        document.getElementById('resumenRecorrido').textContent = '';
+        return;
+      }
+
+      polilineaRecorrido = L.polyline(puntos.map(p => [p.lat, p.lon]), {
+        color: '#8b5cf6',
+        weight: 4,
+        opacity: 0.85
+      }).addTo(capaRecorrido);
+
+      const inicio = puntos[0];
+      const fin = puntos[puntos.length - 1];
+      marcadorInicio = L.circleMarker([inicio.lat, inicio.lon], { radius: 8, color: '#22c55e', fillColor: '#22c55e', fillOpacity: 0.8 }).bindPopup('Inicio');
+      marcadorFin = L.circleMarker([fin.lat, fin.lon], { radius: 8, color: '#f97316', fillColor: '#f97316', fillOpacity: 0.8 }).bindPopup('Fin');
+      marcadorInicio.addTo(capaRecorrido);
+      marcadorFin.addTo(capaRecorrido);
+
+      const bounds = polilineaRecorrido.getBounds();
+      mapa.fitBounds(bounds, { padding: [40, 40] });
+
+      let distancia = 0;
+      for (let i = 1; i < puntos.length; i++) {
+        distancia += haversineKm(puntos[i - 1], puntos[i]);
+      }
+      const resumen = `${puntos.length} puntos • ${distancia.toFixed(2)} km`;
+      document.getElementById('resumenRecorrido').textContent = resumen;
+    }
+
+    function limpiarRecorrido() {
+      capaRecorrido.clearLayers();
+      polilineaRecorrido = null;
+      marcadorInicio = null;
+      marcadorFin = null;
+      document.getElementById('estadoRecorrido').textContent = 'Ninguno';
+      document.getElementById('resumenRecorrido').textContent = '';
+      setMensaje('msgRecorridos', 'Recorrido ocultado');
+    }
+
+    function centrarMapa() {
+      if (polilineaRecorrido) {
+        mapa.fitBounds(polilineaRecorrido.getBounds(), { padding: [40, 40] });
+      } else if (capaUbicaciones.getLayers().length) {
+        const bounds = L.latLngBounds();
+        capaUbicaciones.eachLayer(l => bounds.extend(l.getLatLng()));
+        mapa.fitBounds(bounds, { padding: [30, 30] });
+      }
+    }
+
+    async function recargarTodo() {
+      await Promise.all([cargarUbicaciones(), cargarRecorridos()]);
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      initMapa();
+      await recargarTodo();
+    });
+  </script>
+</body>
+</html>
