@@ -555,9 +555,19 @@
 										</td>
 									</tr>
 									<tr>
-										<td colspan="2" style="border:1px solid #e0e0e0; padding:6px; text-align:center; background:#23272b; color:#f2f2f2;">
+										<td style="border:1px solid #e0e0e0; padding:6px; text-align:center; background:#23272b; color:#f2f2f2;">
 											<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><circle cx="8" cy="8" r="7" fill="#6ec1e4"/></svg>
-											Lat: <span id="gps-lat">--</span> Lon: <span id="gps-lon">--</span>
+											Lat: <span id="gps-lat">--</span>
+										</td>
+										<td style="border:1px solid #e0e0e0; padding:6px; text-align:center; background:#23272b; color:#f2f2f2;">
+											<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><circle cx="8" cy="8" r="7" fill="#6ec1e4"/></svg>
+											Lon: <span id="gps-lon">--</span>
+										</td>
+									</tr>
+									<tr>
+										<td colspan="2" style="border:1px solid #e0e0e0; padding:6px; text-align:center; background:#23272b; color:#f2f2f2;">
+											<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><path d="M8 2 A6 6 0 1 1 7.99 2" stroke="#6ec1e4" stroke-width="2" fill="none"/><circle cx="8" cy="8" r="2" fill="#6ec1e4"/></svg>
+											Vel: <span id="vel-valor">--</span>
 										</td>
 									</tr>
 								</tbody>
@@ -857,8 +867,8 @@
 					let lat = Number(data.gps.latitud);
 					let lon = Number(data.gps.longitud);
 					let gpsActivo = data.gps.valido === true;
-					document.getElementById('gps-lat').textContent = isNaN(lat) ? '--' : lat.toFixed(5);
-					document.getElementById('gps-lon').textContent = isNaN(lon) ? '--' : lon.toFixed(5);
+					document.getElementById('gps-lat').textContent = isNaN(lat) ? '--' : lat.toFixed(1);
+					document.getElementById('gps-lon').textContent = isNaN(lon) ? '--' : lon.toFixed(1);
 					if (!isNaN(lat) && !isNaN(lon)) {
 						mostrarMapaGPS(lat, lon, gpsActivo);
 						// Calcular velocidad en tiempo real basada en GPS
