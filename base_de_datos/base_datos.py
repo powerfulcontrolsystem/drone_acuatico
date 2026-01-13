@@ -138,6 +138,26 @@ def inicializar_bd():
         if 'camara2_resolucion' not in columnas:
             cursor.execute('ALTER TABLE configuracion ADD COLUMN camara2_resolucion TEXT DEFAULT "480p"')
         
+        # Agregar columna router_ip si no existe
+        if 'router_ip' not in columnas:
+            cursor.execute('ALTER TABLE configuracion ADD COLUMN router_ip TEXT')
+        
+        # Agregar columna pantalla_completa si no existe
+        if 'pantalla_completa' not in columnas:
+            cursor.execute('ALTER TABLE configuracion ADD COLUMN pantalla_completa INTEGER DEFAULT 0')
+        
+        # Agregar columna frecuencia_guardado si no existe
+        if 'frecuencia_guardado' not in columnas:
+            cursor.execute('ALTER TABLE configuracion ADD COLUMN frecuencia_guardado INTEGER DEFAULT 30')
+        
+        # Agregar columna rtsp_camara1_puerto si no existe
+        if 'rtsp_camara1_puerto' not in columnas:
+            cursor.execute('ALTER TABLE configuracion ADD COLUMN rtsp_camara1_puerto INTEGER DEFAULT 554')
+        
+        # Agregar columna rtsp_camara2_puerto si no existe
+        if 'rtsp_camara2_puerto' not in columnas:
+            cursor.execute('ALTER TABLE configuracion ADD COLUMN rtsp_camara2_puerto INTEGER DEFAULT 554')
+        
         conexion.commit()
         
         # Tabla de RECORRIDOS GPS
@@ -321,6 +341,11 @@ def obtener_configuracion():
                 'iniciar_auto_camara2': bool(fila['iniciar_auto_camara2']) if 'iniciar_auto_camara2' in fila.keys() else True,
                 'tamano_letra_datos': int(fila['tamano_letra_datos']) if 'tamano_letra_datos' in fila.keys() else 12,
                 'velocidad_actual': int(fila['velocidad_actual']) if 'velocidad_actual' in fila.keys() else 50,
+                'router_ip': fila['router_ip'] if 'router_ip' in fila.keys() else '',
+                'pantalla_completa': bool(fila['pantalla_completa']) if 'pantalla_completa' in fila.keys() else False,
+                'frecuencia_guardado': int(fila['frecuencia_guardado']) if 'frecuencia_guardado' in fila.keys() else 30,
+                'rtsp_camara1_puerto': int(fila['rtsp_camara1_puerto']) if 'rtsp_camara1_puerto' in fila.keys() else 554,
+                'rtsp_camara2_puerto': int(fila['rtsp_camara2_puerto']) if 'rtsp_camara2_puerto' in fila.keys() else 554,
                 'reles': {
                     1: fila['nombre_rele1'],
                     2: fila['nombre_rele2'],
@@ -376,6 +401,9 @@ def guardar_configuracion(config):
                 tamano_letra_datos = ?,
                 velocidad_actual = ?,
                 guardar_recorrido = ?,
+                frecuencia_guardado = ?,
+                router_ip = ?,
+                pantalla_completa = ?,
                 rtsp_camara1_url = ?,
                 onvif_camara1_host = ?,
                 onvif_camara1_puerto = ?,
@@ -384,6 +412,7 @@ def guardar_configuracion(config):
                 onvif_camara1_perfil = ?,
                 desactivar_camara1 = ?,
                 iniciar_auto_camara1 = ?,
+                rtsp_camara1_puerto = ?,
                 rtsp_camara2_url = ?,
                 onvif_camara2_host = ?,
                 onvif_camara2_puerto = ?,
@@ -392,6 +421,7 @@ def guardar_configuracion(config):
                 onvif_camara2_perfil = ?,
                 desactivar_camara2 = ?,
                 iniciar_auto_camara2 = ?,
+                rtsp_camara2_puerto = ?,
                 nombre_rele1 = ?,
                 nombre_rele2 = ?,
                 nombre_rele3 = ?,
@@ -411,6 +441,9 @@ def guardar_configuracion(config):
             int(config.get('tamano_letra_datos', 12)),
             int(config.get('velocidad_actual', 50)),
             int(config.get('guardar_recorrido', True)),
+            int(config.get('frecuencia_guardado', 30)),
+            config.get('router_ip', ''),
+            int(config.get('pantalla_completa', False)),
             config.get('rtsp_camara1_url', ''),
             config.get('onvif_camara1_host', ''),
             int(config.get('onvif_camara1_puerto', 8899)),
@@ -419,6 +452,7 @@ def guardar_configuracion(config):
             config.get('onvif_camara1_perfil', ''),
             int(config.get('desactivar_camara1', False)),
             int(config.get('iniciar_auto_camara1', True)),
+            int(config.get('rtsp_camara1_puerto', 554)),
             config.get('rtsp_camara2_url', ''),
             config.get('onvif_camara2_host', ''),
             int(config.get('onvif_camara2_puerto', 8899)),
@@ -427,6 +461,7 @@ def guardar_configuracion(config):
             config.get('onvif_camara2_perfil', ''),
             int(config.get('desactivar_camara2', False)),
             int(config.get('iniciar_auto_camara2', True)),
+            int(config.get('rtsp_camara2_puerto', 554)),
             reles_normalizados.get(1, 'Relé 1') or 'Relé 1',
             reles_normalizados.get(2, 'Relé 2') or 'Relé 2',
             reles_normalizados.get(3, 'Relé 3') or 'Relé 3',
