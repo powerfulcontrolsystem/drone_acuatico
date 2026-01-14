@@ -67,11 +67,17 @@
       flex-wrap: wrap;
     }
     main.layout {
-      display: grid;
-      grid-template-columns: 360px 1fr;
+      display: flex;
+      flex-direction: column;
       gap: 12px;
       width: 100%;
       flex: 1 1 auto;
+    }
+    .columns-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      width: 100%;
     }
     .panel {
       background: var(--panel-bg);
@@ -137,7 +143,7 @@
       display: flex;
       flex-direction: column;
       gap: 8px;
-      max-height: 50vh;
+      max-height: 35vh;
       overflow: auto;
       padding-right: 4px;
     }
@@ -170,39 +176,81 @@
       font-size: 0.85rem;
       height: fit-content;
     }
-    .map-panel { position: relative; overflow: hidden; }
+    .map-panel { position: relative; overflow: hidden; width: 100%; }
     #mapa {
       width: 100%;
-      height: calc(100vh - 120px);
+      height: 50vh;
       min-height: 420px;
       border-radius: 16px;
       border: 1px solid #1f2937;
       box-shadow: var(--card-shadow);
+      z-index: 1;
+      background: #0f1624;
     }
     .floating-status {
       position: absolute;
       top: 12px;
       left: 12px;
       padding: 10px 12px;
-      background: rgba(17,24,39,0.78);
+      background: rgba(17,24,39,0.9);
       border: 1px solid #1f2937;
       border-radius: 12px;
       color: var(--text);
-      backdrop-filter: blur(6px);
-      box-shadow: 0 10px 28px rgba(0,0,0,0.3);
-      font-size: 0.95rem;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 10px 28px rgba(0,0,0,0.4);
+      font-size: 0.88rem;
       display: flex;
       flex-direction: column;
       gap: 4px;
       min-width: 260px;
+      max-width: 320px;
+      z-index: 1000;
     }
     .floating-status strong { color: var(--accent); }
+    .gps-info {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      padding: 10px 12px;
+      background: rgba(17,24,39,0.92);
+      border: 1px solid #1f2937;
+      border-radius: 12px;
+      color: var(--text);
+      backdrop-filter: blur(8px);
+      box-shadow: 0 10px 28px rgba(0,0,0,0.4);
+      font-size: 0.88rem;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 240px;
+      z-index: 1000;
+    }
+    .gps-info .gps-title {
+      color: var(--success);
+      font-weight: 600;
+      font-size: 0.95rem;
+      margin-bottom: 4px;
+      border-bottom: 1px solid rgba(52, 211, 153, 0.2);
+      padding-bottom: 4px;
+    }
+    .gps-info .gps-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .gps-info .gps-label {
+      color: var(--muted);
+    }
+    .gps-info .gps-value {
+      color: var(--text);
+      font-weight: 500;
+    }
     .inline-actions { display: flex; gap: 6px; flex-wrap: wrap; }
     .btn.inline { padding: 8px 12px; font-size: 0.96rem; margin: 0; }
     .message { color: var(--muted); font-size: 0.95rem; min-height: 22px; }
     @media (max-width: 1080px) {
-      main.layout { grid-template-columns: 1fr; }
-      #mapa { height: 58vh; }
+      .columns-container { grid-template-columns: 1fr; }
+      #mapa { height: 45vh; }
       .list { max-height: none; }
     }
     @media (max-width: 640px) {
@@ -226,51 +274,7 @@
   </header>
 
   <main class="layout">
-    <div class="panel">
-      <div style="display:flex;align-items:center;gap:10px;">
-        <h2>Ubicaciones guardadas</h2>
-        <span class="pill"><span class="dot"></span>Favoritos BD</span>
-      </div>
-      <p class="help">Busca por nombre o descripción y muéstralos en el mapa.</p>
-      <div class="field-row">
-        <input id="busquedaUbicacion" type="text" placeholder="Buscar ubicaciones..." onkeydown="if(event.key==='Enter'){cargarUbicaciones();}" />
-        <button class="btn inline" onclick="cargarUbicaciones()">🔎 Buscar</button>
-      </div>
-      <div class="field-row">
-        <select id="categoriaFiltro" onchange="cargarUbicaciones()">
-          <option value="">Todas las categorías</option>
-          <option value="general">General</option>
-          <option value="zona">Zona</option>
-          <option value="peligro">Peligro</option>
-          <option value="muestra">Muestra</option>
-        </select>
-        <button class="btn inline" onclick="limpiarUbicaciones()">🧹 Limpiar</button>
-      </div>
-      <div id="listaUbicaciones" class="list"></div>
-      <div class="message" id="msgUbicaciones"></div>
-    </div>
-
-    <div class="panel">
-      <div style="display:flex;align-items:center;gap:10px;">
-        <h2>Recorridos guardados</h2>
-        <span class="pill" style="border-color: rgba(139,92,246,0.4); background: rgba(139,92,246,0.12);"><span class="dot" style="background: var(--accent-2);"></span>Historial</span>
-      </div>
-      <p class="help">Elige un recorrido para visualizar su trazo y puntos.</p>
-      <div class="field-row">
-        <select id="recorridoSelect" onchange="seleccionarRecorrido()">
-          <option value="">Selecciona un recorrido</option>
-        </select>
-        <button class="btn inline" onclick="cargarRecorridos()">↻ Actualizar</button>
-      </div>
-      <div id="resumenRecorrido" class="message"></div>
-      <div class="inline-actions">
-        <button class="btn inline" onclick="centrarMapa()">📍 Centrar mapa</button>
-        <button class="btn inline" onclick="limpiarRecorrido()">🗑 Ocultar recorrido</button>
-      </div>
-      <div id="listaRecorridos" class="list"></div>
-      <div class="message" id="msgRecorridos"></div>
-    </div>
-
+    <!-- Mapa en la parte superior - ancho completo -->
     <div class="panel map-panel">
       <div id="mapa"></div>
       <div class="floating-status" id="estadoFlotante">
@@ -280,6 +284,67 @@
           <button class="btn inline" onclick="mapa?.zoomIn()">＋ Zoom</button>
           <button class="btn inline" onclick="mapa?.zoomOut()">－ Zoom</button>
         </div>
+      </div>
+      <div class="gps-info" id="gpsInfo">
+        <div class="gps-title">📡 Ubicación Actual GPS</div>
+        <div class="gps-row"><span class="gps-label">Latitud:</span><span class="gps-value" id="gpsLat">--</span></div>
+        <div class="gps-row"><span class="gps-label">Longitud:</span><span class="gps-value" id="gpsLon">--</span></div>
+        <div class="gps-row"><span class="gps-label">Altitud:</span><span class="gps-value" id="gpsAlt">--</span></div>
+        <div class="gps-row"><span class="gps-label">Precisión:</span><span class="gps-value" id="gpsAcc">--</span></div>
+        <div class="gps-row"><span class="gps-label">Velocidad:</span><span class="gps-value" id="gpsSpeed">--</span></div>
+        <div class="gps-row"><span class="gps-label">Rumbo:</span><span class="gps-value" id="gpsHeading">--</span></div>
+        <div class="gps-row"><span class="gps-label">Satélites:</span><span class="gps-value" id="gpsSats">--</span></div>
+        <div class="gps-row"><span class="gps-label">Última actualización:</span><span class="gps-value" id="gpsTime">--</span></div>
+      </div>
+    </div>
+
+    <!-- Dos columnas debajo del mapa -->
+    <div class="columns-container">
+      <!-- Columna izquierda: Ubicaciones guardadas -->
+      <div class="panel">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <h2>Ubicaciones guardadas</h2>
+          <span class="pill"><span class="dot"></span>Favoritos BD</span>
+        </div>
+        <p class="help">Busca por nombre o descripción y muéstralos en el mapa.</p>
+        <div class="field-row">
+          <input id="busquedaUbicacion" type="text" placeholder="Buscar ubicaciones..." onkeydown="if(event.key==='Enter'){cargarUbicaciones();}" />
+          <button class="btn inline" onclick="cargarUbicaciones()">🔎 Buscar</button>
+        </div>
+        <div class="field-row">
+          <select id="categoriaFiltro" onchange="cargarUbicaciones()">
+            <option value="">Todas las categorías</option>
+            <option value="general">General</option>
+            <option value="zona">Zona</option>
+            <option value="peligro">Peligro</option>
+            <option value="muestra">Muestra</option>
+          </select>
+          <button class="btn inline" onclick="limpiarUbicaciones()">🧹 Limpiar</button>
+        </div>
+        <div id="listaUbicaciones" class="list"></div>
+        <div class="message" id="msgUbicaciones"></div>
+      </div>
+
+      <!-- Columna derecha: Recorridos guardados -->
+      <div class="panel">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <h2>Recorridos guardados</h2>
+          <span class="pill" style="border-color: rgba(139,92,246,0.4); background: rgba(139,92,246,0.12);"><span class="dot" style="background: var(--accent-2);"></span>Historial</span>
+        </div>
+        <p class="help">Elige un recorrido para visualizar su trazo y puntos.</p>
+        <div class="field-row">
+          <select id="recorridoSelect" onchange="seleccionarRecorrido()">
+            <option value="">Selecciona un recorrido</option>
+          </select>
+          <button class="btn inline" onclick="cargarRecorridos()">↻ Actualizar</button>
+        </div>
+        <div id="resumenRecorrido" class="message"></div>
+        <div class="inline-actions">
+          <button class="btn inline" onclick="centrarMapa()">📍 Centrar mapa</button>
+          <button class="btn inline" onclick="limpiarRecorrido()">🗑 Ocultar recorrido</button>
+        </div>
+        <div id="listaRecorridos" class="list"></div>
+        <div class="message" id="msgRecorridos"></div>
       </div>
     </div>
   </main>
@@ -292,18 +357,131 @@
     let polilineaRecorrido = null;
     let marcadorInicio = null;
     let marcadorFin = null;
+    let marcadorUbicacionActual = null;
+    let circuloPrecision = null;
+    let watchId = null;
 
     function initMapa() {
+      // Inicializar mapa con vista predeterminada
       mapa = L.map('mapa', {
         zoomControl: false,
-        worldCopyJump: true
-      }).setView([0, 0], 2);
+        worldCopyJump: true,
+        preferCanvas: true
+      }).setView([-34.6037, -58.3816], 12);
+      
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
         attribution: '© OpenStreetMap'
       }).addTo(mapa);
+      
       capaUbicaciones.addTo(mapa);
       capaRecorrido.addTo(mapa);
+
+      // Forzar que el mapa se redibuje correctamente
+      setTimeout(() => {
+        mapa.invalidateSize();
+      }, 100);
+
+      // Obtener ubicación actual del usuario
+      obtenerUbicacionActual();
+    }
+
+    function actualizarInfoGPS(position) {
+      const coords = position.coords;
+      
+      // Actualizar valores en el panel GPS
+      document.getElementById('gpsLat').textContent = coords.latitude.toFixed(6) + '°';
+      document.getElementById('gpsLon').textContent = coords.longitude.toFixed(6) + '°';
+      document.getElementById('gpsAlt').textContent = coords.altitude !== null ? coords.altitude.toFixed(1) + ' m' : 'No disponible';
+      document.getElementById('gpsAcc').textContent = coords.accuracy !== null ? coords.accuracy.toFixed(1) + ' m' : '--';
+      document.getElementById('gpsSpeed').textContent = coords.speed !== null ? (coords.speed * 3.6).toFixed(1) + ' km/h' : '--';
+      document.getElementById('gpsHeading').textContent = coords.heading !== null ? coords.heading.toFixed(0) + '°' : '--';
+      
+      // Estimación de satélites basada en precisión
+      const satsText = coords.accuracy < 10 ? '8+' : coords.accuracy < 30 ? '4-7' : '< 4';
+      document.getElementById('gpsSats').textContent = satsText + ' (est.)';
+      
+      const now = new Date();
+      document.getElementById('gpsTime').textContent = now.toLocaleTimeString('es-ES');
+    }
+
+    function obtenerUbicacionActual() {
+      if ('geolocation' in navigator) {
+        // Obtener posición inicial
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            actualizarPosicion(position);
+            actualizarInfoGPS(position);
+          },
+          (error) => {
+            console.warn('No se pudo obtener la ubicación:', error.message);
+            document.getElementById('gpsLat').textContent = 'Error';
+            document.getElementById('gpsLon').textContent = error.message;
+          },
+          {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 0
+          }
+        );
+
+        // Seguimiento continuo de la ubicación
+        watchId = navigator.geolocation.watchPosition(
+          (position) => {
+            actualizarPosicion(position);
+            actualizarInfoGPS(position);
+          },
+          (error) => {
+            console.warn('Error en watchPosition:', error.message);
+          },
+          {
+            enableHighAccuracy: true,
+            timeout: 5000,
+            maximumAge: 1000
+          }
+        );
+      } else {
+        console.warn('Geolocalización no disponible');
+        document.getElementById('gpsLat').textContent = 'No disponible';
+        document.getElementById('gpsLon').textContent = 'Navegador no compatible';
+      }
+    }
+
+    function actualizarPosicion(position) {
+      const lat = position.coords.latitude;
+      const lon = position.coords.longitude;
+      
+      // Centrar mapa solo la primera vez
+      if (!marcadorUbicacionActual) {
+        mapa.setView([lat, lon], 15);
+      }
+      
+      // Actualizar o crear marcador de ubicación actual
+      if (marcadorUbicacionActual) {
+        marcadorUbicacionActual.setLatLng([lat, lon]);
+        if (circuloPrecision) {
+          circuloPrecision.setLatLng([lat, lon]);
+          circuloPrecision.setRadius(position.coords.accuracy);
+        }
+      } else {
+        marcadorUbicacionActual = L.circleMarker([lat, lon], {
+          radius: 10,
+          color: '#22c55e',
+          fillColor: '#22c55e',
+          fillOpacity: 0.4,
+          weight: 3
+        }).bindPopup('<strong>📍 Ubicación actual</strong><br>Tu posición actual')
+          .addTo(mapa);
+        
+        // Agregar círculo de precisión
+        circuloPrecision = L.circle([lat, lon], {
+          radius: position.coords.accuracy,
+          color: '#22c55e',
+          fillColor: '#22c55e',
+          fillOpacity: 0.1,
+          weight: 1
+        }).addTo(mapa);
+      }
     }
 
     function setMensaje(id, texto, ok = true) {
