@@ -1021,7 +1021,8 @@
 			// Relés
 			function renderReles(reles) {
 				console.log('=== renderReles llamado con:', reles);
-				estadoReles = reles || {};
+				const nuevosEstados = reles || estadoReles || {};
+				estadoReles = { ...nuevosEstados };
 				const contenedor = document.getElementById('reles-botones');
 				console.log('Contenedor reles-botones:', contenedor);
 				if (!contenedor) {
@@ -1029,14 +1030,14 @@
 					return;
 				}
 				contenedor.innerHTML = '';
-				// Los nombres de los relés se reciben por WebSocket en data.nombres_reles
-				let nombresReles = window.nombres_reles || {};
+				// Los nombres de los relés se reciben por WebSocket o desde la config inicial
+				const nombresReles = window.nombres_reles || {};
 				console.log('Nombres de relés:', nombresReles);
 				for (let i = 1; i <= 9; i++) {
-					let nombre = nombresReles[i] || `Relé ${i}`;
-					let estaActivo = estadoReles[i] === true;
+					const nombre = nombresReles[i] || `Relé ${i}`;
+					const estaActivo = estadoReles[i] === true;
 					const btn = document.createElement('button');
-					btn.className = `btn btn-rele btn-modern ${estaActivo ? 'activo' : 'inactivo'}`;
+					btn.className = `btn btn-rele ${estaActivo ? 'activo' : 'inactivo'}`;
 					btn.id = `rele${i}`;
 					btn.setAttribute('data-numero', String(i));
 					btn.innerHTML = `<span style='font-weight:600;'>${nombre}</span>`;
@@ -1044,8 +1045,6 @@
 					btn.addEventListener('click', function(e) {
 						const numero = parseInt(this.getAttribute('data-numero'));
 						console.log('🔴 CLICK DETECTADO EN RELÉ:', numero);
-						console.log('window.ws existe:', typeof window.ws !== 'undefined');
-						console.log('window.ws:', window.ws);
 						if (typeof window.ws === 'undefined' || window.ws === null) {
 							console.error('❌ window.ws NO EXISTE');
 							alert('Error: WebSocket no inicializado');
@@ -1192,6 +1191,24 @@
 				};
 			}
 			window.addEventListener('DOMContentLoaded', () => {
+				// Cargar nombres de relés desde la configuración inicial para que aparezcan antes del WS
+				async function cargarNombresRelesDesdeConfig() {
+					try {
+						const res = await fetch('/api/config');
+						if (!res.ok) return;
+						const cfg = await res.json();
+						if (cfg && cfg.reles) {
+							window.nombres_reles = cfg.reles;
+							console.log('Nombres de relés cargados desde config:', window.nombres_reles);
+							// Re-render si ya hay estado actual
+							renderReles();
+						}
+					} catch (e) {
+						console.warn('No se pudieron cargar nombres de relés desde config:', e);
+					}
+				}
+				cargarNombresRelesDesdeConfig();
+
 				// Conectar eventos de botones de velocidad
 				const mapeoVelocidad = [
 					{ id: 'vel-lenta', valor: 30 },
