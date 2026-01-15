@@ -286,6 +286,78 @@ def obtener_temperatura():
         return {'temperatura': 0, 'unidad': 'C'}
 
 
+def obtener_cpu():
+    """
+    Obtiene el uso del procesador (CPU) en porcentaje.
+    
+    Returns:
+        dict: {'porcentaje': int, 'cores': int}
+    """
+    try:
+        # Leer /proc/stat para calcular el uso de CPU
+        with open('/proc/stat', 'r') as f:
+            linea = f.readline()
+        
+        campos = linea.split()
+        # cpu user nice system idle iowait irq softirq steal guest guest_nice
+        if campos[0] == 'cpu':
+            user = int(campos[1])
+            nice = int(campos[2])
+            system = int(campos[3])
+            idle = int(campos[4])
+            iowait = int(campos[5])
+            
+            total = user + nice + system + idle + iowait
+            uso_cpu = int((total - idle) / total * 100) if total > 0 else 0
+            
+            # Contar número de cores
+            try:
+                num_cores = os.cpu_count() or 1
+            except:
+                num_cores = 1
+            
+            return {
+                'porcentaje': uso_cpu,
+                'cores': num_cores
+            }
+    except Exception as e:
+        logger.error(f"Error obteniendo CPU: {e}")
+        return {'porcentaje': 0, 'cores': 1}
+
+
+def obtener_almacenamiento():
+    """
+    Obtiene información del almacenamiento (microSD) de la Raspberry Pi.
+    
+    Returns:
+        dict: {'total_gb': float, 'usado_gb': float, 'disponible_gb': float, 'porcentaje': int}
+    """
+    try:
+        import shutil
+        # Obtener información del filesystem raíz (donde está la microSD)
+        stats = shutil.disk_usage('/')
+        
+        total_gb = stats.total / (1024**3)  # Convertir bytes a GB
+        usado_gb = stats.used / (1024**3)
+        disponible_gb = stats.free / (1024**3)
+        porcentaje = int((stats.used / stats.total) * 100) if stats.total > 0 else 0
+        
+        return {
+            'total_gb': round(total_gb, 2),
+            'usado_gb': round(usado_gb, 2),
+            'disponible_gb': round(disponible_gb, 2),
+            'porcentaje': porcentaje
+        }
+    except Exception as e:
+        logger.error(f"Error obteniendo almacenamiento: {e}")
+        return {
+            'total_gb': 0.0,
+            'usado_gb': 0.0,
+            'disponible_gb': 0.0,
+            'porcentaje': 0
+        }
+
+
 def obtener_bateria():
     """
     Obtiene el estado de la batería.

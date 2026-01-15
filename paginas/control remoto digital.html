@@ -371,9 +371,9 @@
 			color: #e5e7eb !important;
 		}
 		.cuadro-superior-wrapper {
-			flex: 1;
-			min-height: 50vh;
-			max-height: 50vh;
+			flex: 1.5;
+			min-height: 65vh;
+			max-height: 65vh;
 			display: flex;
 			align-items: stretch;
 			justify-content: center;
@@ -409,7 +409,7 @@
 			align-items: stretch;
 			justify-content: center;
 			overflow: auto;
-			padding: 4px;
+			padding: 2px;
 			box-sizing: border-box;
 			background: #0f1218;
 		}
@@ -626,7 +626,7 @@
 		</div>
 	<div class="cuadro-inferior">
 		<div style="width:100%; display:flex; justify-content:center; align-items:stretch;">
-			<div class="cuadro-externo-inferior control-botones" style="background:#1a1f28; border:2px solid #2d3748; border-radius:8px; box-shadow:0 2px 12px rgba(0,0,0,0.4); padding:4px; display:flex; justify-content:center; align-items:center;">
+			<div class="cuadro-externo-inferior control-botones" style="background:#1a1f28; border:2px solid #2d3748; border-radius:8px; box-shadow:0 2px 12px rgba(0,0,0,0.4); padding:2px; display:flex; justify-content:center; align-items:center;">
 					<div class="fila-inferior" style="display:flex; justify-content:center; gap:8px;">
 						<!-- Contenedor de la Cruz -->
 						<div style="margin:0; padding:0; width:auto; box-sizing:border-box; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0;">
@@ -713,6 +713,18 @@
 										<td style="border:1px solid #cfd8dc; padding:6px; text-align:center;">
 											<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><circle cx="8" cy="8" r="7" fill="#6ec1e4"/></svg>
 											Alt: <span id="gps-alt">--</span>
+										</td>
+									</tr>
+									<tr>
+										<td style="border:1px solid #e0e0e0; padding:6px; text-align:center; background:#23272b; color:#f2f2f2;">
+											<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><circle cx="4" cy="8" r="2" fill="#ff9800"/><circle cx="8" cy="8" r="2" fill="#ff9800"/><circle cx="12" cy="8" r="2" fill="#ff9800"/></svg>
+											CPU: <span id="cpu-valor">--</span>
+										</td>
+										<td style="border:1px solid #e0e0e0; padding:6px; text-align:center; background:#23272b; color:#f2f2f2;">
+											<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><rect x="3" y="3" width="10" height="10" rx="2" fill="#9c27b0" stroke="#9c27b0" stroke-width="0.5"/><rect x="4" y="4" width="8" height="3" fill="#e1bee7"/></svg>
+											SD: <span id="almacenamiento-valor">--</span>
+										</td>
+										<td style="border:1px solid #e0e0e0; padding:6px; text-align:center; background:#23272b; color:#f2f2f2;">
 										</td>
 									</tr>
 									<tr>
@@ -1010,6 +1022,18 @@
 				} else {
 					document.getElementById('temp-valor').textContent = '--';
 				}
+				// CPU
+				if (data.cpu && typeof data.cpu.porcentaje !== 'undefined') {
+					document.getElementById('cpu-valor').textContent = data.cpu.porcentaje + ' %';
+				} else {
+					document.getElementById('cpu-valor').textContent = '--';
+				}
+				// Almacenamiento (SD)
+				if (data.almacenamiento && typeof data.almacenamiento.porcentaje !== 'undefined') {
+					document.getElementById('almacenamiento-valor').textContent = data.almacenamiento.usado_gb + 'GB/' + data.almacenamiento.total_gb + 'GB';
+				} else {
+					document.getElementById('almacenamiento-valor').textContent = '--';
+				}
 				// Batería
 				if (data.bateria && typeof data.bateria.porcentaje !== 'undefined') {
 					document.getElementById('bat-valor').textContent = data.bateria.porcentaje + ' %';
@@ -1215,6 +1239,64 @@
 								}
 							} else if (data.mensaje) {
 								alert('✖ ' + data.mensaje);
+							}
+						}
+						// Indicadores del sistema (RAM, Temperatura, CPU, Almacenamiento, etc)
+						if (data.tipo === 'ram' && data.datos) {
+							const ram = data.datos;
+							if (typeof ram.percent !== 'undefined') {
+								document.getElementById('ram-valor').textContent = ram.percent + ' % (' + ram.used + 'MB/' + ram.total + 'MB)';
+							}
+						}
+						if (data.tipo === 'temperatura' && data.datos) {
+							const temp = data.datos;
+							if (typeof temp.temperatura !== 'undefined') {
+								document.getElementById('temp-valor').textContent = temp.temperatura + ' °C';
+							}
+						}
+						if (data.tipo === 'cpu' && data.datos) {
+							const cpu = data.datos;
+							if (typeof cpu.porcentaje !== 'undefined') {
+								document.getElementById('cpu-valor').textContent = cpu.porcentaje + ' %';
+							}
+						}
+						if (data.tipo === 'almacenamiento' && data.datos) {
+							const storage = data.datos;
+							if (typeof storage.porcentaje !== 'undefined') {
+								document.getElementById('almacenamiento-valor').textContent = storage.usado_gb + 'GB/' + storage.total_gb + 'GB';
+							}
+						}
+						if (data.tipo === 'bateria' && data.datos) {
+							const bat = data.datos;
+							if (typeof bat.porcentaje !== 'undefined') {
+								document.getElementById('bat-valor').textContent = bat.porcentaje + ' %';
+							}
+						}
+						if (data.tipo === 'peso' && data.datos) {
+							const peso = data.datos;
+							if (typeof peso.peso_kg !== 'undefined') {
+								document.getElementById('peso-valor').textContent = peso.peso_kg + ' kg';
+							}
+						}
+						if (data.tipo === 'solar' && data.datos) {
+							const solar = data.datos;
+							if (typeof solar.potencia !== 'undefined') {
+								document.getElementById('solar-valor').textContent = solar.potencia + ' W';
+							}
+						}
+						if (data.tipo === 'gps' && data.datos) {
+							const gps = data.datos;
+							if (gps.latitud && gps.longitud) {
+								let lat = Number(gps.latitud);
+								let lon = Number(gps.longitud);
+								document.getElementById('gps-lat').textContent = isNaN(lat) ? '--' : lat.toFixed(1);
+								document.getElementById('gps-lon').textContent = isNaN(lon) ? '--' : lon.toFixed(1);
+								if (gps.altitud) {
+									document.getElementById('gps-alt').textContent = gps.altitud + ' m';
+								}
+								if (gps.satelites) {
+									document.getElementById('gps-sats').textContent = gps.satelites;
+								}
 							}
 						}
 					} catch(e) {

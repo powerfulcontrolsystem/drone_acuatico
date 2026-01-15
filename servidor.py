@@ -22,6 +22,8 @@ from funciones import (
     liberar_gpio,
     obtener_ram,
     obtener_temperatura,
+    obtener_cpu,
+    obtener_almacenamiento,
     obtener_bateria,
     obtener_peso,
     obtener_solar,
@@ -194,6 +196,8 @@ async def enviar_datos_periodicos():
             
             ram = await loop.run_in_executor(None, obtener_ram)
             temp = await loop.run_in_executor(None, obtener_temperatura)
+            cpu = await loop.run_in_executor(None, obtener_cpu)
+            almacenamiento = await loop.run_in_executor(None, obtener_almacenamiento)
             bat = await loop.run_in_executor(None, obtener_bateria)
             peso = await loop.run_in_executor(None, obtener_peso)
             solar = await loop.run_in_executor(None, obtener_solar)
@@ -203,6 +207,8 @@ async def enviar_datos_periodicos():
             # Crear mensajes
             mensaje_ram = {'tipo': 'ram', 'datos': ram}
             mensaje_temp = {'tipo': 'temperatura', 'datos': temp}
+            mensaje_cpu = {'tipo': 'cpu', 'datos': cpu}
+            mensaje_almacenamiento = {'tipo': 'almacenamiento', 'datos': almacenamiento}
             mensaje_bat = {'tipo': 'bateria', 'datos': bat}
             mensaje_peso = {'tipo': 'peso', 'datos': peso}
             mensaje_solar = {'tipo': 'solar', 'datos': solar}
@@ -214,6 +220,8 @@ async def enviar_datos_periodicos():
                 try:
                     await cliente.send_json(mensaje_ram)
                     await cliente.send_json(mensaje_temp)
+                    await cliente.send_json(mensaje_cpu)
+                    await cliente.send_json(mensaje_almacenamiento)
                     await cliente.send_json(mensaje_bat)
                     await cliente.send_json(mensaje_peso)
                     await cliente.send_json(mensaje_solar)
@@ -547,6 +555,8 @@ async def procesar_mensaje_ws(ws, datos):
         await ws.send_json({'tipo': 'reles', 'reles': reles_normalizados})
         await ws.send_json({'tipo': 'ram', 'datos': obtener_ram()})
         await ws.send_json({'tipo': 'temperatura', 'datos': obtener_temperatura()})
+        await ws.send_json({'tipo': 'cpu', 'datos': obtener_cpu()})
+        await ws.send_json({'tipo': 'almacenamiento', 'datos': obtener_almacenamiento()})
         await ws.send_json({'tipo': 'bateria', 'datos': obtener_bateria()})
         await ws.send_json({'tipo': 'peso', 'datos': obtener_peso()})
         await ws.send_json({'tipo': 'solar', 'datos': obtener_solar()})
