@@ -6,7 +6,7 @@ set -euo pipefail
 #   ./subir_cambios_a_repositorio.sh [mensaje opcional]
 # Si no se proporciona mensaje, se usará un timestamp.
 
-ROOT="/home/admin/drone acuatico"
+ROOT="/home/admin/drone_acuatico"
 cd "$ROOT"
 
 echo "╔════════════════════════════════════════════╗"

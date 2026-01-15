@@ -275,7 +275,7 @@ body {
 .panel-bajo { flex: 1 1 0; }
 .panel-cam video {
   width: 100%;
-  max-width: 340px;
+  max-width: none;
   border-radius: 8px;
   background: #10131a;
   box-shadow: 0 1px 8px #0005;
