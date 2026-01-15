@@ -9,7 +9,7 @@
 		   .fila-superior {
 			display: grid;
 			grid-template-columns: repeat(3, minmax(0, 1fr));
-			gap: 1px;
+			gap: 0px;
 			width: 100%;
 			height: 100%;
 			min-height: auto;
@@ -32,14 +32,14 @@
 			position: relative;
 			overflow: visible;
 			background: #1a1f28;
-			border-radius: 6px;
+			border-radius: 2px;
 		}
 		.panel-cam video {
 			flex: 1 1 0;
 			width: 100%;
 			min-height: 0;
 			object-fit: contain;
-			border-radius: 6px;
+			border-radius: 2px;
 			display: block;
 			margin: 0 auto;
 		}
@@ -424,7 +424,7 @@
 			align-items: stretch;
 			justify-content: center;
 			overflow: auto;
-			padding: 2px;
+			padding: 0px;
 			box-sizing: border-box;
 			background: #0f1218;
 		}
@@ -646,7 +646,7 @@
 		</div>
 	<div class="cuadro-inferior">
 		<div style="width:100%; display:flex; justify-content:center; align-items:stretch;">
-			<div class="cuadro-externo-inferior control-botones" style="background:#1a1f28; border:2px solid #2d3748; border-radius:8px; box-shadow:0 2px 12px rgba(0,0,0,0.4); padding:2px; display:flex; justify-content:center; align-items:center;">
+			<div class="cuadro-externo-inferior control-botones" style="background:#1a1f28; border:2px solid #2d3748; border-radius:8px; box-shadow:0 2px 12px rgba(0,0,0,0.4); padding:0px; display:flex; justify-content:center; align-items:center;">
 					<div class="fila-inferior" style="display:flex; justify-content:center; gap:8px;">
 						<!-- Contenedor de la Cruz -->
 						<div style="margin:0; padding:0; width:auto; box-sizing:border-box; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0;">
@@ -739,9 +739,10 @@
 											CPU: <span id="cpu-valor">--</span>
 										</td>
 										<td style="border:1px solid #e0e0e0; padding:2px 3px; text-align:center; background:#23272b; color:#f2f2f2;">
-											<div id="disk-indicator" style="display:flex; align-items:center; justify-content:center; gap:4px; width:100%; height:100%;">
-												<span style="font-size:0.65em; font-weight:600;">Disco</span>
-												<div id="disk-led" style="width:8px; height:8px; border-radius:50%; background:#2d5a2d; box-shadow:0 0 3px #2d5a2d; transition:all 0.1s ease;"></div>
+											<div id="disk-indicator" style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; width:100%; height:100%; font-size:0.68em;">
+												<span style="font-weight:600;">Disco</span>
+												<span style="color:#cfd8dc;">Lect: <span id="disk-read">--</span> MB/s</span>
+												<span style="color:#cfd8dc;">Escr: <span id="disk-write">--</span> MB/s</span>
 											</div>
 										</td>
 										<td style="border:1px solid #e0e0e0; padding:2px 3px; text-align:center; background:#23272b; color:#f2f2f2;">
@@ -780,6 +781,31 @@
 
 		// Variables para calcular velocidad en tiempo real basada en GPS
 		let ultimaPosicionGPS = { lat: null, lon: null, tiempo: null };
+		let ultimoIO = null;
+
+		function actualizarIndicadorIO(ioDatos) {
+			const readEl = document.getElementById('disk-read');
+			const writeEl = document.getElementById('disk-write');
+			if (!readEl || !writeEl || !ioDatos) return;
+
+			const ahora = ioDatos.timestamp || Date.now() / 1000;
+			let lecturaMBs = '--';
+			let escrituraMBs = '--';
+
+			if (ultimoIO && ultimoIO.timestamp && ioDatos.timestamp && ioDatos.tamano_sector) {
+				const dt = ioDatos.timestamp - ultimoIO.timestamp;
+				if (dt > 0) {
+					const deltaReadBytes = Math.max(0, (ioDatos.sectores_leidos - ultimoIO.sectores_leidos) * ioDatos.tamano_sector);
+					const deltaWriteBytes = Math.max(0, (ioDatos.sectores_escritos - ultimoIO.sectores_escritos) * ioDatos.tamano_sector);
+					lecturaMBs = (deltaReadBytes / (dt * 1024 * 1024)).toFixed(2);
+					escrituraMBs = (deltaWriteBytes / (dt * 1024 * 1024)).toFixed(2);
+				}
+			}
+
+			readEl.textContent = lecturaMBs;
+			writeEl.textContent = escrituraMBs;
+			ultimoIO = ioDatos;
+		}
 
 		// Función para calcular distancia entre dos puntos GPS (Haversine formula)
 		function calcularDistanciaGPS(lat1, lon1, lat2, lon2) {
@@ -1046,19 +1072,12 @@
 				} else {
 					document.getElementById('cpu-valor').textContent = '--';
 				}
-				// Almacenamiento (SD) - LED indicador de actividad
-				if (data.almacenamiento && typeof data.almacenamiento.porcentaje !== 'undefined') {
-					// LED verde brillante si hay uso de disco (> 10%)
-					const diskLed = document.getElementById('disk-led');
-					if (diskLed) {
-						if (data.almacenamiento.porcentaje > 10) {
-							diskLed.style.background = '#4caf50';
-							diskLed.classList.add('disk-led-activo');
-						} else {
-							diskLed.style.background = '#2d5a2d';
-							diskLed.classList.remove('disk-led-activo');
-						}
-					}
+				// Almacenamiento (SD) - placeholder IO
+				const readEl = document.getElementById('disk-read');
+				const writeEl = document.getElementById('disk-write');
+				if (readEl && writeEl) {
+					readEl.textContent = '--';
+					writeEl.textContent = '--';
 				}
 				// Batería
 				if (data.bateria && typeof data.bateria.porcentaje !== 'undefined') {
@@ -1287,20 +1306,10 @@
 							}
 						}
 						if (data.tipo === 'almacenamiento' && data.datos) {
-							const storage = data.datos;
-							if (typeof storage.porcentaje !== 'undefined') {
-								// Actualizar LED de actividad del disco
-								const diskLed = document.getElementById('disk-led');
-								if (diskLed) {
-									if (storage.porcentaje > 10) {
-										diskLed.style.background = '#4caf50';
-										diskLed.classList.add('disk-led-activo');
-									} else {
-										diskLed.style.background = '#2d5a2d';
-										diskLed.classList.remove('disk-led-activo');
-									}
-								}
-							}
+							// Almacenamiento básico ya se muestra en otros lugares (si aplica)
+						}
+						if (data.tipo === 'io_disco' && data.datos) {
+							actualizarIndicadorIO(data.datos);
 						}
 						if (data.tipo === 'bateria' && data.datos) {
 							const bat = data.datos;

@@ -10,6 +10,7 @@ import serial
 import threading
 import os
 import signal
+import time
 
 # Configuración de logging
 logger = logging.getLogger(__name__)
@@ -357,6 +358,60 @@ def obtener_almacenamiento():
             'porcentaje': 0
         }
 
+
+def obtener_io_sd(dispositivo='mmcblk0'):
+    """
+    Lee contadores de E/S del dispositivo (microSD) desde /proc/diskstats.
+    Devuelve contadores acumulados para que el cliente calcule tasas.
+
+    Returns:
+        dict: {
+            'dispositivo': str,
+            'sectores_leidos': int,
+            'sectores_escritos': int,
+            'tamano_sector': int,  # bytes
+            'timestamp': float
+        }
+    """
+    try:
+        sector_size = 512
+        sector_path = f"/sys/block/{dispositivo}/queue/hw_sector_size"
+        if os.path.exists(sector_path):
+            with open(sector_path, 'r') as f:
+                sector_size = int(f.read().strip()) or 512
+
+        with open('/proc/diskstats', 'r') as f:
+            for line in f:
+                parts = line.split()
+                if len(parts) < 14:
+                    continue
+                if parts[2] == dispositivo:
+                    sectores_leidos = int(parts[5])
+                    sectores_escritos = int(parts[9])
+                    return {
+                        'dispositivo': dispositivo,
+                        'sectores_leidos': sectores_leidos,
+                        'sectores_escritos': sectores_escritos,
+                        'tamano_sector': sector_size,
+                        'timestamp': time.time()
+                    }
+        # Si no se encontró el dispositivo, devolver ceros
+        return {
+            'dispositivo': dispositivo,
+            'sectores_leidos': 0,
+            'sectores_escritos': 0,
+            'tamano_sector': sector_size,
+            'timestamp': time.time()
+        }
+    except Exception as e:
+        logger.error(f"Error obteniendo IO de disco: {e}")
+        return {
+            'dispositivo': dispositivo,
+            'sectores_leidos': 0,
+            'sectores_escritos': 0,
+            'tamano_sector': 512,
+            'timestamp': time.time()
+        }
 
 def obtener_bateria():
     """
