@@ -128,16 +128,25 @@
         </div>
     <!-- Datos generales -->
     <h2 style="margin-top:0; color:#6ec1e4;">Datos generales</h2>
-    <div style="display: flex; flex-direction: column; gap: 12px;">
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
       <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="ipPublica">IP Pública</label><input id="ipPublica" type="text" placeholder="192.168.1.15" style="width: 100%;" /></div>
       <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="correo">Correo de notificación</label><input id="correo" type="email" placeholder="correo@dominio.com" style="width: 100%;" /></div>
-      <div class="row" style="display: flex; flex-direction: row; align-items: center; gap: 8px;"><input id="solicitarPassword" type="checkbox" /><label for="solicitarPassword">Solicitar contraseña al entrar</label></div>
+      <div class="row" style="display: flex; flex-direction: row; align-items: center; gap: 8px; grid-column: 1 / -1;"><input id="solicitarPassword" type="checkbox" /><label for="solicitarPassword">Solicitar contraseña al entrar</label></div>
     </div>
+    <style>
+      @media (max-width: 600px) {
+        .config-main > div[style*="grid-template-columns"] {
+          grid-template-columns: 1fr !important;
+        }
+      }
+    </style>
     <!-- Configuración GPS -->
     <h2 style="margin-top:0; color:#6ec1e4;">Configuración GPS</h2>
-    <div class="row" style="display: flex; flex-direction: row; align-items: center; gap: 8px;"><input id="guardarRecorrido" type="checkbox" /><label for="guardarRecorrido">✓ Guardar recorrido automáticamente</label></div>
-    <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="frecuenciaGuardado">Frecuencia guardado GPS (seg)</label><input id="frecuenciaGuardado" type="number" min="5" max="300" step="5" placeholder="30" style="width: 100%;" /></div>
-    <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="tamanoMapa">Tamaño del mapa (px)</label><input id="tamanoMapa" type="number" min="200" max="800" step="10" placeholder="400" style="width: 100%;" /></div>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+      <div class="row" style="display: flex; flex-direction: row; align-items: center; gap: 8px; grid-column: 1 / -1;"><input id="guardarRecorrido" type="checkbox" /><label for="guardarRecorrido">✓ Guardar recorrido automáticamente</label></div>
+      <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="frecuenciaGuardado">Frecuencia guardado GPS (seg)</label><input id="frecuenciaGuardado" type="number" min="5" max="300" step="5" placeholder="30" style="width: 100%;" /></div>
+      <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="tamanoMapa">Tamaño del mapa (px)</label><input id="tamanoMapa" type="number" min="200" max="800" step="10" placeholder="400" style="width: 100%;" /></div>
+    </div>
     <div id="mapa-gps-container"></div>
 
 
@@ -163,29 +172,31 @@
           <input id="rtspCam1Url" type="text" placeholder="rtsp://admin:admin@192.168.1.9:554/live/ch0" style="width:100%; font-family: monospace;" />
           <small style="color:#888;">O completa los campos individuales abajo:</small>
         </div>
-        <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="onvifCam1Host">IP / Host</label><input id="onvifCam1Host" type="text" placeholder="192.168.1.9" style="width:100%;" /></div>
-        <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="onvifCam1Port">Puerto ONVIF</label><input id="onvifCam1Port" type="number" min="1" max="65535" placeholder="8899" style="width:100%;" /></div>
-        <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="rtspCam1Port">Puerto RTSP</label><input id="rtspCam1Port" type="number" min="1" max="65535" placeholder="554" style="width:100%;" /></div>
-        <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="onvifCam1User">Usuario</label><input id="onvifCam1User" type="text" placeholder="admin" value="admin" style="width:100%;" /></div>
-        <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="onvifCam1Pass">Contraseña</label><div style="display:flex; gap:8px; align-items:center; width:100%;"><input id="onvifCam1Pass" type="password" placeholder="admin" value="admin" style="width:100%;" /><button class="btn" style="min-width:96px; padding:10px 12px; font-weight:600;" type="button" onclick="togglePassword('onvifCam1Pass', this)">👁 Mostrar</button></div></div>
-        <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="onvifCam1Perfil">Ruta RTSP del stream <small style="color:#888;">(ej: live/ch0, Streaming/Channels/101)</small></label><input id="onvifCam1Perfil" type="text" placeholder="live/ch0" style="width:100%;" /></div>
-        <div class="row" style="display: flex; flex-direction: row; align-items: center; gap: 8px;"><input id="desactivarCamara1" type="checkbox" /><label for="desactivarCamara1">Desactivar Cámara 1</label></div>
-        <div class="row" style="display: flex; flex-direction: row; align-items: center; gap: 8px;"><input id="iniciarAutoCamara1" type="checkbox" checked /><label for="iniciarAutoCamara1">✓ Iniciar automáticamente la cámara</label></div>
-        <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;">
-          <label for="modoResolucionCam1">Modo de resolución</label>
-          <select id="modoResolucionCam1" onchange="toggleResolucionManual('cam1')" style="width:100%;">
-            <option value="manual">Manual</option>
-            <option value="automatico">Automático (según velocidad de internet)</option>
-          </select>
-        </div>
-        <div class="row" id="resolucionManualCam1" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;">
-          <label for="resolucionCam1">Resolución</label>
-          <select id="resolucionCam1" style="width:100%;">
-            <option value="360p">360p (640x360) - Latencia mínima</option>
-            <option value="480p" selected>480p (854x480) - Balanceado</option>
-            <option value="720p">720p (1280x720) - Alta calidad</option>
-            <option value="1080p">1080p (1920x1080) - Máxima calidad</option>
-          </select>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="onvifCam1Host">IP / Host</label><input id="onvifCam1Host" type="text" placeholder="192.168.1.9" style="width:100%;" /></div>
+          <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="onvifCam1Port">Puerto ONVIF</label><input id="onvifCam1Port" type="number" min="1" max="65535" placeholder="8899" style="width:100%;" /></div>
+          <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="rtspCam1Port">Puerto RTSP</label><input id="rtspCam1Port" type="number" min="1" max="65535" placeholder="554" style="width:100%;" /></div>
+          <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="onvifCam1User">Usuario</label><input id="onvifCam1User" type="text" placeholder="admin" value="admin" style="width:100%;" /></div>
+          <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px; grid-column: 1 / -1;"><label for="onvifCam1Pass">Contraseña</label><div style="display:flex; gap:8px; align-items:center; width:100%;"><input id="onvifCam1Pass" type="password" placeholder="admin" value="admin" style="width:100%;" /><button class="btn" style="min-width:96px; padding:10px 12px; font-weight:600;" type="button" onclick="togglePassword('onvifCam1Pass', this)">👁 Mostrar</button></div></div>
+          <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px; grid-column: 1 / -1;"><label for="onvifCam1Perfil">Ruta RTSP del stream <small style="color:#888;">(ej: live/ch0, Streaming/Channels/101)</small></label><input id="onvifCam1Perfil" type="text" placeholder="live/ch0" style="width:100%;" /></div>
+          <div class="row" style="display: flex; flex-direction: row; align-items: center; gap: 8px;"><input id="desactivarCamara1" type="checkbox" /><label for="desactivarCamara1">Desactivar Cámara 1</label></div>
+          <div class="row" style="display: flex; flex-direction: row; align-items: center; gap: 8px;"><input id="iniciarAutoCamara1" type="checkbox" checked /><label for="iniciarAutoCamara1">✓ Iniciar automáticamente la cámara</label></div>
+          <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;">
+            <label for="modoResolucionCam1">Modo de resolución</label>
+            <select id="modoResolucionCam1" onchange="toggleResolucionManual('cam1')" style="width:100%;">
+              <option value="manual">Manual</option>
+              <option value="automatico">Automático (según velocidad de internet)</option>
+            </select>
+          </div>
+          <div class="row" id="resolucionManualCam1" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;">
+            <label for="resolucionCam1">Resolución</label>
+            <select id="resolucionCam1" style="width:100%;">
+              <option value="360p">360p (640x360) - Latencia mínima</option>
+              <option value="480p" selected>480p (854x480) - Balanceado</option>
+              <option value="720p">720p (1280x720) - Alta calidad</option>
+              <option value="1080p">1080p (1920x1080) - Máxima calidad</option>
+            </select>
+          </div>
         </div>
       </div>
       <div style="width: 100%; max-width: 600px;">
@@ -195,29 +206,31 @@
           <input id="rtspCam2Url" type="text" placeholder="rtsp://admin:admin@192.168.1.10:554/live/ch0" style="width:100%; font-family: monospace;" />
           <small style="color:#888;">O completa los campos individuales abajo:</small>
         </div>
-        <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="onvifCam2Host">IP / Host</label><input id="onvifCam2Host" type="text" placeholder="192.168.1.10" style="width:100%;" /></div>
-        <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="onvifCam2Port">Puerto ONVIF</label><input id="onvifCam2Port" type="number" min="1" max="65535" placeholder="8899" style="width:100%;" /></div>
-        <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="rtspCam2Port">Puerto RTSP</label><input id="rtspCam2Port" type="number" min="1" max="65535" placeholder="554" style="width:100%;" /></div>
-        <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="onvifCam2User">Usuario</label><input id="onvifCam2User" type="text" placeholder="admin" value="admin" style="width:100%;" /></div>
-        <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="onvifCam2Pass">Contraseña</label><div style="display:flex; gap:8px; align-items:center; width:100%;"><input id="onvifCam2Pass" type="password" placeholder="admin" value="admin" style="width:100%;" /><button class="btn" style="min-width:96px; padding:10px 12px; font-weight:600;" type="button" onclick="togglePassword('onvifCam2Pass', this)">👁 Mostrar</button></div></div>
-        <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="onvifCam2Perfil">Ruta RTSP del stream <small style="color:#888;">(ej: live/ch0, Streaming/Channels/101)</small></label><input id="onvifCam2Perfil" type="text" placeholder="live/ch0" style="width:100%;" /></div>
-        <div class="row" style="display: flex; flex-direction: row; align-items: center; gap: 8px;"><input id="desactivarCamara2" type="checkbox" /><label for="desactivarCamara2">Desactivar Cámara 2</label></div>
-        <div class="row" style="display: flex; flex-direction: row; align-items: center; gap: 8px;"><input id="iniciarAutoCamara2" type="checkbox" checked /><label for="iniciarAutoCamara2">✓ Iniciar automáticamente la cámara</label></div>
-        <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;">
-          <label for="modoResolucionCam2">Modo de resolución</label>
-          <select id="modoResolucionCam2" onchange="toggleResolucionManual('cam2')" style="width:100%;">
-            <option value="manual">Manual</option>
-            <option value="automatico">Automático (según velocidad de internet)</option>
-          </select>
-        </div>
-        <div class="row" id="resolucionManualCam2" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;">
-          <label for="resolucionCam2">Resolución</label>
-          <select id="resolucionCam2" style="width:100%;">
-            <option value="360p">360p (640x360) - Latencia mínima</option>
-            <option value="480p" selected>480p (854x480) - Balanceado</option>
-            <option value="720p">720p (1280x720) - Alta calidad</option>
-            <option value="1080p">1080p (1920x1080) - Máxima calidad</option>
-          </select>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="onvifCam2Host">IP / Host</label><input id="onvifCam2Host" type="text" placeholder="192.168.1.10" style="width:100%;" /></div>
+          <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="onvifCam2Port">Puerto ONVIF</label><input id="onvifCam2Port" type="number" min="1" max="65535" placeholder="8899" style="width:100%;" /></div>
+          <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="rtspCam2Port">Puerto RTSP</label><input id="rtspCam2Port" type="number" min="1" max="65535" placeholder="554" style="width:100%;" /></div>
+          <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="onvifCam2User">Usuario</label><input id="onvifCam2User" type="text" placeholder="admin" value="admin" style="width:100%;" /></div>
+          <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px; grid-column: 1 / -1;"><label for="onvifCam2Pass">Contraseña</label><div style="display:flex; gap:8px; align-items:center; width:100%;"><input id="onvifCam2Pass" type="password" placeholder="admin" value="admin" style="width:100%;" /><button class="btn" style="min-width:96px; padding:10px 12px; font-weight:600;" type="button" onclick="togglePassword('onvifCam2Pass', this)">👁 Mostrar</button></div></div>
+          <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px; grid-column: 1 / -1;"><label for="onvifCam2Perfil">Ruta RTSP del stream <small style="color:#888;">(ej: live/ch0, Streaming/Channels/101)</small></label><input id="onvifCam2Perfil" type="text" placeholder="live/ch0" style="width:100%;" /></div>
+          <div class="row" style="display: flex; flex-direction: row; align-items: center; gap: 8px;"><input id="desactivarCamara2" type="checkbox" /><label for="desactivarCamara2">Desactivar Cámara 2</label></div>
+          <div class="row" style="display: flex; flex-direction: row; align-items: center; gap: 8px;"><input id="iniciarAutoCamara2" type="checkbox" checked /><label for="iniciarAutoCamara2">✓ Iniciar automáticamente la cámara</label></div>
+          <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;">
+            <label for="modoResolucionCam2">Modo de resolución</label>
+            <select id="modoResolucionCam2" onchange="toggleResolucionManual('cam2')" style="width:100%;">
+              <option value="manual">Manual</option>
+              <option value="automatico">Automático (según velocidad de internet)</option>
+            </select>
+          </div>
+          <div class="row" id="resolucionManualCam2" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;">
+            <label for="resolucionCam2">Resolución</label>
+            <select id="resolucionCam2" style="width:100%;">
+              <option value="360p">360p (640x360) - Latencia mínima</option>
+              <option value="480p" selected>480p (854x480) - Balanceado</option>
+              <option value="720p">720p (1280x720) - Alta calidad</option>
+              <option value="1080p">1080p (1920x1080) - Máxima calidad</option>
+            </select>
+          </div>
         </div>
       </div>
     </div>
@@ -234,7 +247,7 @@
 
     <!-- Relés -->
     <h2 style="margin-top:0; color:#6ec1e4;">⚡ Nombres de Relés (1–9)</h2>
-    <div style="display: flex; flex-direction: column; gap: 8px;">
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
       <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="rele1">Relé 1</label><input id="rele1" type="text" placeholder="Nombre 1" style="width: 100%;" /></div>
       <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="rele2">Relé 2</label><input id="rele2" type="text" placeholder="Nombre 2" style="width: 100%;" /></div>
       <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><label for="rele3">Relé 3</label><input id="rele3" type="text" placeholder="Nombre 3" style="width: 100%;" /></div>
