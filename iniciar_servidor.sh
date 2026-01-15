@@ -59,41 +59,107 @@ fi
 echo ""
 
 # 4. Instalar/actualizar dependencias
-echo -e "${YELLOW}[4/6] Verificando dependencias...${NC}"
-# Comprobamos dependencias críticas (incluye RPi.GPIO para controlar relés físicos)
-python3 - <<'PY'
-try:
-    import aiohttp, serial, pynmea2, RPi.GPIO  # noqa: F401
-    exit(0)
-except Exception:
-    exit(1)
-PY
-if [ $? -eq 0 ]; then
-    echo -e "${GREEN}✓ Dependencias instaladas${NC}"
+echo -e "${YELLOW}[4/6] Instalando dependencias...${NC}"
+
+# 4a. Instalar dependencias del sistema necesarias
+echo -e "${YELLOW}   4a) Verificando dependencias del sistema...${NC}"
+DEPS_SISTEMA="python3-dev libcap-dev"
+FALTA_INSTALAR=0
+
+for dep in $DEPS_SISTEMA; do
+    if ! dpkg -l | grep -q "^ii  $dep"; then
+        FALTA_INSTALAR=1
+        break
+    fi
+done
+
+if [ $FALTA_INSTALAR -eq 1 ]; then
+    echo -e "${YELLOW}   ⚠ Instalando dependencias del sistema (puede requerir sudo)...${NC}"
+    if command -v sudo &> /dev/null; then
+        sudo apt-get update -qq 2>/dev/null
+        sudo apt-get install -y -qq $DEPS_SISTEMA 2>/dev/null
+        if [ $? -eq 0 ]; then
+            echo -e "${GREEN}   ✓ Dependencias del sistema instaladas${NC}"
+        else
+            echo -e "${YELLOW}   ⚠ No se pudieron instalar algunas dependencias del sistema (picamera2 podría no funcionar)${NC}"
+        fi
+    else
+        echo -e "${YELLOW}   ⚠ Se requiere sudo para instalar dependencias del sistema${NC}"
+    fi
 else
-    echo -e "${YELLOW}⚠ Instalando dependencias (requirements + RPi.GPIO)...${NC}"
-    if [ -f "requirements.txt" ]; then
-        pip install --upgrade pip -q
-        pip install -r requirements.txt -q
-    else
-        pip install aiohttp pyserial pynmea2 RPi.GPIO --prefer-binary -q
+    echo -e "${GREEN}   ✓ Dependencias del sistema ya instaladas${NC}"
+fi
+
+# 4b. Actualizar pip y instalar dependencias Python
+echo -e "${YELLOW}   4b) Instalando paquetes Python...${NC}"
+pip install --upgrade pip setuptools wheel -q 2>/dev/null
+
+# Instalación de dependencias críticas
+echo -e "${YELLOW}   4c) Instalando dependencias críticas...${NC}"
+if [ -f "requirements.txt" ]; then
+    # Intentar instalar desde requirements.txt con fallback
+    pip install -r requirements.txt --prefer-binary -q 2>/dev/null
+    
+    # Si falla, instalar dependencias core (sin picamera2 que es opcional)
+    if [ $? -ne 0 ]; then
+        echo -e "${YELLOW}   ⚠ Algunas dependencias fallaron. Instalando versión core (sin picamera2)...${NC}"
+        if [ -f "requirements_core.txt" ]; then
+            pip install -r requirements_core.txt --prefer-binary -q
+        else
+            pip install aiohttp>=3.8.0 pyserial>=3.5 pynmea2>=1.18.0 RPi.GPIO>=0.7.1 --prefer-binary -q
+        fi
     fi
-    # Intento explícito de RPi.GPIO en caso de que requirements falle
-    python3 - <<'PY'
-import sys, subprocess
+else
+    pip install aiohttp pyserial pynmea2 RPi.GPIO --prefer-binary -q
+fi
+
+# 4d. Verificar dependencias críticas
+echo -e "${YELLOW}   4d) Verificando dependencias instaladas...${NC}"
+python3 - <<'PY'
+import sys
+deps_ok = True
+missing = []
+
 try:
-    import RPi.GPIO  # noqa: F401
-except Exception:
-    try:
-        subprocess.check_call([sys.executable, '-m', 'pip', 'install', '--prefer-binary', 'RPi.GPIO'])
-    except Exception:
-        sys.exit(1)
+    import aiohttp
+except:
+    deps_ok = False
+    missing.append("aiohttp")
+
+try:
+    import serial
+except:
+    deps_ok = False
+    missing.append("pyserial")
+
+try:
+    import pynmea2
+except:
+    deps_ok = False
+    missing.append("pynmea2")
+
+try:
+    import RPi.GPIO
+except:
+    deps_ok = False
+    missing.append("RPi.GPIO")
+
+if deps_ok:
+    print(f"✓ Todas las dependencias críticas instaladas")
+else:
+    print(f"✗ Faltan dependencias: {', '.join(missing)}")
+    sys.exit(1)
 PY
-    if [ $? -eq 0 ]; then
-        echo -e "${GREEN}✓ Dependencias instaladas correctamente${NC}"
-    else
-        echo -e "${YELLOW}⚠ No se pudo instalar RPi.GPIO automáticamente. Si estás en Raspberry Pi, instala con: sudo apt install python3-rpi.gpio${NC}"
-    fi
+
+if [ $? -eq 0 ]; then
+    echo -e "${GREEN}✓ Dependencias verificadas y funcionales${NC}"
+else
+    echo -e "${RED}✗ Error: No se pudieron instalar todas las dependencias${NC}"
+    echo -e "${YELLOW}Intenta instalar manualmente en el venv:${NC}"
+    echo -e "${YELLOW}  source venv_pi/bin/activate${NC}"
+    echo -e "${YELLOW}  pip install --upgrade pip${NC}"
+    echo -e "${YELLOW}  pip install aiohttp pyserial pynmea2 RPi.GPIO --prefer-binary${NC}"
+    exit 1
 fi
 echo ""
 # Asegurar carpetas HLS para streams

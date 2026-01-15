@@ -1,5 +1,10 @@
+# Dependencias del Drone Acuático
+# CRÍTICAS (obligatorias):
 aiohttp>=3.8.0
 pyserial>=3.5
 pynmea2>=1.18.0
 RPi.GPIO>=0.7.1
-picamera2>=0.3.0
+
+# OPCIONALES (para cámaras - puede fallar la compilación):
+# Descomenta si tienes las dependencias del sistema (libcap-dev, python3-dev)
+# picamera2>=0.3.0
