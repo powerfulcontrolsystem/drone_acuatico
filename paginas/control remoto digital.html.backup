@@ -387,8 +387,8 @@
 			color: #e5e7eb !important;
 		}
 		.cuadro-superior-wrapper {
-		flex: 1 1 auto;
-		min-height: 0;
+			flex: 0 0 60%;
+			height: 60%;
 			display: flex;
 			align-items: stretch;
 			justify-content: center;
@@ -418,7 +418,8 @@
 			border-radius: 8px;
 		}
 		.cuadro-inferior {
-		flex: 0 0 auto;
+			flex: 0 0 40%;
+			height: 40%;
 			display: flex;
 			align-items: stretch;
 			justify-content: center;
@@ -787,16 +788,11 @@
 			const writeEl = document.getElementById('disk-write');
 			if (!readEl || !writeEl || !ioDatos) return;
 
+			const ahora = ioDatos.timestamp || Date.now() / 1000;
 			let lecturaMBs = '--';
 			let escrituraMBs = '--';
 
-			// Si el servidor ya calculó MB/s, usar esos valores
-			if ('lectura_mbs' in ioDatos && 'escritura_mbs' in ioDatos) {
-				lecturaMBs = ioDatos.lectura_mbs;
-				escrituraMBs = ioDatos.escritura_mbs;
-			}
-			// Si no, calcular en cliente (compatibilidad con datos antiguos)
-			else if (ultimoIO && ultimoIO.timestamp && ioDatos.timestamp && ioDatos.tamano_sector) {
+			if (ultimoIO && ultimoIO.timestamp && ioDatos.timestamp && ioDatos.tamano_sector) {
 				const dt = ioDatos.timestamp - ultimoIO.timestamp;
 				if (dt > 0) {
 					const deltaReadBytes = Math.max(0, (ioDatos.sectores_leidos - ultimoIO.sectores_leidos) * ioDatos.tamano_sector);
@@ -804,27 +800,6 @@
 					lecturaMBs = (deltaReadBytes / (dt * 1024 * 1024)).toFixed(2);
 					escrituraMBs = (deltaWriteBytes / (dt * 1024 * 1024)).toFixed(2);
 				}
-			}
-
-			readEl.textContent = lecturaMBs;
-			writeEl.textContent = escrituraMBs;
-			ultimoIO = ioDatos;
-		}
-			// Si no, calcular en cliente (compatibilidad con datos antiguos)
-			else if (ultimoIO && ultimoIO.timestamp && ioDatos.timestamp && ioDatos.tamano_sector) {
-				const dt = ioDatos.timestamp - ultimoIO.timestamp;
-				if (dt > 0) {
-					const deltaReadBytes = Math.max(0, (ioDatos.sectores_leidos - ultimoIO.sectores_leidos) * ioDatos.tamano_sector);
-					const deltaWriteBytes = Math.max(0, (ioDatos.sectores_escritos - ultimoIO.sectores_escritos) * ioDatos.tamano_sector);
-					lecturaMBs = (deltaReadBytes / (dt * 1024 * 1024)).toFixed(2);
-					escrituraMBs = (deltaWriteBytes / (dt * 1024 * 1024)).toFixed(2);
-				}
-			}
-
-			readEl.textContent = lecturaMBs;
-			writeEl.textContent = escrituraMBs;
-			ultimoIO = ioDatos;
-		}
 			}
 
 			readEl.textContent = lecturaMBs;

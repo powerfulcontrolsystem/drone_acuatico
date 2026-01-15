@@ -48,6 +48,12 @@ gps_thread = None
 gps_running = False
 UMBRAL_PESO_KG = 5.0
 
+# Estado inicial de IO para precalcular MB/s
+IO_INICIAL = None
+
+# Estado inicial de IO para precalcular MB/s
+IO_INICIAL = None
+
 # Importaciones opcionales
 try:
     import RPi.GPIO as GPIO
@@ -412,6 +418,51 @@ def obtener_io_sd(dispositivo='mmcblk0'):
             'tamano_sector': 512,
             'timestamp': time.time()
         }
+
+def inicializar_io_disco():
+    """Inicializa el estado de IO para precalcular MB/s"""
+    global IO_INICIAL
+    IO_INICIAL = obtener_io_sd()
+    # Dormir 100ms para tomar segunda muestra
+    time.sleep(0.1)
+    # Devolver la segunda muestra con tasas calculadas
+    return obtener_io_con_tasa()
+
+def obtener_io_con_tasa():
+    """
+    Obtiene IO actual con tasa de MB/s calculada si hay datos previos.
+    Si no hay datos previos, devuelve valores brutos.
+    """
+    global IO_INICIAL
+    io_actual = obtener_io_sd()
+    
+    if not IO_INICIAL:
+        return io_actual
+    
+    # Calcular tasas
+    dt = io_actual['timestamp'] - IO_INICIAL['timestamp']
+    if dt <= 0:
+        return io_actual
+    
+    try:
+        delta_read_bytes = max(0, (io_actual['sectores_leidos'] - IO_INICIAL['sectores_leidos']) * io_actual['tamano_sector'])
+        delta_write_bytes = max(0, (io_actual['sectores_escritos'] - IO_INICIAL['sectores_escritos']) * io_actual['tamano_sector'])
+        
+        read_mbs = delta_read_bytes / (dt * 1024 * 1024)
+        write_mbs = delta_write_bytes / (dt * 1024 * 1024)
+        
+        return {
+            'dispositivo': io_actual['dispositivo'],
+            'sectores_leidos': io_actual['sectores_leidos'],
+            'sectores_escritos': io_actual['sectores_escritos'],
+            'tamano_sector': io_actual['tamano_sector'],
+            'timestamp': io_actual['timestamp'],
+            'lectura_mbs': round(read_mbs, 2),
+            'escritura_mbs': round(write_mbs, 2)
+        }
+    except:
+        return io_actual
+
 
 def obtener_bateria():
     """
