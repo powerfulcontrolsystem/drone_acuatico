@@ -260,6 +260,98 @@
     .inline-actions { display: flex; gap: 5px; flex-wrap: wrap; }
     .btn.inline { padding: 6px 10px; font-size: 0.9rem; margin: 0; }
     .message { color: var(--muted); font-size: 0.95rem; min-height: 22px; }
+    
+    /* Estilos para el mando cruz */
+    .mando-container {
+      background: linear-gradient(145deg, #0f1218, #0a0e15);
+      border: 2px solid #2d3748;
+      border-radius: 10px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+      min-width: 115px;
+      position: absolute;
+      bottom: 95px;
+      left: 20px;
+      z-index: 100;
+    }
+    .mando-titulo {
+      font-size: 0.85em;
+      font-weight: 600;
+      color: #5ad3f0;
+      text-align: center;
+      margin: 0;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .mando-grid {
+      display: grid;
+      grid-template-rows: 1fr 1fr 1fr;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 3px;
+      width: 95px;
+      height: 95px;
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    .mando-grid .btn-direccion {
+      width: 100%;
+      height: 100%;
+      min-width: 24px;
+      min-height: 24px;
+      margin: 0;
+      padding: 0;
+      font-size: 0.7em;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(145deg, #1f2937, #111827);
+      border: 1.5px solid #374151;
+      color: #e5e7eb;
+      cursor: pointer;
+      border-radius: 6px;
+      transition: all 0.15s ease;
+    }
+    .mando-grid .btn-direccion:hover {
+      background: linear-gradient(145deg, #2d3748, #1a202c);
+      border-color: #4b5563;
+      box-shadow: 0 0 10px rgba(93, 211, 240, 0.4);
+      transform: scale(1.05);
+    }
+    .mando-grid .btn-direccion:active {
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.5), 0 0 8px rgba(93, 211, 240, 0.5);
+      transform: scale(0.98);
+    }
+    .btn-stop {
+      background: linear-gradient(145deg, #b91c1c, #7f1d1d) !important;
+      border-color: #ef4444 !important;
+      color: #fff !important;
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25) !important;
+    }
+    .btn-stop:hover {
+      background: linear-gradient(145deg, #dc2626, #991b1b) !important;
+      box-shadow: 0 4px 16px rgba(239, 68, 68, 0.4) !important;
+    }
+    .btn-stop:active {
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.5), 0 0 8px rgba(239, 68, 68, 0.5) !important;
+    }
+    
+    @media (max-width: 640px) {
+      .mando-container {
+        bottom: 80px;
+        left: 10px;
+        padding: 10px 12px;
+      }
+      .mando-grid {
+        width: 85px;
+        height: 85px;
+      }
+    }
     @media (max-width: 1080px) {
       .columns-container { grid-template-columns: 1fr; }
       #mapa { height: 45vh; }
@@ -295,6 +387,18 @@
         <div class="inline-actions">
           <button class="btn inline" onclick="mapa?.zoomIn()">＋ Zoom</button>
           <button class="btn inline" onclick="mapa?.zoomOut()">－ Zoom</button>
+        </div>
+      </div>
+
+      <!-- Mando Cruz en recuadro -->
+      <div class="mando-container">
+        <div class="mando-titulo">Mando</div>
+        <div class="mando-grid">
+          <button class="btn btn-direccion" id="btn-arriba" title="Arriba">▲</button>
+          <button class="btn btn-direccion" id="btn-izquierda" title="Izquierda">◀</button>
+          <button class="btn btn-direccion btn-stop" id="btn-centro" title="Parar">●</button>
+          <button class="btn btn-direccion" id="btn-derecha" title="Derecha">▶</button>
+          <button class="btn btn-direccion" id="btn-abajo" title="Abajo">▼</button>
         </div>
       </div>
       <div class="gps-info" id="gpsInfo">
@@ -822,7 +926,52 @@
       initMapa();
       // Cargar ubicaciones y recorridos guardados
       await Promise.all([cargarUbicaciones(), cargarRecorridos()]);
+      
+      // Configurar event listeners para el mando cruz
+      configurarMandoCruz();
     });
+    
+    function configurarMandoCruz() {
+      const botones = {
+        'btn-arriba': { comando: 'adelante', icono: '▲' },
+        'btn-izquierda': { comando: 'izquierda', icono: '◀' },
+        'btn-derecha': { comando: 'derecha', icono: '▶' },
+        'btn-abajo': { comando: 'atras', icono: '▼' },
+        'btn-centro': { comando: 'parar', icono: '●' }
+      };
+      
+      Object.entries(botones).forEach(([id, data]) => {
+        const btn = document.getElementById(id);
+        if (btn) {
+          btn.addEventListener('mousedown', () => enviarComandoMovimiento(data.comando));
+          btn.addEventListener('mouseup', () => enviarComandoMovimiento('parar'));
+          btn.addEventListener('mouseleave', () => enviarComandoMovimiento('parar'));
+          
+          // Para dispositivos táctiles
+          btn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            enviarComandoMovimiento(data.comando);
+          });
+          btn.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            enviarComandoMovimiento('parar');
+          });
+        }
+      });
+    }
+    
+    function enviarComandoMovimiento(comando) {
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        const msg = {
+          tipo: 'movimiento',
+          datos: { comando }
+        };
+        ws.send(JSON.stringify(msg));
+        console.log('📤 Comando movimiento enviado:', comando);
+      } else {
+        console.warn('⚠️ WebSocket no conectado para comando:', comando);
+      }
+    }
 
     // Limpiar al cerrar página
     window.addEventListener('beforeunload', () => {
