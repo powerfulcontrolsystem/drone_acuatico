@@ -728,6 +728,8 @@
 			let hlsPlayers = { cam1: null, cam2: null };
 			let playing = { cam1: false, cam2: false };
 			let estadoReles = {};
+			// Inicializar nombres de relés vacío (se carga desde config y WebSocket)
+			window.nombres_reles = {};
 
 		// Variables para calcular velocidad en tiempo real basada en GPS
 		let ultimaPosicionGPS = { lat: null, lon: null, tiempo: null };
@@ -1213,6 +1215,11 @@
 						if (cfg && cfg.reles && Object.keys(cfg.reles).length > 0) {
 							window.nombres_reles = cfg.reles;
 							console.log('✓ Nombres de relés cargados desde config:', window.nombres_reles);
+							// Re-renderizar los relés si ya están cargados
+							if (Object.keys(estadoReles).length > 0) {
+								renderReles(estadoReles);
+								console.log('✓ Relés re-renderizados con los nombres actualizados');
+							}
 						}
 					} catch (e) {
 						console.warn('⚠️ No se pudieron cargar nombres de relés:', e);
