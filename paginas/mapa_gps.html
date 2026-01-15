@@ -219,10 +219,10 @@
       backdrop-filter: blur(8px);
       box-shadow: 0 10px 28px rgba(0,0,0,0.4);
       font-size: 0.88rem;
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 12px;
-      min-width: 600px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 240px;
       z-index: 1000;
     }
     .gps-info .gps-title {
@@ -232,7 +232,6 @@
       margin-bottom: 4px;
       border-bottom: 1px solid rgba(52, 211, 153, 0.2);
       padding-bottom: 4px;
-      grid-column: 1 / -1;
     }
     .gps-info .gps-row {
       display: flex;
@@ -248,14 +247,12 @@
     }
     @media (max-width: 1080px) {
       .gps-info {
-        grid-template-columns: 1fr 1fr;
-        min-width: 420px;
+        min-width: 240px;
       }
     }
     @media (max-width: 640px) {
       .gps-info {
-        grid-template-columns: 1fr;
-        min-width: 240px;
+        min-width: 200px;
       }
     }
     .inline-actions { display: flex; gap: 6px; flex-wrap: wrap; }
@@ -300,23 +297,14 @@
       </div>
       <div class="gps-info" id="gpsInfo">
         <div class="gps-title">📡 Ubicación Actual GPS</div>
-        <!-- Columna 1 -->
-        <div style="display: flex; flex-direction: column; gap: 6px;">
-          <div class="gps-row"><span class="gps-label">Latitud:</span><span class="gps-value" id="gpsLat">--</span></div>
-          <div class="gps-row"><span class="gps-label">Longitud:</span><span class="gps-value" id="gpsLon">--</span></div>
-          <div class="gps-row"><span class="gps-label">Altitud:</span><span class="gps-value" id="gpsAlt">--</span></div>
-        </div>
-        <!-- Columna 2 -->
-        <div style="display: flex; flex-direction: column; gap: 6px;">
-          <div class="gps-row"><span class="gps-label">Precisión:</span><span class="gps-value" id="gpsAcc">--</span></div>
-          <div class="gps-row"><span class="gps-label">Velocidad:</span><span class="gps-value" id="gpsSpeed">--</span></div>
-          <div class="gps-row"><span class="gps-label">Rumbo:</span><span class="gps-value" id="gpsHeading">--</span></div>
-        </div>
-        <!-- Columna 3 -->
-        <div style="display: flex; flex-direction: column; gap: 6px;">
-          <div class="gps-row"><span class="gps-label">Satélites:</span><span class="gps-value" id="gpsSats">--</span></div>
-          <div class="gps-row"><span class="gps-label">Última actualización:</span><span class="gps-value" id="gpsTime">--</span></div>
-        </div>
+        <div class="gps-row"><span class="gps-label">Latitud:</span><span class="gps-value" id="gpsLat">--</span></div>
+        <div class="gps-row"><span class="gps-label">Longitud:</span><span class="gps-value" id="gpsLon">--</span></div>
+        <div class="gps-row"><span class="gps-label">Altitud:</span><span class="gps-value" id="gpsAlt">--</span></div>
+        <div class="gps-row"><span class="gps-label">Precisión:</span><span class="gps-value" id="gpsAcc">--</span></div>
+        <div class="gps-row"><span class="gps-label">Velocidad:</span><span class="gps-value" id="gpsSpeed">--</span></div>
+        <div class="gps-row"><span class="gps-label">Rumbo:</span><span class="gps-value" id="gpsHeading">--</span></div>
+        <div class="gps-row"><span class="gps-label">Satélites:</span><span class="gps-value" id="gpsSats">--</span></div>
+        <div class="gps-row"><span class="gps-label">Última actualización:</span><span class="gps-value" id="gpsTime">--</span></div>
       </div>
     </div>
 
@@ -385,53 +373,108 @@
     let ws = null;
     let datosGPSActuales = null;
     let intervaloActualizacion = null;
+    let mapaInicializado = false;
 
     function initMapa() {
-      // Inicializar mapa con vista predeterminada (Buenos Aires como default)
-      mapa = L.map('mapa', {
-        zoomControl: false,
-        worldCopyJump: true,
-        preferCanvas: true
-      }).setView([-34.6037, -58.3816], 12);
-      
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '© OpenStreetMap'
-      }).addTo(mapa);
-      
-      capaUbicaciones.addTo(mapa);
-      capaRecorrido.addTo(mapa);
+      try {
+        console.log('Iniciando mapa...');
+        
+        // Verificar que Leaflet esté cargado
+        if (typeof L === 'undefined') {
+          console.error('Leaflet no está cargado');
+          setTimeout(initMapa, 500);
+          return;
+        }
 
-      // Forzar que el mapa se redibuje correctamente
-      setTimeout(() => {
-        mapa.invalidateSize();
-      }, 100);
+        // Verificar que el elemento del mapa existe
+        const mapaElement = document.getElementById('mapa');
+        if (!mapaElement) {
+          console.error('Elemento #mapa no encontrado');
+          return;
+        }
 
-      // Conectar con WebSocket para datos en tiempo real del GPS del servidor
-      conectarWebSocket();
-      
-      // Intentar obtener ubicación actual del navegador como respaldo
-      obtenerUbicacionActual();
+        console.log('Elemento mapa encontrado, dimensiones:', mapaElement.offsetWidth, 'x', mapaElement.offsetHeight);
+        
+        // Inicializar mapa con vista predeterminada
+        mapa = L.map('mapa', {
+          zoomControl: true,
+          worldCopyJump: true,
+          preferCanvas: true
+        }).setView([11.234, -74.208], 15);
+        
+        console.log('Mapa Leaflet creado');
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          maxZoom: 19,
+          attribution: '© OpenStreetMap'
+        }).addTo(mapa);
+        
+        console.log('Tiles agregados al mapa');
+        
+        capaUbicaciones.addTo(mapa);
+        capaRecorrido.addTo(mapa);
+
+        // Forzar que el mapa se redibuje correctamente
+        setTimeout(() => {
+          if (mapa) {
+            mapa.invalidateSize();
+            console.log('Mapa invalidateSize ejecutado');
+          }
+        }, 100);
+
+        setTimeout(() => {
+          if (mapa) {
+            mapa.invalidateSize();
+            console.log('Mapa invalidateSize ejecutado (segundo intento)');
+          }
+        }, 500);
+
+        mapaInicializado = true;
+        console.log('Mapa inicializado correctamente');
+
+        // Conectar con WebSocket para datos en tiempo real del GPS del servidor
+        conectarWebSocket();
+        
+        // Iniciar polling para obtener datos GPS
+        obtenerDatosGPSPorAPI();
+        if (!intervaloActualizacion) {
+          intervaloActualizacion = setInterval(obtenerDatosGPSPorAPI, 2000);
+          console.log('Polling GPS iniciado cada 2 segundos');
+        }
+      } catch (error) {
+        console.error('Error al inicializar mapa:', error);
+      }
     }
 
     function conectarWebSocket() {
       const protocolo = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
       const wsURL = `${protocolo}//${window.location.host}/ws`;
       
+      console.log('Intentando conectar a WebSocket:', wsURL);
+      
       try {
         ws = new WebSocket(wsURL);
+        ws.onopen = () => {
+          console.log('WebSocket conectado');
+        };
         ws.onmessage = (event) => {
-          const msg = JSON.parse(event.data);
-          if (msg.tipo === 'gps' && msg.datos) {
-            datosGPSActuales = msg.datos;
-            actualizarInfoGPSDesdeServidor(msg.datos);
-            actualizarMarcadorUbicacion(msg.datos);
+          try {
+            const msg = JSON.parse(event.data);
+            if (msg.tipo === 'gps' && msg.datos) {
+              datosGPSActuales = msg.datos;
+              console.log('GPS recibido:', msg.datos);
+              actualizarInfoGPSDesdeServidor(msg.datos);
+              actualizarMarcadorUbicacion(msg.datos);
+            }
+          } catch (e) {
+            console.warn('Error procesando mensaje WebSocket:', e);
           }
         };
         ws.onerror = (error) => {
           console.warn('Error WebSocket:', error);
           // Si falla WebSocket, cambiar a polling cada 2 segundos
           if (!intervaloActualizacion) {
+            console.log('Iniciando polling cada 2 segundos...');
             intervaloActualizacion = setInterval(obtenerDatosGPSPorAPI, 2000);
           }
         };
@@ -446,6 +489,7 @@
         console.warn('No se pudo conectar WebSocket:', e.message);
         // Si falla WebSocket desde el inicio, usar polling
         if (!intervaloActualizacion) {
+          console.log('Iniciando polling por error en WebSocket...');
           intervaloActualizacion = setInterval(obtenerDatosGPSPorAPI, 2000);
         }
       }
@@ -454,8 +498,12 @@
     async function obtenerDatosGPSPorAPI() {
       try {
         const res = await fetch('/api/gps/actual');
-        if (!res.ok) return;
+        if (!res.ok) {
+          console.warn('API GPS no disponible:', res.status);
+          return;
+        }
         const data = await res.json();
+        console.log('Datos GPS recibidos de API:', data);
         if (data.exito && data.datos) {
           datosGPSActuales = data.datos;
           actualizarInfoGPSDesdeServidor(data.datos);
@@ -467,73 +515,20 @@
     }
 
     function obtenerUbicacionActual() {
-      if ('geolocation' in navigator) {
-        // Obtener posición inicial del navegador como respaldo
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            // Solo usar si no tenemos datos del servidor
-            if (!datosGPSActuales) {
-              const datos = {
-                latitud: position.coords.latitude,
-                longitud: position.coords.longitude,
-                altitud: position.coords.altitude,
-                precision: position.coords.accuracy,
-                velocidad: position.coords.speed ? position.coords.speed * 3.6 : 0,
-                rumbo: position.coords.heading || 0,
-                satelites: 0
-              };
-              actualizarInfoGPSDesdeServidor(datos);
-              actualizarMarcadorUbicacion(datos);
-            }
-          },
-          (error) => {
-            console.warn('Geolocalización del navegador no disponible:', error.message);
-          },
-          {
-            enableHighAccuracy: true,
-            timeout: 10000,
-            maximumAge: 0
-          }
-        );
-
-        // Seguimiento continuo como respaldo si WebSocket no funciona
-        watchId = navigator.geolocation.watchPosition(
-          (position) => {
-            if (!ws || ws.readyState !== WebSocket.OPEN) {
-              const datos = {
-                latitud: position.coords.latitude,
-                longitud: position.coords.longitude,
-                altitud: position.coords.altitude,
-                precision: position.coords.accuracy,
-                velocidad: position.coords.speed ? position.coords.speed * 3.6 : 0,
-                rumbo: position.coords.heading || 0,
-                satelites: 0
-              };
-              actualizarInfoGPSDesdeServidor(datos);
-              actualizarMarcadorUbicacion(datos);
-            }
-          },
-          (error) => {
-            console.warn('Error en watchPosition:', error.message);
-          },
-          {
-            enableHighAccuracy: true,
-            timeout: 5000,
-            maximumAge: 1000
-          }
-        );
-      } else {
-        console.warn('Geolocalización no disponible en el navegador');
-      }
+      // Esta función ahora está deshabilitada ya que usamos el GPS del servidor
+      console.log('Usando GPS del servidor, no geolocalización del navegador');
     }
 
     function actualizarInfoGPSDesdeServidor(datos) {
+      console.log('Actualizando info GPS desde servidor:', datos);
       // Actualizar desde datos del servidor (drone GPS)
       if (datos.latitud !== null && datos.latitud !== undefined) {
-        document.getElementById('gpsLat').textContent = parseFloat(datos.latitud).toFixed(6) + '°';
+        const lat = parseFloat(datos.latitud);
+        document.getElementById('gpsLat').textContent = lat.toFixed(6) + '°';
       }
       if (datos.longitud !== null && datos.longitud !== undefined) {
-        document.getElementById('gpsLon').textContent = parseFloat(datos.longitud).toFixed(6) + '°';
+        const lon = parseFloat(datos.longitud);
+        document.getElementById('gpsLon').textContent = lon.toFixed(6) + '°';
       }
       if (datos.altitud !== null && datos.altitud !== undefined) {
         document.getElementById('gpsAlt').textContent = parseFloat(datos.altitud).toFixed(1) + ' m';
@@ -545,7 +540,7 @@
         document.getElementById('gpsHeading').textContent = parseFloat(datos.rumbo).toFixed(0) + '°';
       }
       if (datos.satelites !== null && datos.satelites !== undefined) {
-        document.getElementById('gpsSats').textContent = datos.satelites + ' sat.';
+        document.getElementById('gpsSats').textContent = datos.satelites;
       }
       if (datos.precision !== null && datos.precision !== undefined) {
         document.getElementById('gpsAcc').textContent = parseFloat(datos.precision).toFixed(1) + ' m';
@@ -555,14 +550,25 @@
     }
 
     function actualizarMarcadorUbicacion(datos) {
-      if (!datos.latitud || !datos.longitud) return;
+      if (!datos.latitud || !datos.longitud) {
+        console.log('No hay coordenadas GPS válidas');
+        return;
+      }
+      
+      if (!mapaInicializado || !mapa) {
+        console.log('Mapa no inicializado todavía');
+        return;
+      }
       
       const lat = parseFloat(datos.latitud);
       const lon = parseFloat(datos.longitud);
       
+      console.log('Actualizando marcador en:', lat, lon);
+      
       // Centrar mapa solo la primera vez
       if (!marcadorUbicacionActual) {
         mapa.setView([lat, lon], 15);
+        console.log('Mapa centrado en la ubicación GPS');
       }
       
       // Actualizar o crear marcador de ubicación actual
@@ -578,10 +584,12 @@
           radius: 10,
           color: '#22c55e',
           fillColor: '#22c55e',
-          fillOpacity: 0.4,
+          fillOpacity: 0.6,
           weight: 3
         }).bindPopup('<strong>📍 Ubicación GPS actual</strong><br>Drone Acuático')
           .addTo(mapa);
+        
+        console.log('Marcador GPS creado');
         
         // Agregar círculo de precisión
         const precision = parseFloat(datos.precision || 10);
@@ -592,6 +600,8 @@
           fillOpacity: 0.1,
           weight: 1
         }).addTo(mapa);
+        
+        console.log('Círculo de precisión creado');
       }
     }
 

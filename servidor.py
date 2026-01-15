@@ -748,6 +748,51 @@ async def api_apagar_handler(request):
 
 async def api_ubicaciones_handler(request):
     """Devuelve ubicaciones guardadas con filtros opcionales."""
+    try:
+        q = request.query.get('q', '')
+        categoria = request.query.get('categoria', '')
+        ubicaciones = obtener_ubicaciones(q, categoria)
+        return web.json_response({
+            'exito': True,
+            'ubicaciones': ubicaciones
+        })
+    except Exception as e:
+        logger.error(f"Error obteniendo ubicaciones: {e}")
+        return web.json_response({
+            'exito': False,
+            'error': str(e)
+        }, status=500)
+
+
+async def api_gps_actual_handler(request):
+    """API REST para obtener la posición GPS actual."""
+    try:
+        gps = obtener_posicion_gps()
+        if gps:
+            return web.json_response({
+                'exito': True,
+                'datos': {
+                    'latitud': gps.get('latitud'),
+                    'longitud': gps.get('longitud'),
+                    'altitud': gps.get('altitud'),
+                    'velocidad': gps.get('velocidad'),
+                    'rumbo': gps.get('rumbo'),
+                    'satelites': gps.get('satelites'),
+                    'precision': gps.get('precision'),
+                    'valido': gps.get('valido', False)
+                }
+            })
+        else:
+            return web.json_response({
+                'exito': False,
+                'error': 'No hay datos GPS disponibles'
+            }, status=404)
+    except Exception as e:
+        logger.error(f"Error obteniendo GPS actual: {e}")
+        return web.json_response({
+            'exito': False,
+            'error': str(e)
+        }, status=500)
     categoria = request.query.get('categoria') or None
     busqueda = request.query.get('q') or request.query.get('busqueda') or None
     loop = asyncio.get_event_loop()
@@ -880,6 +925,7 @@ def crear_app():
     app.router.add_get('/mapa_gps.html', mapa_gps_handler)
     app.router.add_get('/api/config', api_config_handler)
     app.router.add_post('/api/config', api_config_handler)
+    app.router.add_get('/api/gps/actual', api_gps_actual_handler)
     app.router.add_get('/api/onvif/discover', api_onvif_discover_handler)
     app.router.add_get('/api/ubicaciones', api_ubicaciones_handler)
     app.router.add_get('/api/recorridos', api_recorridos_handler)
