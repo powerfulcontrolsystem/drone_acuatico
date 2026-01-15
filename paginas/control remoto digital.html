@@ -738,10 +738,9 @@
 											CPU: <span id="cpu-valor">--</span>
 										</td>
 										<td style="border:1px solid #e0e0e0; padding:2px 3px; text-align:center; background:#23272b; color:#f2f2f2;">
-											<div id="disk-indicator" style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; width:100%; height:100%; font-size:0.68em;">
+											<div id="disk-indicator" style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; width:100%; height:100%; font-size:0.75em;">
 												<span style="font-weight:600;">Disco</span>
-												<span style="color:#cfd8dc;">Lect: <span id="disk-read">--</span> MB/s</span>
-												<span style="color:#cfd8dc;">Escr: <span id="disk-write">--</span> MB/s</span>
+												<span id="disk-uso" style="color:#cfd8dc; font-weight:500;">--</span>
 											</div>
 										</td>
 										<td style="border:1px solid #e0e0e0; padding:2px 3px; text-align:center; background:#23272b; color:#f2f2f2;">
@@ -780,57 +779,7 @@
 
 		// Variables para calcular velocidad en tiempo real basada en GPS
 		let ultimaPosicionGPS = { lat: null, lon: null, tiempo: null };
-		let ultimoIO = null;
-
-		function actualizarIndicadorIO(ioDatos) {
-			const readEl = document.getElementById('disk-read');
-			const writeEl = document.getElementById('disk-write');
-			if (!readEl || !writeEl || !ioDatos) return;
-
-			let lecturaMBs = '--';
-			let escrituraMBs = '--';
-
-			// Si el servidor ya calculó MB/s, usar esos valores
-			if ('lectura_mbs' in ioDatos && 'escritura_mbs' in ioDatos) {
-				lecturaMBs = ioDatos.lectura_mbs;
-				escrituraMBs = ioDatos.escritura_mbs;
-			}
-			// Si no, calcular en cliente (compatibilidad con datos antiguos)
-			else if (ultimoIO && ultimoIO.timestamp && ioDatos.timestamp && ioDatos.tamano_sector) {
-				const dt = ioDatos.timestamp - ultimoIO.timestamp;
-				if (dt > 0) {
-					const deltaReadBytes = Math.max(0, (ioDatos.sectores_leidos - ultimoIO.sectores_leidos) * ioDatos.tamano_sector);
-					const deltaWriteBytes = Math.max(0, (ioDatos.sectores_escritos - ultimoIO.sectores_escritos) * ioDatos.tamano_sector);
-					lecturaMBs = (deltaReadBytes / (dt * 1024 * 1024)).toFixed(2);
-					escrituraMBs = (deltaWriteBytes / (dt * 1024 * 1024)).toFixed(2);
-				}
-			}
-
-			readEl.textContent = lecturaMBs;
-			writeEl.textContent = escrituraMBs;
-			ultimoIO = ioDatos;
-		}
-			// Si no, calcular en cliente (compatibilidad con datos antiguos)
-			else if (ultimoIO && ultimoIO.timestamp && ioDatos.timestamp && ioDatos.tamano_sector) {
-				const dt = ioDatos.timestamp - ultimoIO.timestamp;
-				if (dt > 0) {
-					const deltaReadBytes = Math.max(0, (ioDatos.sectores_leidos - ultimoIO.sectores_leidos) * ioDatos.tamano_sector);
-					const deltaWriteBytes = Math.max(0, (ioDatos.sectores_escritos - ultimoIO.sectores_escritos) * ioDatos.tamano_sector);
-					lecturaMBs = (deltaReadBytes / (dt * 1024 * 1024)).toFixed(2);
-					escrituraMBs = (deltaWriteBytes / (dt * 1024 * 1024)).toFixed(2);
-				}
-			}
-
-			readEl.textContent = lecturaMBs;
-			writeEl.textContent = escrituraMBs;
-			ultimoIO = ioDatos;
-		}
-			}
-
-			readEl.textContent = lecturaMBs;
-			writeEl.textContent = escrituraMBs;
-			ultimoIO = ioDatos;
-		}
+				
 
 		// Función para calcular distancia entre dos puntos GPS (Haversine formula)
 		function calcularDistanciaGPS(lat1, lon1, lat2, lon2) {
@@ -1333,8 +1282,11 @@
 						if (data.tipo === 'almacenamiento' && data.datos) {
 							// Almacenamiento básico ya se muestra en otros lugares (si aplica)
 						}
-						if (data.tipo === 'io_disco' && data.datos) {
-							actualizarIndicadorIO(data.datos);
+						if (data.tipo === 'disco_uso' && data.datos) {
+							const el = document.getElementById('disk-uso');
+							if (el) {
+								el.textContent = data.datos.uso_porcentaje + '%';
+							}
 						}
 						if (data.tipo === 'bateria' && data.datos) {
 							const bat = data.datos;

@@ -49,10 +49,8 @@ gps_running = False
 UMBRAL_PESO_KG = 5.0
 
 # Estado inicial de IO para precalcular MB/s
-IO_INICIAL = None
 
 # Estado inicial de IO para precalcular MB/s
-IO_INICIAL = None
 
 # Importaciones opcionales
 try:
@@ -419,50 +417,49 @@ def obtener_io_sd(dispositivo='mmcblk0'):
             'timestamp': time.time()
         }
 
-def inicializar_io_disco():
-    """Inicializa el estado de IO para precalcular MB/s"""
-    global IO_INICIAL
-    IO_INICIAL = obtener_io_sd()
-    # Dormir 100ms para tomar segunda muestra
-    time.sleep(0.1)
-    # Devolver la segunda muestra con tasas calculadas
-    return obtener_io_con_tasa()
 
-def obtener_io_con_tasa():
+
+def obtener_uso_disco_porcentaje(dispositivo='/'):
     """
-    Obtiene IO actual con tasa de MB/s calculada si hay datos previos.
-    Si no hay datos previos, devuelve valores brutos.
+    Obtiene el porcentaje de uso del disco sin realizar cálculos I/O.
+    Muy eficiente, no genera impacto en el sistema.
+    
+    Returns:
+        dict: {'uso_porcentaje': float (0-100), 'timestamp': float}
     """
-    global IO_INICIAL
-    io_actual = obtener_io_sd()
-    
-    if not IO_INICIAL:
-        return io_actual
-    
-    # Calcular tasas
-    dt = io_actual['timestamp'] - IO_INICIAL['timestamp']
-    if dt <= 0:
-        return io_actual
-    
     try:
-        delta_read_bytes = max(0, (io_actual['sectores_leidos'] - IO_INICIAL['sectores_leidos']) * io_actual['tamano_sector'])
-        delta_write_bytes = max(0, (io_actual['sectores_escritos'] - IO_INICIAL['sectores_escritos']) * io_actual['tamano_sector'])
-        
-        read_mbs = delta_read_bytes / (dt * 1024 * 1024)
-        write_mbs = delta_write_bytes / (dt * 1024 * 1024)
+        import shutil
+        stats = shutil.disk_usage(dispositivo)
+        uso_pct = (stats.used / stats.total) * 100
         
         return {
-            'dispositivo': io_actual['dispositivo'],
-            'sectores_leidos': io_actual['sectores_leidos'],
-            'sectores_escritos': io_actual['sectores_escritos'],
-            'tamano_sector': io_actual['tamano_sector'],
-            'timestamp': io_actual['timestamp'],
-            'lectura_mbs': round(read_mbs, 2),
-            'escritura_mbs': round(write_mbs, 2)
+            'uso_porcentaje': round(uso_pct, 1),
+            'timestamp': time.time()
         }
-    except:
-        return io_actual
+    except Exception as e:
+        logger.error(f"Error obteniendo uso de disco: {e}")
+        return {'uso_porcentaje': 0, 'timestamp': time.time()}
 
+def obtener_uso_disco_porcentaje(dispositivo='/'):
+    """
+    Obtiene el porcentaje de uso del disco sin realizar cálculos I/O.
+    Muy eficiente, no genera impacto en el sistema.
+    
+    Returns:
+        dict: {'uso_porcentaje': float (0-100), 'timestamp': float}
+    """
+    try:
+        import shutil
+        stats = shutil.disk_usage(dispositivo)
+        uso_pct = (stats.used / stats.total) * 100
+        
+        return {
+            'uso_porcentaje': round(uso_pct, 1),
+            'timestamp': time.time()
+        }
+    except Exception as e:
+        logger.error(f"Error obteniendo uso de disco: {e}")
+        return {'uso_porcentaje': 0, 'timestamp': time.time()}
 
 def obtener_bateria():
     """
