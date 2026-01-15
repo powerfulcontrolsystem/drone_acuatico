@@ -9,10 +9,10 @@
 		   .fila-superior {
 			display: grid;
 			grid-template-columns: repeat(3, minmax(0, 1fr));
-			gap: 4px;
+			gap: 2px;
 			width: 100%;
 			height: 100%;
-			min-height: 260px;
+			min-height: auto;
 			align-items: stretch;
 			justify-items: stretch;
 			margin: 0;
@@ -22,66 +22,66 @@
 			margin: 0;
 			flex: 1 1 0;
 			height: 100%;
-			min-height: 260px;
+			min-height: auto;
 			display: flex;
 			flex-direction: column;
 			align-items: center;
 			justify-content: center;
-			padding: 4px;
+			padding: 2px;
 			box-sizing: border-box;
 			position: relative;
 			overflow: visible;
 			background: #1a1f28;
-			border-radius: 8px;
+			border-radius: 6px;
 		}
 		.panel-cam video {
 			flex: 1 1 0;
 			width: 100%;
 			min-height: 0;
 			object-fit: contain;
-			border-radius: 8px;
+			border-radius: 6px;
 			display: block;
 			margin: 0 auto;
 		}
 		.cam-controles {
 			display: flex;
-			gap: 8px;
-			margin-top: 4px;
+			gap: 4px;
+			margin-top: 2px;
 			justify-content: center;
 			align-items: center;
 		}
 		.panel-cam.mapa {
-			padding: 4px;
+			padding: 2px;
 		}
 		.cam-controles .btn-cam-icon {
-			width: 48px;
-			height: 48px;
-			min-width: 48px;
-			min-height: 48px;
+			width: 36px;
+			height: 36px;
+			min-width: 36px;
+			min-height: 36px;
 			padding: 0;
 			display: none !important;
 			align-items: center;
 			justify-content: center;
 		}
 		.btn-cam-icon svg {
-			width: 90%;
-			height: 90%;
+			width: 85%;
+			height: 85%;
 		}
 		
 		/* Estilos para el menú flotante de cámara */
 		.menu-cam-flotante {
 			position: absolute;
-			top: 10px;
-			right: 10px;
+			top: 4px;
+			right: 4px;
 			z-index: 1002;
 			display: flex;
 			flex-direction: row;
-			gap: 8px;
+			gap: 4px;
 		}
 		
 		.btn-menu-cam {
-			width: 44px;
-			height: 44px;
+			width: 36px;
+			height: 36px;
 			padding: 0;
 			display: flex;
 			align-items: center;
@@ -92,7 +92,7 @@
 			color: #2196f3;
 			cursor: pointer;
 			transition: all 0.2s ease;
-			box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+			box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 		}
 		
 		.btn-menu-cam:hover {
@@ -185,11 +185,11 @@
 			   }
 		.reles-botones {
 			display: grid;
-			grid-template-columns: repeat(3, 1fr);
-			gap: 2px !important;
+			grid-template-columns: repeat(4, 1fr);
+			gap: 1px !important;
 			margin: 0 !important;
 			width: 100%;
-			max-width: 420px;
+			max-width: 100%;
 		}
 		/* Tema oscuro unificado para botones del control */
 		.control-botones .btn,
@@ -234,9 +234,9 @@
 			display: grid;
 			grid-template-rows: 1fr 1fr 1fr;
 			grid-template-columns: 1fr 1fr 1fr;
-			gap: 4px;
-			width: 120px;
-			height: 120px;
+			gap: 2px;
+			width: 90px;
+			height: 90px;
 			margin: 0;
 			padding: 0;
 			box-sizing: border-box;
@@ -244,11 +244,11 @@
 		.mando-grid .btn-direccion {
 			width: 100%;
 			height: 100%;
-			min-width: 36px;
-			min-height: 36px;
+			min-width: 24px;
+			min-height: 24px;
 			margin: 0;
 			padding: 0;
-			font-size: 0.75em;
+			font-size: 0.65em;
 			display: flex;
 			align-items: center;
 			justify-content: center;
@@ -261,11 +261,12 @@
 		}
 		.velocidades-botones .btn-velocidad {
 			width: 100%;
-			min-width: 70px;
-			max-width: 90px;
-			padding: 8px 10px;
+			min-width: 50px;
+			max-width: 70px;
+			padding: 4px 6px;
 			margin: 0;
 			box-sizing: border-box;
+			font-size: 0.75em;
 		}
 		.velocidades-botones .btn-velocidad.activo {
 			background: #f59e0b !important;
@@ -277,7 +278,9 @@
 			opacity: 0.8;
 		}
 		.reles-botones .btn-rele {
-			min-width: 120px;
+			min-width: auto;
+			font-size: 0.75em;
+			padding: 4px 6px;
 		}
 		@media (max-width: 700px) {
 			.reles-botones {
@@ -371,14 +374,13 @@
 			color: #e5e7eb !important;
 		}
 		.cuadro-superior-wrapper {
-			flex: 1.5;
-			min-height: 65vh;
-			max-height: 65vh;
+			flex: 0 0 60%;
+			height: 60%;
 			display: flex;
 			align-items: stretch;
 			justify-content: center;
 			overflow: visible;
-			padding: 4px;
+			padding: 2px;
 			box-sizing: border-box;
 			background: #0f1218;
 		}
@@ -400,11 +402,11 @@
 			overflow: visible;
 			background: #1a1f28 !important;
 			border: 2px solid #2d3748 !important;
+			border-radius: 8px;
 		}
 		.cuadro-inferior {
-			flex: 1;
-			min-height: 50vh;
-			max-height: 50vh;
+			flex: 0 0 40%;
+			height: 40%;
 			display: flex;
 			align-items: stretch;
 			justify-content: center;
@@ -520,7 +522,7 @@
 			console.log('Esperando datos GPS para inicializar el mapa...');
 		</script>
 		<div class="cuadro-superior-wrapper">
-			<div class="cuadro-externo-superior" style="background:#1a1f28; border:2px solid #2d3748; border-radius:8px; box-shadow:0 2px 12px rgba(0,0,0,0.4); padding:6px; display:flex; justify-content:stretch; align-items:stretch; width:100%; max-width:1200px; margin:0 auto; box-sizing:border-box;">
+			<div class="cuadro-externo-superior" style="background:#1a1f28; border:2px solid #2d3748; border-radius:8px; box-shadow:0 2px 12px rgba(0,0,0,0.4); padding:2px 3px; display:flex; justify-content:stretch; align-items:stretch; width:100%; max-width:1200px; margin:0 auto; box-sizing:border-box;">
 				<div class="fila-superior">
 					<div class="panel-cam">
 						<video id="videoCam1" controls muted playsinline></video>
@@ -641,7 +643,7 @@
 						</div>
 					<!-- Panel de Velocidad -->
 					<div class="panel-bajo" style="margin:0; display:flex; flex-direction:column; justify-content:flex-start; align-items:center; min-width:70px; max-width:90px; width:75px; padding:0; box-sizing:border-box;">
-						<div style="font-size:0.85em; font-weight:600; color:#6ec1e4; margin-bottom:4px; text-align:center; width:100%;">Vel.</div>
+						<div style="font-size:0.85em; font-weight:600; color:#6ec1e4; margin-bottom:2px; text-align:center; width:100%;">Vel.</div>
 						<div class="velocidades-botones" style="display:flex; flex-direction:column; gap:2px; align-items:center; padding:0; width:100%; box-sizing:border-box;">
 							<button class="btn btn-velocidad" id="vel-lenta">1</button>
 							<button class="btn btn-velocidad" id="vel-media">2</button>
@@ -649,14 +651,14 @@
 							</div>
 						</div>
 						<div class="panel-bajo" style="margin:0; padding:0; width:100%; box-sizing:border-box;">
-							<div style="font-size:0.85em; font-weight:600; color:#6ec1e4; margin-bottom:4px; text-align:center; width:100%;">Panel de control</div>
+							<div style="font-size:0.85em; font-weight:600; color:#6ec1e4; margin-bottom:2px; text-align:center; width:100%;">Panel de control</div>
 							<div class="reles-botones" id="reles-botones">
 								<!-- Los botones de relé se generan dinámicamente -->
 							</div>
 						</div>
 						<div class="panel-bajo" style="margin-left:0;margin-right:0; margin-top:0; padding-left:4px; padding-right:4px; width:100%; box-sizing:border-box;">
-							<div style="font-size:0.85em; font-weight:600; color:#6ec1e4; margin-bottom:4px; text-align:center; width:100%;">Indicadores</div>
-							<table class="tabla-indicadores" style="width:100%; max-width:660px; margin:0 auto; border-collapse:collapse; background:#23272b; border-radius:8px; box-shadow:0 1px 6px #0001; color:#f2f2f2; table-layout:fixed; font-family:'Space Grotesk','Segoe UI',sans-serif;">
+							<div style="font-size:0.85em; font-weight:600; color:#6ec1e4; margin-bottom:2px; text-align:center; width:100%;">Indicadores</div>
+							<table class="tabla-indicadores" style="width:100%; max-width:100%; margin:0 auto; border-collapse:collapse; background:#23272b; border-radius:6px; box-shadow:0 1px 6px #0001; color:#f2f2f2; table-layout:fixed; font-family:'Space Grotesk','Segoe UI',sans-serif; font-size:0.70em;">
 								<colgroup>
 									<col style="width:33.33%">
 									<col style="width:33.33%">
@@ -664,9 +666,9 @@
 								</colgroup>
 								<tbody>
 									<tr>
-										<td style="border:1px solid #e0e0e0; padding:6px; text-align:center; background:#23272b; color:#f2f2f2;">
+										<td style="border:1px solid #e0e0e0; padding:2px 3px; text-align:center; background:#23272b; color:#f2f2f2;">
 											<span id="indicador-conexion" class="desconectado">
-												<svg id="svg-osciloscopio" width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;">
+												<svg id="svg-osciloscopio" width="12" height="12" viewBox="0 0 16 16" style="vertical-align:middle;">
 													<!-- Marco del osciloscopio -->
 													<rect x="1" y="1" width="14" height="14" rx="2" ry="2" fill="none" stroke="#4caf50" stroke-width="1"/>
 													<!-- Líneas de la cuadrícula -->
@@ -678,66 +680,66 @@
 												<span id="texto-conexion" style="color:#4caf50; font-weight:600;">Conectado</span>
 											</span>
 										</td>
-										<td style="border:1px solid #e0e0e0; padding:6px; text-align:center; background:#23272b; color:#f2f2f2;">
-											<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><rect x="2" y="4" width="12" height="8" rx="2" fill="#6ec1e4"/></svg>
+										<td style="border:1px solid #e0e0e0; padding:2px 3px; text-align:center; background:#23272b; color:#f2f2f2;">
+											<svg width="12" height="12" viewBox="0 0 16 16" style="vertical-align:middle;"><rect x="2" y="4" width="12" height="8" rx="2" fill="#6ec1e4"/></svg>
 											RAM: <span id="ram-valor">--</span>
 										</td>
-										<td style="border:1px solid #e0e0e0; padding:6px; text-align:center; background:#23272b; color:#f2f2f2;">
-											<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><rect x="7" y="2" width="2" height="8" fill="#e6a23c"/><circle cx="8" cy="12" r="3" fill="#e6a23c"/></svg>
+										<td style="border:1px solid #e0e0e0; padding:2px 3px; text-align:center; background:#23272b; color:#f2f2f2;">
+											<svg width="12" height="12" viewBox="0 0 16 16" style="vertical-align:middle;"><rect x="7" y="2" width="2" height="8" fill="#e6a23c"/><circle cx="8" cy="12" r="3" fill="#e6a23c"/></svg>
 											Temp: <span id="temp-valor">--</span>
 										</td>
 									</tr>
 									<tr>
-										<td style="border:1px solid #e0e0e0; padding:6px; text-align:center; background:#23272b; color:#f2f2f2;">
-											<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><rect x="3" y="5" width="10" height="6" rx="2" fill="#43a047"/><rect x="13" y="7" width="2" height="2" fill="#43a047"/></svg>
+										<td style="border:1px solid #e0e0e0; padding:2px 3px; text-align:center; background:#23272b; color:#f2f2f2;">
+											<svg width="12" height="12" viewBox="0 0 16 16" style="vertical-align:middle;"><rect x="3" y="5" width="10" height="6" rx="2" fill="#43a047"/><rect x="13" y="7" width="2" height="2" fill="#43a047"/></svg>
 											Batería: <span id="bat-valor">--</span>
 										</td>
-										<td style="border:1px solid #e0e0e0; padding:6px; text-align:center; background:#23272b; color:#f2f2f2;">
-											<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><circle cx="8" cy="8" r="7" fill="#6ec1e4"/></svg>
+										<td style="border:1px solid #e0e0e0; padding:2px 3px; text-align:center; background:#23272b; color:#f2f2f2;">
+											<svg width="12" height="12" viewBox="0 0 16 16" style="vertical-align:middle;"><circle cx="8" cy="8" r="7" fill="#6ec1e4"/></svg>
 											Red: <span id="red-valor">--</span>
 										</td>
-										<td style="border:1px solid #e0e0e0; padding:6px; text-align:center; background:#23272b; color:#f2f2f2;">
-											<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><path d="M8 2 A6 6 0 1 1 7.99 2" stroke="#6ec1e4" stroke-width="2" fill="none"/><circle cx="8" cy="8" r="2" fill="#6ec1e4"/></svg>
+										<td style="border:1px solid #e0e0e0; padding:2px 3px; text-align:center; background:#23272b; color:#f2f2f2;">
+											<svg width="12" height="12" viewBox="0 0 16 16" style="vertical-align:middle;"><path d="M8 2 A6 6 0 1 1 7.99 2" stroke="#6ec1e4" stroke-width="2" fill="none"/><circle cx="8" cy="8" r="2" fill="#6ec1e4"/></svg>
 											Vel: <span id="vel-valor">--</span>
 										</td>
 									</tr>
 									<tr>
-										<td style="border:1px solid #cfd8dc; padding:6px; text-align:center;">
-											<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><circle cx="8" cy="8" r="4" fill="#ffd600"/></svg>
+										<td style="border:1px solid #cfd8dc; padding:2px 3px; text-align:center;">
+											<svg width="12" height="12" viewBox="0 0 16 16" style="vertical-align:middle;"><circle cx="8" cy="8" r="4" fill="#ffd600"/></svg>
 											Solar: <span id="solar-valor">--</span>
 										</td>
-										<td style="border:1px solid #cfd8dc; padding:6px; text-align:center;">
-											<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><rect x="4" y="8" width="8" height="4" fill="#b71c1c"/></svg>
+										<td style="border:1px solid #cfd8dc; padding:2px 3px; text-align:center;">
+											<svg width="12" height="12" viewBox="0 0 16 16" style="vertical-align:middle;"><rect x="4" y="8" width="8" height="4" fill="#b71c1c"/></svg>
 											Peso: <span id="peso-valor">--</span>
 										</td>
-										<td style="border:1px solid #cfd8dc; padding:6px; text-align:center;">
-											<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><circle cx="8" cy="8" r="7" fill="#6ec1e4"/></svg>
+										<td style="border:1px solid #cfd8dc; padding:2px 3px; text-align:center;">
+											<svg width="12" height="12" viewBox="0 0 16 16" style="vertical-align:middle;"><circle cx="8" cy="8" r="7" fill="#6ec1e4"/></svg>
 											Alt: <span id="gps-alt">--</span>
 										</td>
 									</tr>
 									<tr>
-										<td style="border:1px solid #e0e0e0; padding:6px; text-align:center; background:#23272b; color:#f2f2f2;">
-											<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><circle cx="4" cy="8" r="2" fill="#ff9800"/><circle cx="8" cy="8" r="2" fill="#ff9800"/><circle cx="12" cy="8" r="2" fill="#ff9800"/></svg>
+										<td style="border:1px solid #e0e0e0; padding:2px 3px; text-align:center; background:#23272b; color:#f2f2f2;">
+											<svg width="12" height="12" viewBox="0 0 16 16" style="vertical-align:middle;"><circle cx="4" cy="8" r="2" fill="#ff9800"/><circle cx="8" cy="8" r="2" fill="#ff9800"/><circle cx="12" cy="8" r="2" fill="#ff9800"/></svg>
 											CPU: <span id="cpu-valor">--</span>
 										</td>
-										<td style="border:1px solid #e0e0e0; padding:6px; text-align:center; background:#23272b; color:#f2f2f2;">
-											<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><rect x="3" y="3" width="10" height="10" rx="2" fill="#9c27b0" stroke="#9c27b0" stroke-width="0.5"/><rect x="4" y="4" width="8" height="3" fill="#e1bee7"/></svg>
+										<td style="border:1px solid #e0e0e0; padding:2px 3px; text-align:center; background:#23272b; color:#f2f2f2;">
+											<svg width="12" height="12" viewBox="0 0 16 16" style="vertical-align:middle;"><rect x="3" y="3" width="10" height="10" rx="2" fill="#9c27b0" stroke="#9c27b0" stroke-width="0.5"/><rect x="4" y="4" width="8" height="3" fill="#e1bee7"/></svg>
 											SD: <span id="almacenamiento-valor">--</span>
 										</td>
-										<td style="border:1px solid #e0e0e0; padding:6px; text-align:center; background:#23272b; color:#f2f2f2;">
+										<td style="border:1px solid #e0e0e0; padding:2px 3px; text-align:center; background:#23272b; color:#f2f2f2;">
 										</td>
 									</tr>
 									<tr>
-										<td style="border:1px solid #e0e0e0; padding:6px; text-align:center; background:#23272b; color:#f2f2f2;">
-											<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><circle cx="8" cy="8" r="7" fill="#6ec1e4"/></svg>
+										<td style="border:1px solid #e0e0e0; padding:2px 3px; text-align:center; background:#23272b; color:#f2f2f2;">
+											<svg width="12" height="12" viewBox="0 0 16 16" style="vertical-align:middle;"><circle cx="8" cy="8" r="7" fill="#6ec1e4"/></svg>
 											Lat: <span id="gps-lat">--</span>
 										</td>
-										<td style="border:1px solid #e0e0e0; padding:6px; text-align:center; background:#23272b; color:#f2f2f2;">
-											<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><circle cx="8" cy="8" r="7" fill="#6ec1e4"/></svg>
+										<td style="border:1px solid #e0e0e0; padding:2px 3px; text-align:center; background:#23272b; color:#f2f2f2;">
+											<svg width="12" height="12" viewBox="0 0 16 16" style="vertical-align:middle;"><circle cx="8" cy="8" r="7" fill="#6ec1e4"/></svg>
 											Lon: <span id="gps-lon">--</span>
 										</td>
-										<td style="border:1px solid #e0e0e0; padding:6px; text-align:center; background:#23272b; color:#f2f2f2;">
-											<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><path d="M8 2 A6 6 0 1 1 7.99 2" stroke="#6ec1e4" stroke-width="2" fill="none"/><circle cx="8" cy="8" r="2" fill="#6ec1e4"/></svg>
+										<td style="border:1px solid #e0e0e0; padding:2px 3px; text-align:center; background:#23272b; color:#f2f2f2;">
+											<svg width="12" height="12" viewBox="0 0 16 16" style="vertical-align:middle;"><path d="M8 2 A6 6 0 1 1 7.99 2" stroke="#6ec1e4" stroke-width="2" fill="none"/><circle cx="8" cy="8" r="2" fill="#6ec1e4"/></svg>
 											Saté: <span id="gps-sats">--</span>
 										</td>
 									</tr>
