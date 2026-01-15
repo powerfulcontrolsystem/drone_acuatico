@@ -219,10 +219,10 @@
       backdrop-filter: blur(8px);
       box-shadow: 0 10px 28px rgba(0,0,0,0.4);
       font-size: 0.88rem;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      min-width: 240px;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+      min-width: 600px;
       z-index: 1000;
     }
     .gps-info .gps-title {
@@ -232,6 +232,7 @@
       margin-bottom: 4px;
       border-bottom: 1px solid rgba(52, 211, 153, 0.2);
       padding-bottom: 4px;
+      grid-column: 1 / -1;
     }
     .gps-info .gps-row {
       display: flex;
@@ -244,6 +245,18 @@
     .gps-info .gps-value {
       color: var(--text);
       font-weight: 500;
+    }
+    @media (max-width: 1080px) {
+      .gps-info {
+        grid-template-columns: 1fr 1fr;
+        min-width: 420px;
+      }
+    }
+    @media (max-width: 640px) {
+      .gps-info {
+        grid-template-columns: 1fr;
+        min-width: 240px;
+      }
     }
     .inline-actions { display: flex; gap: 6px; flex-wrap: wrap; }
     .btn.inline { padding: 8px 12px; font-size: 0.96rem; margin: 0; }
@@ -287,14 +300,23 @@
       </div>
       <div class="gps-info" id="gpsInfo">
         <div class="gps-title">📡 Ubicación Actual GPS</div>
-        <div class="gps-row"><span class="gps-label">Latitud:</span><span class="gps-value" id="gpsLat">--</span></div>
-        <div class="gps-row"><span class="gps-label">Longitud:</span><span class="gps-value" id="gpsLon">--</span></div>
-        <div class="gps-row"><span class="gps-label">Altitud:</span><span class="gps-value" id="gpsAlt">--</span></div>
-        <div class="gps-row"><span class="gps-label">Precisión:</span><span class="gps-value" id="gpsAcc">--</span></div>
-        <div class="gps-row"><span class="gps-label">Velocidad:</span><span class="gps-value" id="gpsSpeed">--</span></div>
-        <div class="gps-row"><span class="gps-label">Rumbo:</span><span class="gps-value" id="gpsHeading">--</span></div>
-        <div class="gps-row"><span class="gps-label">Satélites:</span><span class="gps-value" id="gpsSats">--</span></div>
-        <div class="gps-row"><span class="gps-label">Última actualización:</span><span class="gps-value" id="gpsTime">--</span></div>
+        <!-- Columna 1 -->
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <div class="gps-row"><span class="gps-label">Latitud:</span><span class="gps-value" id="gpsLat">--</span></div>
+          <div class="gps-row"><span class="gps-label">Longitud:</span><span class="gps-value" id="gpsLon">--</span></div>
+          <div class="gps-row"><span class="gps-label">Altitud:</span><span class="gps-value" id="gpsAlt">--</span></div>
+        </div>
+        <!-- Columna 2 -->
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <div class="gps-row"><span class="gps-label">Precisión:</span><span class="gps-value" id="gpsAcc">--</span></div>
+          <div class="gps-row"><span class="gps-label">Velocidad:</span><span class="gps-value" id="gpsSpeed">--</span></div>
+          <div class="gps-row"><span class="gps-label">Rumbo:</span><span class="gps-value" id="gpsHeading">--</span></div>
+        </div>
+        <!-- Columna 3 -->
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <div class="gps-row"><span class="gps-label">Satélites:</span><span class="gps-value" id="gpsSats">--</span></div>
+          <div class="gps-row"><span class="gps-label">Última actualización:</span><span class="gps-value" id="gpsTime">--</span></div>
+        </div>
       </div>
     </div>
 
