@@ -320,6 +320,19 @@
 			}
 		}
 		
+		@keyframes disk-pulse {
+			0%, 100% {
+				box-shadow: 0 0 3px #2d5a2d;
+			}
+			50% {
+				box-shadow: 0 0 8px #4caf50;
+			}
+		}
+		
+		.disk-led-activo {
+			animation: disk-pulse 0.6s ease-in-out infinite;
+		}
+		
 		.grabando-indicador {
 			position: fixed;
 			top: 20px;
@@ -718,8 +731,6 @@
 											Peso: <span id="peso-valor">--</span>
 										</td>
 										<td style="border:1px solid #cfd8dc; padding:2px 3px; text-align:center;">
-											<svg width="12" height="12" viewBox="0 0 16 16" style="vertical-align:middle;"><circle cx="8" cy="8" r="7" fill="#6ec1e4"/></svg>
-											Alt: <span id="gps-alt">--</span>
 										</td>
 									</tr>
 									<tr>
@@ -728,8 +739,10 @@
 											CPU: <span id="cpu-valor">--</span>
 										</td>
 										<td style="border:1px solid #e0e0e0; padding:2px 3px; text-align:center; background:#23272b; color:#f2f2f2;">
-											<svg width="12" height="12" viewBox="0 0 16 16" style="vertical-align:middle;"><rect x="3" y="3" width="10" height="10" rx="2" fill="#9c27b0" stroke="#9c27b0" stroke-width="0.5"/><rect x="4" y="4" width="8" height="3" fill="#e1bee7"/></svg>
-											SD: <span id="almacenamiento-valor">--</span>
+											<div id="disk-indicator" style="display:flex; align-items:center; justify-content:center; gap:4px; width:100%; height:100%;">
+												<span style="font-size:0.65em; font-weight:600;">Disco</span>
+												<div id="disk-led" style="width:8px; height:8px; border-radius:50%; background:#2d5a2d; box-shadow:0 0 3px #2d5a2d; transition:all 0.1s ease;"></div>
+											</div>
 										</td>
 										<td style="border:1px solid #e0e0e0; padding:2px 3px; text-align:center; background:#23272b; color:#f2f2f2;">
 										</td>
@@ -744,8 +757,6 @@
 											Lon: <span id="gps-lon">--</span>
 										</td>
 										<td style="border:1px solid #e0e0e0; padding:2px 3px; text-align:center; background:#23272b; color:#f2f2f2;">
-											<svg width="12" height="12" viewBox="0 0 16 16" style="vertical-align:middle;"><path d="M8 2 A6 6 0 1 1 7.99 2" stroke="#6ec1e4" stroke-width="2" fill="none"/><circle cx="8" cy="8" r="2" fill="#6ec1e4"/></svg>
-											Saté: <span id="gps-sats">--</span>
 										</td>
 									</tr>
 								</tbody>
@@ -1035,11 +1046,19 @@
 				} else {
 					document.getElementById('cpu-valor').textContent = '--';
 				}
-				// Almacenamiento (SD)
+				// Almacenamiento (SD) - LED indicador de actividad
 				if (data.almacenamiento && typeof data.almacenamiento.porcentaje !== 'undefined') {
-					document.getElementById('almacenamiento-valor').textContent = data.almacenamiento.usado_gb + 'GB/' + data.almacenamiento.total_gb + 'GB';
-				} else {
-					document.getElementById('almacenamiento-valor').textContent = '--';
+					// LED verde brillante si hay uso de disco (> 10%)
+					const diskLed = document.getElementById('disk-led');
+					if (diskLed) {
+						if (data.almacenamiento.porcentaje > 10) {
+							diskLed.style.background = '#4caf50';
+							diskLed.classList.add('disk-led-activo');
+						} else {
+							diskLed.style.background = '#2d5a2d';
+							diskLed.classList.remove('disk-led-activo');
+						}
+					}
 				}
 				// Batería
 				if (data.bateria && typeof data.bateria.porcentaje !== 'undefined') {
@@ -1270,7 +1289,17 @@
 						if (data.tipo === 'almacenamiento' && data.datos) {
 							const storage = data.datos;
 							if (typeof storage.porcentaje !== 'undefined') {
-								document.getElementById('almacenamiento-valor').textContent = storage.usado_gb + 'GB/' + storage.total_gb + 'GB';
+								// Actualizar LED de actividad del disco
+								const diskLed = document.getElementById('disk-led');
+								if (diskLed) {
+									if (storage.porcentaje > 10) {
+										diskLed.style.background = '#4caf50';
+										diskLed.classList.add('disk-led-activo');
+									} else {
+										diskLed.style.background = '#2d5a2d';
+										diskLed.classList.remove('disk-led-activo');
+									}
+								}
 							}
 						}
 						if (data.tipo === 'bateria' && data.datos) {
