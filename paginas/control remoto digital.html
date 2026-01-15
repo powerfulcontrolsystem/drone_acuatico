@@ -640,10 +640,11 @@
 						</div>
 						<div class="panel-bajo" style="margin-left:0;margin-right:0; margin-top:0; padding-left:4px; padding-right:4px; width:100%; box-sizing:border-box;">
 							<div style="font-size:0.85em; font-weight:600; color:#6ec1e4; margin-bottom:4px; text-align:center; width:100%;">Indicadores</div>
-							<table class="tabla-indicadores" style="width:100%; max-width:440px; margin:0 auto; border-collapse:collapse; background:#23272b; border-radius:8px; box-shadow:0 1px 6px #0001; color:#f2f2f2; table-layout:fixed; font-family:'Space Grotesk','Segoe UI',sans-serif;">
+							<table class="tabla-indicadores" style="width:100%; max-width:660px; margin:0 auto; border-collapse:collapse; background:#23272b; border-radius:8px; box-shadow:0 1px 6px #0001; color:#f2f2f2; table-layout:fixed; font-family:'Space Grotesk','Segoe UI',sans-serif;">
 								<colgroup>
-									<col style="width:50%">
-									<col style="width:50%">
+									<col style="width:33.33%">
+									<col style="width:33.33%">
+									<col style="width:33.34%">
 								</colgroup>
 								<tbody>
 									<tr>
@@ -665,18 +666,16 @@
 											<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><rect x="2" y="4" width="12" height="8" rx="2" fill="#6ec1e4"/></svg>
 											RAM: <span id="ram-valor">--</span>
 										</td>
-									</tr>
-									<tr>
 										<td style="border:1px solid #e0e0e0; padding:6px; text-align:center; background:#23272b; color:#f2f2f2;">
 											<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><rect x="7" y="2" width="2" height="8" fill="#e6a23c"/><circle cx="8" cy="12" r="3" fill="#e6a23c"/></svg>
 											Temp: <span id="temp-valor">--</span>
 										</td>
+									</tr>
+									<tr>
 										<td style="border:1px solid #e0e0e0; padding:6px; text-align:center; background:#23272b; color:#f2f2f2;">
 											<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><rect x="3" y="5" width="10" height="6" rx="2" fill="#43a047"/><rect x="13" y="7" width="2" height="2" fill="#43a047"/></svg>
 											Batería: <span id="bat-valor">--</span>
 										</td>
-									</tr>
-									<tr>
 										<td style="border:1px solid #e0e0e0; padding:6px; text-align:center; background:#23272b; color:#f2f2f2;">
 											<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><circle cx="8" cy="8" r="7" fill="#6ec1e4"/></svg>
 											Red: <span id="red-valor">--</span>
@@ -695,6 +694,10 @@
 											<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><rect x="4" y="8" width="8" height="4" fill="#b71c1c"/></svg>
 											Peso: <span id="peso-valor">--</span>
 										</td>
+										<td style="border:1px solid #cfd8dc; padding:6px; text-align:center;">
+											<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><circle cx="8" cy="8" r="7" fill="#6ec1e4"/></svg>
+											Alt: <span id="gps-alt">--</span>
+										</td>
 									</tr>
 									<tr>
 										<td style="border:1px solid #e0e0e0; padding:6px; text-align:center; background:#23272b; color:#f2f2f2;">
@@ -705,11 +708,9 @@
 											<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><circle cx="8" cy="8" r="7" fill="#6ec1e4"/></svg>
 											Lon: <span id="gps-lon">--</span>
 										</td>
-									</tr>
-									<tr>
-										<td colspan="2" style="border:1px solid #e0e0e0; padding:6px; text-align:center; background:#23272b; color:#f2f2f2;">
+										<td style="border:1px solid #e0e0e0; padding:6px; text-align:center; background:#23272b; color:#f2f2f2;">
 											<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;"><path d="M8 2 A6 6 0 1 1 7.99 2" stroke="#6ec1e4" stroke-width="2" fill="none"/><circle cx="8" cy="8" r="2" fill="#6ec1e4"/></svg>
-											Vel: <span id="vel-valor">--</span>
+											Saté: <span id="gps-sats">--</span>
 										</td>
 									</tr>
 								</tbody>
