@@ -8,7 +8,7 @@
 	<style>
 		   .fila-superior {
 			display: grid;
-			grid-template-columns: repeat(3, minmax(0, 1fr));
+			grid-template-columns: repeat(3, 1fr);
 			gap: 0px;
 			width: 100%;
 			height: 100%;
@@ -20,8 +20,10 @@
 		}
 		.panel-cam {
 			margin: 0;
-			flex: 1 1 0;
+			flex: 1 1 auto;
 			height: 100%;
+			width: 100%;
+			min-width: 0;
 			aspect-ratio: 16 / 9;
 			min-height: auto;
 			display: flex;
@@ -540,7 +542,7 @@
 			console.log('Esperando datos GPS para inicializar el mapa...');
 		</script>
 		<div class="cuadro-superior-wrapper">
-			<div class="cuadro-externo-superior" style="background:#1a1f28; border:2px solid #2d3748; border-radius:8px; box-shadow:0 2px 12px rgba(0,0,0,0.4); padding:2px 3px; display:flex; justify-content:stretch; align-items:stretch; width:100%; max-width:1200px; margin:0 auto; box-sizing:border-box;">
+			<div class="cuadro-externo-superior" style="background:#1a1f28; border:2px solid #2d3748; border-radius:8px; box-shadow:0 2px 12px rgba(0,0,0,0.4); padding:0px; display:flex; justify-content:stretch; align-items:stretch; width:100%; margin:0 auto; box-sizing:border-box;">
 				<div class="fila-superior">
 					<div class="panel-cam">
 						<video id="videoCam1" controls muted playsinline></video>

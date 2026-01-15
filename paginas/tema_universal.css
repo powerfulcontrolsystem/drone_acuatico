@@ -246,8 +246,10 @@ body {
   width: 100%;
   justify-content: center;
   align-items: stretch;
-  max-width: 1200px;
+  max-width: none;
   margin: 0 auto;
+  padding: 0 20px;
+  box-sizing: border-box;
 }
 .panel-cam, .panel-bajo {
   background: #232a36;
@@ -265,11 +267,11 @@ body {
   min-height: 220px;
   max-width: unset;
   width: auto;
-  flex: 1 1 0;
+  flex: 1 1 auto;
   transition: box-shadow 0.2s, border 0.2s;
   position: relative;
 }
-.panel-cam { flex: 1 1 0; }
+.panel-cam { flex: 1 1 auto; }
 .panel-bajo { flex: 1 1 0; }
 .panel-cam video {
   width: 100%;
