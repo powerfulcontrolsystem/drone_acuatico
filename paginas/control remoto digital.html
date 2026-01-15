@@ -628,11 +628,10 @@
 		<div style="width:100%; display:flex; justify-content:center; align-items:stretch;">
 			<div class="cuadro-externo-inferior control-botones" style="background:#1a1f28; border:2px solid #2d3748; border-radius:8px; box-shadow:0 2px 12px rgba(0,0,0,0.4); padding:4px; display:flex; justify-content:center; align-items:center;">
 					<div class="fila-inferior" style="display:flex; justify-content:center; gap:8px;">
-						<div class="panel-bajo" style="margin:0; padding:4px; width:auto; box-sizing:border-box;">
-					<!-- Título del mando -->
-					<div style="font-size:0.85em; font-weight:600; color:#6ec1e4; margin-bottom:4px; text-align:center; width:100%;">Mando</div>
-							<!-- Panel de depuración eliminado -->
-							<div class="mando-grid">
+						<!-- Contenedor de la Cruz -->
+						<div style="margin:0; padding:0; width:auto; box-sizing:border-box; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0;">
+							<div style="font-size:0.85em; font-weight:600; color:#6ec1e4; margin:0; padding:0; text-align:center; line-height:1; margin-bottom:0;">Mando</div>
+							<div class="mando-grid" style="margin:0; padding:0; margin-top:0;">
 								<button class="btn btn-direccion" id="btn-arriba">▲</button>
 								<button class="btn btn-direccion" id="btn-izquierda">◀</button>
 								<button class="btn btn-direccion btn-stop" id="btn-centro">●</button>
@@ -640,6 +639,7 @@
 								<button class="btn btn-direccion" id="btn-abajo">▼</button>
 							</div>
 						</div>
+					<!-- Panel de Velocidad -->
 					<div class="panel-bajo" style="margin:0; display:flex; flex-direction:column; justify-content:flex-start; align-items:center; min-width:70px; max-width:90px; width:75px; padding:0; box-sizing:border-box;">
 						<div style="font-size:0.85em; font-weight:600; color:#6ec1e4; margin-bottom:4px; text-align:center; width:100%;">Vel.</div>
 						<div class="velocidades-botones" style="display:flex; flex-direction:column; gap:2px; align-items:center; padding:0; width:100%; box-sizing:border-box;">
