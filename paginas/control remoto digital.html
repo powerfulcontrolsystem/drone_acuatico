@@ -191,6 +191,66 @@
 			width: 100%;
 			max-width: 420px;
 		}
+		/* Tema oscuro unificado para botones del control */
+		.control-botones .btn,
+		.control-botones .btn-rele,
+		.control-botones .btn-direccion,
+		.control-botones .btn-velocidad {
+			background: #1f2937 !important;
+			color: #e5e7eb !important;
+			border: 1.5px solid #4b5563 !important;
+			box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3) !important;
+			border-radius: 8px !important;
+		}
+		.control-botones .btn:hover,
+		.control-botones .btn:focus,
+		.control-botones .btn-rele:hover,
+		.control-botones .btn-direccion:hover,
+		.control-botones .btn-velocidad:hover {
+			background: #273548 !important;
+			border-color: #6366f1 !important;
+			box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2) !important;
+		}
+		.control-botones .btn:active,
+		.control-botones .btn-rele:active,
+		.control-botones .btn-direccion:active,
+		.control-botones .btn-velocidad:active {
+			background: #1e293b !important;
+			box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4) !important;
+		}
+		.mando-grid .btn-direccion {
+			width: 100%;
+			height: 36px;
+			margin: 0;
+			padding: 0;
+			font-size: 0.95em;
+		}
+		.btn-stop {
+			background: #b91c1c !important;
+			border-color: #ef4444 !important;
+			color: #fff !important;
+			box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25) !important;
+		}
+		.velocidades-botones .btn-velocidad {
+			width: 100%;
+			min-width: 70px;
+			max-width: 90px;
+			padding: 8px 10px;
+			margin: 0;
+			box-sizing: border-box;
+		}
+		.velocidades-botones .btn-velocidad.activo {
+			background: #f59e0b !important;
+			color: #111827 !important;
+			border-color: #d97706 !important;
+			box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3) !important;
+		}
+		.velocidades-botones .btn-velocidad.inactivo {
+			opacity: 0.8;
+		}
+		.reles-botones .btn-rele {
+			min-width: 120px;
+		}
 		@media (max-width: 700px) {
 			.reles-botones {
 				grid-template-columns: 1fr 1fr;
@@ -538,26 +598,26 @@
 		</div>
 	<div class="cuadro-inferior">
 		<div style="width:100%; display:flex; justify-content:center; align-items:stretch;">
-			<div class="cuadro-externo-inferior" style="background:#1a1f28; border:2px solid #2d3748; border-radius:8px; box-shadow:0 2px 12px rgba(0,0,0,0.4); padding:4px; display:flex; justify-content:center; align-items:center;">
+			<div class="cuadro-externo-inferior control-botones" style="background:#1a1f28; border:2px solid #2d3748; border-radius:8px; box-shadow:0 2px 12px rgba(0,0,0,0.4); padding:4px; display:flex; justify-content:center; align-items:center;">
 					<div class="fila-inferior" style="display:flex; justify-content:center; gap:8px;">
 						<div class="panel-bajo" style="margin:0; padding:0; width:78px; box-sizing:border-box;">
 					<!-- Título del mando -->
 					<div style="font-size:0.85em; font-weight:600; color:#6ec1e4; margin-bottom:4px; text-align:center; width:100%;">Mando</div>
 							<!-- Panel de depuración eliminado -->
-							<div style="display: grid; grid-template-rows: 1fr 1fr 1fr; grid-template-columns: 1fr 1fr 1fr; gap: 1px; width: 100%; margin: 0; padding: 0; box-sizing: border-box;">
-								<button class="btn btn-direccion" id="btn-arriba" style="margin:0; padding:0; width:100%; height:32px; font-size:0.9em;">▲</button>
-								<button class="btn btn-direccion" id="btn-izquierda" style="margin:0; padding:0; width:100%; height:32px; font-size:0.9em;">◀</button>
-								<button class="btn btn-direccion" id="btn-centro" style="margin:0; padding:0; width:100%; height:32px; font-size:0.9em; background:#d32f2f !important; border-color:#d32f2f !important; color:#fff !important;">●</button>
-								<button class="btn btn-direccion" id="btn-derecha" style="margin:0; padding:0; width:100%; height:32px; font-size:0.9em;">▶</button>
-								<button class="btn btn-direccion" id="btn-abajo" style="margin:0; padding:0; width:100%; height:32px; font-size:0.9em;">▼</button>
+							<div class="mando-grid" style="display: grid; grid-template-rows: 1fr 1fr 1fr; grid-template-columns: 1fr 1fr 1fr; gap: 1px; width: 100%; margin: 0; padding: 0; box-sizing: border-box;">
+								<button class="btn btn-direccion" id="btn-arriba">▲</button>
+								<button class="btn btn-direccion" id="btn-izquierda">◀</button>
+								<button class="btn btn-direccion btn-stop" id="btn-centro">●</button>
+								<button class="btn btn-direccion" id="btn-derecha">▶</button>
+								<button class="btn btn-direccion" id="btn-abajo">▼</button>
 							</div>
 						</div>
 					<div class="panel-bajo" style="margin:0; display:flex; flex-direction:column; justify-content:flex-start; align-items:center; min-width:70px; max-width:90px; width:75px; padding:0; box-sizing:border-box;">
 						<div style="font-size:0.85em; font-weight:600; color:#6ec1e4; margin-bottom:4px; text-align:center; width:100%;">Vel.</div>
 						<div class="velocidades-botones" style="display:flex; flex-direction:column; gap:2px; align-items:center; padding:0; width:100%; box-sizing:border-box;">
-							<button class="btn btn-velocidad" id="vel-lenta" style="margin-left:0;margin-right:0;padding-left:4px;padding-right:4px;min-width:70px;max-width:90px;width:100%;box-sizing:border-box;">1</button>
-							<button class="btn btn-velocidad" id="vel-media" style="margin-left:0;margin-right:0;padding-left:4px;padding-right:4px;min-width:70px;max-width:90px;width:100%;box-sizing:border-box;">2</button>
-							<button class="btn btn-velocidad" id="vel-rapida" style="margin-left:0;margin-right:0;padding-left:4px;padding-right:4px;min-width:70px;max-width:90px;width:100%;box-sizing:border-box;">3</button>
+							<button class="btn btn-velocidad" id="vel-lenta">1</button>
+							<button class="btn btn-velocidad" id="vel-media">2</button>
+							<button class="btn btn-velocidad" id="vel-rapida">3</button>
 							</div>
 						</div>
 						<div class="panel-bajo" style="margin:0; padding:0; width:100%; box-sizing:border-box;">
