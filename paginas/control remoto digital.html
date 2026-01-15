@@ -1143,13 +1143,14 @@
 						let data = JSON.parse(event.data);
 						console.log('Tipo de mensaje:', data.tipo);
 						if (data.tipo === 'conexion' || data.tipo === 'datos') {
-							console.log('Recibido conexion/datos, nombres_reles:', data.nombres_reles);
+							console.log('Recibido conexion/datos');
 							if (data.nombres_reles) {
-								window.nombres_reles = data.nombres_reles;
+								window.nombres_reles = { ...window.nombres_reles, ...data.nombres_reles };
+								console.log('✓ Nombres_reles actualizado:', window.nombres_reles);
 							}
 							actualizarIndicadores(data);
 							if (data.reles) {
-								console.log('Llamando renderReles con:', data.reles);
+								console.log('📋 Estados de relés recibidos:', data.reles);
 								renderReles(data.reles);
 							}
 							// Cargar velocidad guardada de BD
@@ -1203,20 +1204,18 @@
 				};
 			}
 			window.addEventListener('DOMContentLoaded', () => {
-				// Cargar nombres de relés desde la configuración inicial para que aparezcan antes del WS
+				// Cargar nombres de relés desde la configuración inicial
 				async function cargarNombresRelesDesdeConfig() {
 					try {
 						const res = await fetch('/api/config');
 						if (!res.ok) return;
 						const cfg = await res.json();
-						if (cfg && cfg.reles) {
+						if (cfg && cfg.reles && Object.keys(cfg.reles).length > 0) {
 							window.nombres_reles = cfg.reles;
-							console.log('Nombres de relés cargados desde config:', window.nombres_reles);
-							// Re-render si ya hay estado actual
-							renderReles();
+							console.log('✓ Nombres de relés cargados desde config:', window.nombres_reles);
 						}
 					} catch (e) {
-						console.warn('No se pudieron cargar nombres de relés desde config:', e);
+						console.warn('⚠️ No se pudieron cargar nombres de relés:', e);
 					}
 				}
 				cargarNombresRelesDesdeConfig();
