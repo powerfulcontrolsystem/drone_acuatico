@@ -1103,19 +1103,23 @@
 					readEl.textContent = '--';
 					writeEl.textContent = '--';
 				}
-				// Batería
-				if (data.bateria && typeof data.bateria.porcentaje !== 'undefined') {
-					document.getElementById('bat-valor').textContent = data.bateria.porcentaje + '%';
-					// Mostrar voltaje si está disponible
-					if (typeof data.bateria.voltaje !== 'undefined') {
-						document.getElementById('bat-voltaje').textContent = Number(data.bateria.voltaje).toFixed(2);
-					} else {
-						document.getElementById('bat-voltaje').textContent = '--';
-					}
-				} else {
-					document.getElementById('bat-valor').textContent = '--';
-					document.getElementById('bat-voltaje').textContent = '--';
+				// Batería (con fallback a datos solares)
+				const batValorEl = document.getElementById('bat-valor');
+				const batVoltEl = document.getElementById('bat-voltaje');
+				let pct = undefined;
+				let volt = undefined;
+				if (data.bateria) {
+					pct = data.bateria.porcentaje;
+					volt = data.bateria.voltaje;
 				}
+				if ((pct === undefined || pct === null) && data.solar) {
+					pct = data.solar.porcentaje;
+				}
+				if ((volt === undefined || volt === null) && data.solar) {
+					volt = data.solar.bateria_voltaje;
+				}
+				batValorEl.textContent = (pct !== undefined && pct !== null) ? (Number(pct).toFixed(0) + ' %') : '--';
+				batVoltEl.textContent = (volt !== undefined && volt !== null) ? Number(volt).toFixed(2) : '--';
 				// Red
 				if (data.red !== undefined && data.red !== null) {
 					document.getElementById('red-valor').textContent = Number(data.red).toFixed(1) + ' Mbps';
@@ -1384,6 +1388,13 @@
 							const solar = data.datos;
 							if (typeof solar.potencia !== 'undefined') {
 								document.getElementById('solar-valor').textContent = solar.potencia + ' W';
+							}
+							// Actualizar batería desde solar como respaldo
+							if (typeof solar.porcentaje !== 'undefined') {
+								document.getElementById('bat-valor').textContent = Number(solar.porcentaje).toFixed(0) + ' %';
+							}
+							if (typeof solar.bateria_voltaje !== 'undefined') {
+								document.getElementById('bat-voltaje').textContent = Number(solar.bateria_voltaje).toFixed(2);
 							}
 						}
 						if (data.tipo === 'gps' && data.datos) {

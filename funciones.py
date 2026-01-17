@@ -562,7 +562,8 @@ def obtener_solar():
             'estado': 'desconectado',
             'conectado': False,
             'exito': False,
-            'error': datos_victron.get('error', 'No conectado') if datos_victron else 'No detectado'
+            'error': datos_victron.get('error', 'No conectado') if datos_victron else 'No detectado',
+            'intervalo_frame_s': None
         }
     except Exception as e:
         logger.error(f"Error obteniendo datos solares: {e}")
@@ -575,7 +576,8 @@ def obtener_solar():
             'estado': 'error',
             'conectado': False,
             'exito': False,
-            'error': str(e)
+            'error': str(e),
+            'intervalo_frame_s': None
         }
 
 
@@ -666,57 +668,74 @@ def leer_victron(puerto=None, timeout=5):
                 }
         
             # Abrir puerto serial
-        with serial.Serial(puerto, 19200, timeout=timeout) as ser:
-            # Limpiar buffer antes de leer
-            ser.reset_input_buffer()
+            with serial.Serial(puerto, 19200, timeout=timeout) as ser:
+                # Limpiar buffer antes de leer
+                ser.reset_input_buffer()
             
-            datos = {}
-            inicio = time.time()
+                inicio = time.time()
+                datos_frame_actual = {}
+                datos_frame_final = None
+                checksum_t1 = None
+                intervalo_frame_s = None
             
-            # Leer hasta obtener un bloque completo (termina con Checksum)
-            while (time.time() - inicio) < timeout:
-                try:
-                    linea = ser.readline().decode('ascii', errors='ignore').strip()
+                # Leer hasta obtener al menos un bloque completo (termina con Checksum)
+                # y, si es posible, medir el intervalo entre dos bloques consecutivos.
+                while (time.time() - inicio) < timeout:
+                    try:
+                        linea = ser.readline().decode('ascii', errors='ignore').strip()
                     
-                    if not linea:
-                        continue
+                        if not linea:
+                            continue
                     
-                    # Dividir por tabulación
-                    partes = linea.split('\t')
-                    if len(partes) == 2:
-                        clave, valor = partes[0], partes[1]
-                        datos[clave] = valor
+                        # Dividir por tabulación
+                        partes = linea.split('\t')
+                        if len(partes) == 2:
+                            clave, valor = partes[0], partes[1]
+                            datos_frame_actual[clave] = valor
                     
-                    # Si encontramos Checksum, tenemos un bloque completo
-                    if linea.startswith('Checksum'):
-                        break
+                        # Si encontramos Checksum, tenemos un bloque completo
+                        if linea.startswith('Checksum'):
+                            if datos_frame_actual:
+                                datos_frame_final = datos_frame_actual
+                            if checksum_t1 is None:
+                                checksum_t1 = time.time()
+                                datos_frame_actual = {}
+                                continue
+                            else:
+                                checksum_t2 = time.time()
+                                intervalo_frame_s = checksum_t2 - checksum_t1
+                                break
                 
-                except UnicodeDecodeError:
-                    continue
-                except Exception as e:
-                    logger.debug(f"Error leyendo línea Victron: {e}")
-                    continue
+                    except UnicodeDecodeError:
+                        continue
+                    except Exception as e:
+                        logger.debug(f"Error leyendo línea Victron: {e}")
+                        continue
             
-            # Verificar que recibimos datos mínimos
-            if not datos or 'V' not in datos:
-                logger.warning("Victron: Bloque de datos incompleto")
-                return {
-                    'exito': False,
-                    'error': 'Datos incompletos o timeout',
-                    'panel_voltaje': 0.0,
-                    'panel_corriente': 0.0,
-                    'potencia': 0,
-                    'bateria_voltaje': 0.0,
-                    'bateria_corriente': 0.0,
-                    'estado': 'error'
-                }
+                datos = datos_frame_final or datos_frame_actual
             
-            # Convertir datos a formato usable
-            resultado = parsear_datos_victron(datos)
-            resultado['exito'] = True
-            resultado['puerto'] = puerto
+                # Verificar que recibimos datos mínimos
+                if not datos or 'V' not in datos:
+                    logger.warning("Victron: Bloque de datos incompleto")
+                    return {
+                        'exito': False,
+                        'error': 'Datos incompletos o timeout',
+                        'panel_voltaje': 0.0,
+                        'panel_corriente': 0.0,
+                        'potencia': 0,
+                        'bateria_voltaje': 0.0,
+                        'bateria_corriente': 0.0,
+                        'estado': 'error',
+                        'intervalo_frame_s': None
+                    }
             
-            return resultado
+                # Convertir datos a formato usable
+                resultado = parsear_datos_victron(datos)
+                resultado['exito'] = True
+                resultado['puerto'] = puerto
+                resultado['intervalo_frame_s'] = intervalo_frame_s
+            
+                return resultado
     
     except serial.SerialException as e:
         logger.error(f"Error serial Victron: {e}")
@@ -727,7 +746,8 @@ def leer_victron(puerto=None, timeout=5):
             'panel_corriente': 0.0,
             'potencia': 0,
             'bateria_voltaje': 0.0,
-            'estado': 'error'
+            'estado': 'error',
+            'intervalo_frame_s': None
         }
     except Exception as e:
         logger.error(f"Error leyendo Victron: {e}")
@@ -738,7 +758,8 @@ def leer_victron(puerto=None, timeout=5):
             'panel_corriente': 0.0,
             'potencia': 0,
             'bateria_voltaje': 0.0,
-            'estado': 'error'
+            'estado': 'error',
+            'intervalo_frame_s': None
         }
 
 

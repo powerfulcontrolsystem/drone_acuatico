@@ -98,7 +98,7 @@
 </head>
 <body>
 	<div class="container">
-		<button class="btn" onclick="window.location.href='control remoto digital.html'" style="margin-bottom: 15px;">⬅ Atrás</button>
+		<button class="btn" onclick="irAtras()" style="margin-bottom: 15px;">⬅ Atrás</button>
 		<h1>📡 Victron 75/15 - Monitor En Vivo</h1>
 		
 		<div class="estado" id="estado">
@@ -117,6 +117,17 @@
 	</div>
 
 	<script>
+		function irAtras() {
+			try {
+				if (window.history && window.history.length > 1) {
+					window.history.back();
+					return;
+				}
+			} catch(e) {}
+			// Fallback: ir directamente a la página de control
+			window.location.href = 'control%20remoto%20digital.html';
+		}
+
 		let ws = null;
 		let ultimosDatosValidos = null; // Guardar últimos datos válidos
 		
@@ -189,6 +200,7 @@
 				'conectado',
 				'exito',
 				'puerto',
+				'intervalo_frame_s',
 				'error',
 				'',
 				'panel_voltaje',
@@ -216,6 +228,7 @@
 				'conectado': 'Conectado',
 				'exito': 'Éxito',
 				'puerto': 'Puerto Serial',
+				'intervalo_frame_s': 'Intervalo de tramas (s)',
 				'error': 'Error',
 				'panel_voltaje': 'Voltaje Panel (V)',
 				'panel_corriente': 'Corriente Panel (A)',
@@ -255,6 +268,8 @@
 						valorFormato = valor.toFixed(2);
 					} else if (campo.includes('porcentaje')) {
 						valorFormato = valor.toFixed(0) + '%';
+					} else if (campo === 'intervalo_frame_s') {
+						valorFormato = valor.toFixed(2) + ' s';
 					} else if (campo.includes('potencia')) {
 						valorFormato = valor.toFixed(0);
 					} else {
