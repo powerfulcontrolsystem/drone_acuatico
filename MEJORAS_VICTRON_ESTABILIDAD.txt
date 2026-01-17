@@ -1,0 +1,301 @@
+═══════════════════════════════════════════════════════════════
+MEJORAS DE ESTABILIDAD Y DATOS COMPLETOS VICTRON
+═══════════════════════════════════════════════════════════════
+
+FECHA: 16 de Enero de 2026
+PROBLEMA REPORTADO: "no se conecta bien, pareciera que se conecta aveces"
+SOLUCIÓN: Aumentar estabilidad + Mostrar todos los datos del Victron
+
+═══════════════════════════════════════════════════════════════
+1. MEJORAS DE ESTABILIDAD
+═══════════════════════════════════════════════════════════════
+
+✅ TIMEOUT AUMENTADO: 2s → 5s
+   - Antes: timeout=2 era muy corto
+   - Ahora: timeout=5 da más tiempo para leer datos completos
+   - Reduce fallos por lecturas incompletas
+
+✅ LIMPIEZA DE BUFFER
+   - Añadido: ser.reset_input_buffer()
+   - Limpia datos viejos antes de leer
+   - Evita leer datos obsoletos del buffer
+
+✅ VERIFICACIÓN DE DATOS COMPLETOS
+   - Antes: No verificaba si recibió datos mínimos
+   - Ahora: Verifica que exista al menos 'V' (voltaje batería)
+   - Retorna error claro si datos incompletos
+
+✅ MEJOR MANEJO DE ERRORES
+   - Mensajes más específicos: "Datos incompletos o timeout"
+   - Errores no bloquean el servidor
+   - Logs detallados para diagnóstico
+
+═══════════════════════════════════════════════════════════════
+2. TODOS LOS DATOS DEL VICTRON AHORA VISIBLES
+═══════════════════════════════════════════════════════════════
+
+NUEVO PANEL: "🔍 Diagnóstico Victron"
+Muestra:
+   ✅ Código de Error (ERR)
+      - 0 = ✅ Sin errores (verde)
+      - >0 = ⚠️ Error: X (rojo)
+   
+   ✅ Energía Generada Ayer (H22)
+      - Wh generados el día anterior
+   
+   ✅ Máxima Potencia Ayer (H23)
+      - Pico de potencia del día anterior
+   
+   ✅ Puerto Serial
+      - Muestra puerto usado (ej: /dev/ttyUSB0)
+
+PANEL EFICIENCIA MEJORADO:
+   ✅ Energía Total Generada (H19)
+      - Acumulado histórico en kWh
+      - Antes: No se mostraba
+
+DATOS YA EXISTENTES (mejorados):
+   - Energía Generada Hoy (H20)
+   - Máxima Potencia Hoy (H21)
+   - Voltaje Panel (VPV)
+   - Corriente Panel (calculada de PPV/VPV)
+   - Potencia Panel (PPV)
+   - Voltaje Batería (V)
+   - Corriente Batería (I)
+   - Estado de Carga (CS): bulk/absorption/float/apagado
+
+═══════════════════════════════════════════════════════════════
+3. DATOS VICTRON COMPLETOS (VE.Direct)
+═══════════════════════════════════════════════════════════════
+
+PROTOCOLO VE.Direct (19200 baud, 8N1, ASCII):
+
+Campo | Descripción              | Unidad | Mostrado en Página
+------|--------------------------|--------|-------------------
+V     | Voltaje batería          | mV     | ✅ Batería Voltaje
+I     | Corriente batería        | mA     | ✅ Batería Corriente
+VPV   | Voltaje panel            | mV     | ✅ Panel Voltaje
+PPV   | Potencia panel           | W      | ✅ Potencia Generada
+CS    | Estado de carga          | código | ✅ Estado (Bulk/Abs/Float)
+ERR   | Código de error          | número | ✅ Código de Error
+H19   | Energía total generada   | kWh×10 | ✅ Energía Total
+H20   | Energía generada hoy     | Wh     | ✅ Energía Hoy
+H21   | Máxima potencia hoy      | W      | ✅ Máx. Potencia (Stats)
+H22   | Energía generada ayer    | Wh     | ✅ Energía Ayer
+H23   | Máxima potencia ayer     | W      | ✅ Máx. Potencia Ayer
+LOAD  | Estado de carga          | ON/OFF | ⚠️ No mostrado (no aplicable)
+IL    | Corriente de carga       | mA     | ⚠️ No mostrado (siempre 0)
+
+CÓDIGOS DE ESTADO (CS):
+   0 = Apagado (🌙)
+   2 = Falla (❌)
+   3 = Bulk (📈 Carga Rápida)
+   4 = Absorption (🔋 Absorción)
+   5 = Float (✅ Flotación/Lleno)
+   7 = Equalize (⚡ Ecualización)
+
+CÓDIGOS DE ERROR (ERR):
+   0 = Sin error
+   2 = Voltaje batería muy alto
+   17 = Sobre temperatura
+   18 = Sobre corriente
+   19 = Sobre potencia
+   ... (ver manual Victron para más códigos)
+
+═══════════════════════════════════════════════════════════════
+4. NUEVO SCRIPT DE DIAGNÓSTICO
+═══════════════════════════════════════════════════════════════
+
+ARCHIVO: diagnostico_conexion.py
+
+FUNCIÓN:
+- Prueba conexión continua por X segundos
+- Mide tasa de éxito, tiempos de lectura
+- Identifica problemas de conexión
+
+USO:
+# Probar por 60 segundos (por defecto)
+python3 diagnostico_conexion.py
+
+# Probar por 120 segundos
+python3 diagnostico_conexion.py 120
+
+SALIDA EJEMPLO:
+═══════════════════════════════════════════════════════════════
+DIAGNÓSTICO DE CONEXIÓN VICTRON 75/15
+═══════════════════════════════════════════════════════════════
+
+[1/3] Detectando puerto serial...
+✅ Puerto detectado: /dev/ttyUSB0
+
+[2/3] Probando conexión continua por 60s...
+
+✅ Lectura #1: 0.85s | Bat: 12.45V | Panel: 18.2V | Potencia: 35W | Estado: bulk
+✅ Lectura #2: 0.92s | Bat: 12.46V | Panel: 18.3V | Potencia: 36W | Estado: bulk
+❌ Lectura #3: FALLO (Datos incompletos o timeout) - 5.01s
+✅ Lectura #4: 0.88s | Bat: 12.47V | Panel: 18.1V | Potencia: 34W | Estado: bulk
+...
+
+[3/3] RESULTADOS
+═══════════════════════════════════════════════════════════════
+
+Intentos totales: 20
+Lecturas exitosas: 18 (90.0%)
+Lecturas fallidas: 2
+
+Tiempos de lectura:
+  - Promedio: 1.15s
+  - Mínimo: 0.85s
+  - Máximo: 5.01s
+
+Errores encontrados:
+  - Datos incompletos o timeout: 2 veces
+
+═══════════════════════════════════════════════════════════════
+DIAGNÓSTICO
+═══════════════════════════════════════════════════════════════
+✅ EXCELENTE: Conexión muy estable
+
+═══════════════════════════════════════════════════════════════
+5. CÓMO RESOLVER PROBLEMA DE CONEXIÓN
+═══════════════════════════════════════════════════════════════
+
+PASO 1: Ejecutar diagnóstico
+cd /home/admin/drone_acuatico
+python3 diagnostico_conexion.py 120
+
+PASO 2: Interpretar resultados
+
+SI TASA DE ÉXITO < 80%:
+   ⚠️ PROBLEMA: Conexión inestable
+   
+   VERIFICAR:
+   1. Cable USB-Serial
+      - Debe ser cable VE.Direct oficial de Victron
+      - Algunos cables USB-Serial genéricos NO funcionan
+      - Probar otro cable si es posible
+   
+   2. Alimentación Victron
+      - Verificar LED del Victron esté encendido
+      - Panel solar debe tener luz suficiente
+      - Batería debe estar conectada
+   
+   3. Puerto USB Raspberry
+      - Probar otro puerto USB
+      - Ejecutar: lsusb (debe aparecer FTDI o similar)
+      - Ejecutar: dmesg | grep tty (ver si hay errores)
+   
+   4. Interferencias
+      - Alejar cable de fuentes electromagnéticas
+      - No enrollar cable cerca de motores
+      - Mantener alejado de cables de potencia
+
+SI TIEMPO PROMEDIO > 3s:
+   ⚠️ PROBLEMA: Lecturas muy lentas
+   
+   VERIFICAR:
+   1. Carga del sistema
+      - Ejecutar: top (ver % CPU)
+      - Si CPU > 80%, hay procesos consumiendo recursos
+   
+   2. Otros procesos usando serial
+      - Ejecutar: lsof | grep ttyUSB
+      - Solo debe estar el servidor
+
+SI HAY ERRORES ESPECÍFICOS:
+   "Permission denied" → sudo chmod 666 /dev/ttyUSB0
+   "Device busy" → Otro proceso usando el puerto
+   "No such device" → Cable desconectado
+
+PASO 3: Reiniciar servidor con cambios aplicados
+pkill -9 -f 'servidor.py'
+cd /home/admin/drone_acuatico
+source venv_pi/bin/activate
+python3 servidor.py &
+
+PASO 4: Verificar en navegador
+http://[IP_RASPBERRY]:8080
+- Click en "☀️ Energía Solar"
+- Verificar indicador: 🟢 Conectado
+- Todos los datos deben aparecer (no "-- V")
+
+═══════════════════════════════════════════════════════════════
+6. FLUJO DE DATOS MEJORADO
+═══════════════════════════════════════════════════════════════
+
+ANTES (problemático):
+1. Servidor envía datos cada 3s
+2. Cada envío llama obtener_solar()
+3. obtener_solar() llama leer_victron() con timeout=2s
+4. Si lectura tarda >2s → Fallo
+5. Si fallan varias seguidas → "se conecta aveces"
+
+AHORA (mejorado):
+1. Servidor envía datos cada 3s
+2. Cada envío llama obtener_solar()
+3. obtener_solar() llama leer_victron() con timeout=5s
+4. leer_victron() limpia buffer antes de leer
+5. Verifica datos completos antes de retornar
+6. Si lectura tarda >5s → Fallo con error claro
+7. Página muestra estado de conexión claramente
+
+VENTAJAS:
+✅ Más tiempo para leer datos completos
+✅ Buffer limpio = datos frescos
+✅ Verificación de integridad
+✅ Usuario ve estado de conexión en tiempo real
+✅ Diagnóstico más fácil con script
+
+═══════════════════════════════════════════════════════════════
+7. LAYOUT ACTUALIZADO DE PÁGINA
+═══════════════════════════════════════════════════════════════
+
+ESTRUCTURA VISUAL:
+
+┌─────────────────────────────────────────────────────────────┐
+│  ☀️ Energía Solar                          [← Volver]       │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│  ℹ️ Información: Monitoriza en tiempo real...               │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│  🔌 Estado de Conexión                                      │
+│  Controlador Solar Victron 75/15:  🟢 Conectado            │
+│  Puerto Serial: /dev/ttyUSB0                                │
+└─────────────────────────────────────────────────────────────┘
+
+┌──────────────────┐ ┌──────────────────┐ ┌──────────────────┐
+│ 🌞 Paneles       │ │ 🔋 Batería       │ │ ⚡ Eficiencia    │
+│ Solares          │ │                  │ │                  │
+│                  │ │                  │ │                  │
+│ Voltaje: 18.5V   │ │ Voltaje: 12.8V   │ │ Rendimiento: 85% │
+│ Corriente: 2.1A  │ │ Carga: 95%       │ │ [████████░░] 85% │
+│ Potencia: 38W    │ │ [█████████░] 95% │ │                  │
+│ Estado: 📈 Bulk  │ │ Estado: ⚡Carga   │ │ Energía Hoy:     │
+│                  │ │                  │ │ 450 Wh           │
+│                  │ │                  │ │                  │
+│                  │ │                  │ │ Energía Total:   │
+│                  │ │                  │ │ 125.4 kWh        │
+└──────────────────┘ └──────────────────┘ └──────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│  🔍 Diagnóstico Victron                                     │
+│                                                              │
+│  Código de Error: ✅ Sin errores (0)                        │
+│  Energía Ayer: 380 Wh                                       │
+│  Máx. Potencia Ayer: 65 W                                   │
+│  Puerto Serial: /dev/ttyUSB0                                │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│  📊 Estadísticas Diarias                                    │
+│                                                              │
+│  [Máx. Potencia]  [Mín. Potencia]  [Promedio]  [Horas Luz] │
+│     75 W              0 W            38 W         8.5 h     │
+└─────────────────────────────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════
+FIN DEL DOCUMENTO
+═══════════════════════════════════════════════════════════════

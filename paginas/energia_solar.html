@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Victron 75/15 - Datos En Vivo</title>
+	<style>
+		body {
+			background: #0f1218;
+			color: #e5e7eb;
+			font-family: Arial, sans-serif;
+			padding: 20px;
+			margin: 0;
+			font-size: 14px;
+			font-weight: 500;
+		}
+		.container {
+			max-width: 1000px;
+			margin: 0 auto;
+		}
+		h1 {
+			color: #2196f3;
+			margin-bottom: 10px;
+			font-size: 24px;
+			font-weight: 700;
+		}
+		.estado {
+			font-size: 18px;
+			font-weight: 700;
+			margin-bottom: 20px;
+			padding: 10px;
+			border-radius: 5px;
+		}
+		.conectado {
+			background: #4caf50;
+			color: white;
+		}
+		.desconectado {
+			background: #e53935;
+			color: white;
+		}
+		.datos {
+			background: #1a1f28;
+			border: 1px solid #2d3748;
+			padding: 15px;
+			border-radius: 5px;
+			line-height: 1.5;
+			display: grid;
+			grid-template-columns: repeat(4, 1fr);
+			gap: 10px;
+		}
+		.linea {
+			display: flex;
+			flex-direction: column;
+			padding: 10px;
+			border: 1px solid #2d3748;
+			border-radius: 6px;
+			background: #0f1218;
+			min-height: 50px;
+		}
+		.linea:last-child {
+			border-bottom: 1px solid #2d3748;
+		}
+		.clave {
+			color: #2196f3;
+			font-weight: 600;
+			min-width: auto;
+			margin-bottom: 4px;
+			font-size: 12px;
+		}
+		.valor {
+			color: #4caf50;
+			text-align: left;
+			min-width: auto;
+			font-size: 16px;
+			font-weight: 700;
+		}
+		.error {
+			color: #ff9800;
+			font-size: 14px;
+			font-weight: 600;
+		}
+		.btn {
+			background: #2196f3;
+			color: white;
+			border: none;
+			padding: 10px 20px;
+			border-radius: 5px;
+			cursor: pointer;
+			font-size: 14px;
+			font-weight: 600;
+			margin-top: 15px;
+		}
+		.btn:hover {
+			background: #1976d2;
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<button class="btn" onclick="window.location.href='control remoto digital.html'" style="margin-bottom: 15px;">⬅ Atrás</button>
+		<h1>📡 Victron 75/15 - Monitor En Vivo</h1>
+		
+		<div class="estado" id="estado">
+			🔴 Desconectado
+		</div>
+		
+		<div class="datos" id="datos">
+			<div class="linea">
+				<span class="clave">Estado:</span>
+				<span class="valor">Conectando...</span>
+			</div>
+		</div>
+		
+		<button class="btn" onclick="reconectar()">Reconectar WebSocket</button>
+		<button class="btn" onclick="limpiarConsola()">Limpiar</button>
+	</div>
+
+	<script>
+		let ws = null;
+		let ultimosDatosValidos = null; // Guardar últimos datos válidos
+		
+		function conectarWS() {
+			console.log('[INFO] Intentando conectar WebSocket...');
+			let wsProto = (location.protocol === 'https:') ? 'wss://' : 'ws://';
+			let wsUrl = wsProto + location.hostname + ':8080/ws';
+			
+			ws = new WebSocket(wsUrl);
+			
+			ws.onopen = function() {
+				console.log('[OK] WebSocket conectado');
+				// Solicitar datos iniciales
+				ws.send(JSON.stringify({ tipo: 'obtener_datos' }));
+			};
+			
+			ws.onmessage = function(event) {
+				try {
+					let data = JSON.parse(event.data);
+					
+					// Solo procesamos mensajes tipo 'solar'
+					if (data.tipo === 'solar' && data.datos) {
+						mostrarDatos(data.datos);
+					}
+				} catch(e) {
+					console.error('[ERROR] Error procesando mensaje:', e);
+				}
+			};
+			
+			ws.onerror = function(error) {
+				console.error('[ERROR] Error WebSocket:', error);
+				document.getElementById('estado').className = 'estado desconectado';
+				document.getElementById('estado').textContent = '🔴 Error de WebSocket';
+			};
+			
+			ws.onclose = function() {
+				console.warn('[WARN] WebSocket cerrado, reconectando en 3s...');
+				document.getElementById('estado').className = 'estado desconectado';
+				document.getElementById('estado').textContent = '🔴 Desconectado (reconectando...)';
+				setTimeout(conectarWS, 3000);
+			};
+		}
+		
+		function mostrarDatos(datos) {
+			const estado = document.getElementById('estado');
+			const datosDiv = document.getElementById('datos');
+			
+			// WebSocket está conectado si recibimos datos
+			// El campo datos.conectado indica si el Victron responde, no el WebSocket
+			if (datos.conectado === true) {
+				estado.className = 'estado conectado';
+				estado.textContent = '🟢 Victron Conectado';
+				// Guardar datos válidos
+				ultimosDatosValidos = datos;
+			} else {
+				// Victron no responde pero WebSocket sí funciona
+				estado.className = 'estado desconectado';
+				estado.textContent = '🟡 Esperando datos...';
+				// Usar últimos datos válidos si existen
+				if (ultimosDatosValidos) {
+					datos = ultimosDatosValidos;
+				}
+			}
+			
+			// Mostrar todos los datos
+			let html = '';
+			
+			// Ordenar y mostrar datos
+			const camposOrdenados = [
+				'conectado',
+				'exito',
+				'puerto',
+				'error',
+				'',
+				'panel_voltaje',
+				'panel_corriente',
+				'potencia',
+				'',
+				'bateria_voltaje',
+				'bateria_corriente',
+				'porcentaje',
+				'',
+				'estado',
+				'error_code',
+				'',
+				'yield_today',
+				'yield_total',
+				'max_power_today',
+				'yield_ayer',
+				'max_power_ayer',
+				'',
+				'cargando'
+			];
+			
+			// Etiquetas en español
+			const etiquetas = {
+				'conectado': 'Conectado',
+				'exito': 'Éxito',
+				'puerto': 'Puerto Serial',
+				'error': 'Error',
+				'panel_voltaje': 'Voltaje Panel (V)',
+				'panel_corriente': 'Corriente Panel (A)',
+				'potencia': 'Potencia Panel (W)',
+				'bateria_voltaje': 'Voltaje Batería (V)',
+				'bateria_corriente': 'Corriente Batería (A)',
+				'porcentaje': 'Porcentaje Batería (%)',
+				'estado': 'Estado Carga',
+				'error_code': 'Código Error',
+				'yield_today': 'Energía Hoy (Wh)',
+				'yield_total': 'Energía Total (kWh)',
+				'max_power_today': 'Máx. Potencia Hoy (W)',
+				'yield_ayer': 'Energía Ayer (Wh)',
+				'max_power_ayer': 'Máx. Potencia Ayer (W)',
+				'cargando': 'Cargando'
+			};
+			
+			camposOrdenados.forEach(campo => {
+				// Saltar líneas en blanco
+				if (campo === '') {
+					return;
+				}
+				
+				const valor = datos[campo];
+				const etiqueta = etiquetas[campo] || campo;
+				
+				// Formatear valor
+				let valorFormato = '';
+				if (valor === undefined || valor === null) {
+					valorFormato = '--';
+				} else if (typeof valor === 'boolean') {
+					valorFormato = valor ? 'SÍ' : 'NO';
+				} else if (typeof valor === 'number') {
+					if (campo.includes('voltaje')) {
+						valorFormato = valor.toFixed(2);
+					} else if (campo.includes('corriente')) {
+						valorFormato = valor.toFixed(2);
+					} else if (campo.includes('porcentaje')) {
+						valorFormato = valor.toFixed(0) + '%';
+					} else if (campo.includes('potencia')) {
+						valorFormato = valor.toFixed(0);
+					} else {
+						valorFormato = valor.toString();
+					}
+				} else {
+					valorFormato = valor.toString();
+				}
+				
+				html += `<div class="linea">
+					<span class="clave">${etiqueta}:</span>
+					<span class="valor">${valorFormato}</span>
+				</div>`;
+			});
+			
+			datosDiv.innerHTML = html;
+		}
+		
+		function reconectar() {
+			console.log('[ACTION] Usuario solicitó reconectar');
+			if (ws) {
+				ws.close();
+			}
+			setTimeout(conectarWS, 500);
+		}
+		
+		function limpiarConsola() {
+			console.clear();
+			console.log('[INFO] Consola limpiada');
+		}
+		
+		// Conectar al cargar la página
+		window.addEventListener('load', function() {
+			console.log('[INIT] Página cargada, conectando WebSocket...');
+			conectarWS();
+		});
+		
+		// Intentar reconectar si se cierra accidentalmente
+		window.addEventListener('beforeunload', function() {
+			if (ws) {
+				ws.close();
+			}
+		});
+	</script>
+</body>
+</html>

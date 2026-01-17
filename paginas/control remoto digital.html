@@ -312,6 +312,39 @@
 			100% { opacity: 1; }
 		}
 		
+		/* Botón tuerca flotante en esquina inferior derecha */
+		#menu-flotante {
+			position: fixed;
+			bottom: 18px;
+			right: 18px;
+			z-index: 9999;
+			display: flex;
+			flex-direction: column;
+			align-items: flex-end;
+			gap: 8px;
+		}
+		
+		#btn-tuerca {
+			position: relative;
+			bottom: 0;
+			right: 0;
+		}
+		
+		#menu-opciones {
+			position: absolute;
+			bottom: 56px;
+			right: 0;
+			display: flex;
+			flex-direction: column;
+			gap: 4px;
+			min-width: 200px;
+			background: #1a1f28;
+			border: 2px solid #2196f3;
+			border-radius: 8px;
+			padding: 8px;
+			box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+		}
+		
 		@keyframes onda-latido {
 			0% {
 				stroke-dashoffset: 0;
@@ -455,22 +488,25 @@
 			<span id="grabando-camara">Grabando Cámara 1</span>
 		</div>
 
-		<!-- Tuerca flotante en esquina superior derecha -->
-		<div id="menu-flotante">
+		<!-- Botón pantalla completa (separado) -->
 		<button id="btn-pantalla-completa" class="btn-menu" type="button" aria-label="Pantalla completa" style="position: fixed; bottom: 18px; right: 80px; z-index: 999; width: 44px; height: 44px; padding: 0; display: flex; align-items: center; justify-content: center;">
 			<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2196f3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
 		</button>
-		<button id="btn-tuerca" class="btn-menu" type="button" aria-label="Menú de opciones" style="width: 44px; height: 44px; padding: 0; display: flex; align-items: center; justify-content: center;">
-				<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2196f3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.09a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.09a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.09a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-			</button>
+		
+		<!-- Tuerca flotante en esquina inferior derecha -->
+		<div id="menu-flotante">
 			<div id="menu-opciones" style="display:none;">
 				<button class="btn-menu" onclick="document.documentElement.requestFullscreen()">🖵 Pantalla completa</button>
 				<button class="btn-menu" onclick="window.location.href='mapa_gps.html'">🧭 Mapa GPS</button>
+				<button class="btn-menu" onclick="window.location.href='energia_solar.html'">☀️ Energía Solar</button>
 				<button class="btn-menu" onclick="window.location.href='configuracion.html'">⚙️ Configuración</button>
 				<button class="btn-menu" onclick="abrirRouter()">📡 Router 4G/5G</button>
 				<button class="btn-menu" onclick="if(confirm('¿Reiniciar el sistema?')) fetch('/api/reiniciar', {method:'POST'}).then(()=>window.location.reload())">🔄 Reiniciar</button>
 				<button class="btn-menu" onclick="if(confirm('¿Apagar el sistema?')) fetch('/api/apagar', {method:'POST'})">⏻ Apagar</button>
 			</div>
+			<button id="btn-tuerca" class="btn-menu" type="button" aria-label="Menú de opciones" style="width: 44px; height: 44px; padding: 0; display: flex; align-items: center; justify-content: center;">
+				<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2196f3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.09a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.09a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.09a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+			</button>
 		</div>
 		<script>
 			const btnTuerca = document.getElementById('btn-tuerca');
@@ -712,11 +748,22 @@
 									<tr>
 										<td style="border:1px solid #e0e0e0; padding:2px 3px; text-align:center; background:#23272b; color:#f2f2f2;">
 											<svg width="12" height="12" viewBox="0 0 16 16" style="vertical-align:middle;"><rect x="3" y="5" width="10" height="6" rx="2" fill="#43a047"/><rect x="13" y="7" width="2" height="2" fill="#43a047"/></svg>
-											Batería: <span id="bat-valor">--</span>
+											Bat: <span id="bat-valor">--</span> | <span id="bat-voltaje">--</span>V
 										</td>
 										<td style="border:1px solid #e0e0e0; padding:2px 3px; text-align:center; background:#23272b; color:#f2f2f2;">
 											<svg width="12" height="12" viewBox="0 0 16 16" style="vertical-align:middle;"><circle cx="8" cy="8" r="7" fill="#6ec1e4"/></svg>
 											Red: <span id="red-valor">--</span>
+										</td>
+										<td style="border:1px solid #e0e0e0; padding:2px 3px; text-align:center; background:#23272b; color:#f2f2f2;">
+											<div id="wifi-container" style="display:flex; align-items:center; justify-content:center; gap:4px; width:100%; height:100%;">
+												<svg id="wifi-signal" width="12" height="12" viewBox="0 0 24 24" style="vertical-align:middle;" fill="none" stroke="#6ec1e4" stroke-width="2">
+													<path d="M5 12.55a11 11 0 0 1 14.08 0"></path>
+													<path d="M1.42 9a16 16 0 0 1 21.16 0"></path>
+													<path d="M9 20h6"></path>
+													<circle cx="12" cy="23" r="1"></circle>
+												</svg>
+												<span style="font-size:0.9em; font-weight:600;">WiFi: <span id="wifi-strength">--</span>%</span>
+											</div>
 										</td>
 										<td style="border:1px solid #e0e0e0; padding:2px 3px; text-align:center; background:#23272b; color:#f2f2f2;">
 											<svg width="12" height="12" viewBox="0 0 16 16" style="vertical-align:middle;"><path d="M8 2 A6 6 0 1 1 7.99 2" stroke="#6ec1e4" stroke-width="2" fill="none"/><circle cx="8" cy="8" r="2" fill="#6ec1e4"/></svg>
@@ -1058,15 +1105,45 @@
 				}
 				// Batería
 				if (data.bateria && typeof data.bateria.porcentaje !== 'undefined') {
-					document.getElementById('bat-valor').textContent = data.bateria.porcentaje + ' %';
+					document.getElementById('bat-valor').textContent = data.bateria.porcentaje + '%';
+					// Mostrar voltaje si está disponible
+					if (typeof data.bateria.voltaje !== 'undefined') {
+						document.getElementById('bat-voltaje').textContent = Number(data.bateria.voltaje).toFixed(2);
+					} else {
+						document.getElementById('bat-voltaje').textContent = '--';
+					}
 				} else {
 					document.getElementById('bat-valor').textContent = '--';
+					document.getElementById('bat-voltaje').textContent = '--';
 				}
 				// Red
 				if (data.red !== undefined && data.red !== null) {
 					document.getElementById('red-valor').textContent = Number(data.red).toFixed(1) + ' Mbps';
 				} else {
 					document.getElementById('red-valor').textContent = '--';
+				}
+				// WiFi
+				if (data.wifi && typeof data.wifi.calidad !== 'undefined') {
+					const wifiCalidad = Number(data.wifi.calidad);
+					document.getElementById('wifi-strength').textContent = Math.max(0, Math.min(100, wifiCalidad));
+					
+					// Cambiar color del SVG según la intensidad
+					const wifiSignal = document.getElementById('wifi-signal');
+					if (wifiSignal) {
+						if (wifiCalidad >= 75) {
+							wifiSignal.style.stroke = '#4caf50'; // Verde - Excelente
+						} else if (wifiCalidad >= 50) {
+							wifiSignal.style.stroke = '#fdd835'; // Amarillo - Bueno
+						} else if (wifiCalidad >= 25) {
+							wifiSignal.style.stroke = '#fb8c00'; // Naranja - Aceptable
+						} else {
+							wifiSignal.style.stroke = '#e53935'; // Rojo - Débil
+						}
+					}
+				} else {
+					document.getElementById('wifi-strength').textContent = '--';
+					const wifiSignal = document.getElementById('wifi-signal');
+					if (wifiSignal) wifiSignal.style.stroke = '#6ec1e4'; // Color por defecto
 				}
 				// GPS Lat/Lon y mapa
 				let velocidadGPS = null;
@@ -1321,6 +1398,24 @@
 								}
 								if (gps.satelites) {
 									document.getElementById('gps-sats').textContent = gps.satelites;
+								}
+							}
+						}
+						if (data.tipo === 'wifi' && data.datos) {
+							const wifi = data.datos;
+							const wifiCalidad = Number(wifi.calidad) || 0;
+							document.getElementById('wifi-strength').textContent = Math.max(0, Math.min(100, wifiCalidad));
+							
+							const wifiSignal = document.getElementById('wifi-signal');
+							if (wifiSignal) {
+								if (wifiCalidad >= 75) {
+									wifiSignal.style.stroke = '#4caf50'; // Verde
+								} else if (wifiCalidad >= 50) {
+									wifiSignal.style.stroke = '#fdd835'; // Amarillo
+								} else if (wifiCalidad >= 25) {
+									wifiSignal.style.stroke = '#fb8c00'; // Naranja
+								} else {
+									wifiSignal.style.stroke = '#e53935'; // Rojo
 								}
 							}
 						}

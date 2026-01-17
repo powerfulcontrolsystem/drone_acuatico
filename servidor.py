@@ -28,8 +28,10 @@ from funciones import (
     obtener_peso,
     obtener_solar,
     obtener_velocidad_red,
+    obtener_wifi,
     obtener_voltaje_raspberry,
     obtener_io_sd,
+    obtener_uso_disco_porcentaje,
     
     
     iniciar_gps,
@@ -205,6 +207,7 @@ async def enviar_datos_periodicos():
             bat = await loop.run_in_executor(None, obtener_bateria)
             peso = await loop.run_in_executor(None, obtener_peso)
             solar = await loop.run_in_executor(None, obtener_solar)
+            wifi = await loop.run_in_executor(None, obtener_wifi)
             gps = obtener_payload_gps()
             voltaje = await loop.run_in_executor(None, obtener_voltaje_raspberry)
             
@@ -217,6 +220,7 @@ async def enviar_datos_periodicos():
             mensaje_bat = {'tipo': 'bateria', 'datos': bat}
             mensaje_peso = {'tipo': 'peso', 'datos': peso}
             mensaje_solar = {'tipo': 'solar', 'datos': solar}
+            mensaje_wifi = {'tipo': 'wifi', 'datos': wifi}
             mensaje_voltaje = {'tipo': 'voltaje', 'datos': voltaje}
             
             # Enviar a todos los clientes (mismo dato a todos = eficiente)
@@ -231,6 +235,7 @@ async def enviar_datos_periodicos():
                     await cliente.send_json(mensaje_bat)
                     await cliente.send_json(mensaje_peso)
                     await cliente.send_json(mensaje_solar)
+                    await cliente.send_json(mensaje_wifi)
                     await cliente.send_json(mensaje_voltaje)
                     # Enviar GPS siempre (con bandera de válido)
                     await cliente.send_json({'tipo': 'gps', 'datos': gps})
@@ -668,6 +673,14 @@ async def mapa_gps_handler(request):
     return web.FileResponse(archivo)
 
 
+async def energia_solar_handler(request):
+    """Manejador de la página de energía solar."""
+    archivo = Path(__file__).parent / 'paginas' / 'energia_solar.html'
+    if not archivo.exists():
+        return web.json_response({'error': 'Página de energía solar no encontrada'}, status=404)
+    return web.FileResponse(archivo)
+
+
 async def api_config_handler(request):
     """
     API REST para obtener y guardar configuración.
@@ -839,6 +852,24 @@ async def api_recorrido_detalle_handler(request):
     return web.json_response({'exito': True, 'recorrido': detalle})
 
 
+async def api_test_wifi_handler(request):
+    """Endpoint de prueba para obtener información del WiFi."""
+    try:
+        loop = asyncio.get_event_loop()
+        wifi_data = await loop.run_in_executor(None, obtener_wifi)
+        logger.info(f"Datos WiFi obtenidos: {wifi_data}")
+        return web.json_response({
+            'exito': True,
+            'datos': wifi_data
+        })
+    except Exception as e:
+        logger.error(f"Error obteniendo WiFi: {e}")
+        return web.json_response({
+            'exito': False,
+            'error': str(e)
+        }, status=500)
+
+
 # ==================== EVENTOS DEL SERVIDOR ====================
 
 async def on_startup(app):
@@ -940,9 +971,11 @@ def crear_app():
     app.router.add_get('/', index_handler)
     app.router.add_get('/configuracion.html', configuracion_handler)
     app.router.add_get('/mapa_gps.html', mapa_gps_handler)
+    app.router.add_get('/energia_solar.html', energia_solar_handler)
     app.router.add_get('/api/config', api_config_handler)
     app.router.add_post('/api/config', api_config_handler)
     app.router.add_get('/api/gps/actual', api_gps_actual_handler)
+    app.router.add_get('/api/test/wifi', api_test_wifi_handler)
     app.router.add_get('/api/onvif/discover', api_onvif_discover_handler)
     app.router.add_get('/api/ubicaciones', api_ubicaciones_handler)
     app.router.add_get('/api/recorridos', api_recorridos_handler)

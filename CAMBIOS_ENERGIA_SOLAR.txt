@@ -1,0 +1,134 @@
+═══════════════════════════════════════════════════════════════
+CAMBIOS EN PÁGINA DE ENERGÍA SOLAR - SOLO DATOS REALES
+═══════════════════════════════════════════════════════════════
+
+FECHA: 16 de Enero de 2026
+OBJETIVO: Mostrar solo datos reales del Victron, sin simulaciones
+
+═══════════════════════════════════════════════════════════════
+1. NUEVO INDICADOR DE CONEXIÓN
+═══════════════════════════════════════════════════════════════
+
+✅ Añadido panel al inicio de la página que muestra:
+   - 🟢 Conectado: Cuando el Victron 75/15 está enviando datos
+   - 🔴 Desconectado: Cuando NO hay conexión con el controlador
+   - Puerto serial detectado (cuando está conectado)
+
+ESTADOS VISUALES:
+- Conectado: Panel con borde verde, estado "🟢 Conectado"
+- Desconectado: Panel con borde rojo, estado "🔴 Desconectado"
+
+═══════════════════════════════════════════════════════════════
+2. ELIMINADOS DATOS DE DEMOSTRACIÓN
+═══════════════════════════════════════════════════════════════
+
+❌ ELIMINADO de funciones.py:
+   - Datos simulados (18.5V, 2.3A, 42.6W, 12.4V)
+   - Campo 'simulado': True
+   
+✅ NUEVO COMPORTAMIENTO:
+   - Si Victron NO conectado → Retorna datos en 0.0 con 'conectado': False
+   - Si Victron SÍ conectado → Retorna datos reales con 'conectado': True
+   - Campo 'conectado' en respuesta indica estado de conexión
+
+═══════════════════════════════════════════════════════════════
+3. PÁGINA MUESTRA SOLO DATOS REALES
+═══════════════════════════════════════════════════════════════
+
+COMPORTAMIENTO:
+- Al cargar página: Muestra "-- V", "-- A", "-- W" (sin datos)
+- Cuando conecta Victron: Muestra datos reales
+- Si pierde conexión: Vuelve a mostrar "--" 
+- NO muestra datos inventados/simulados nunca
+
+ELEMENTOS AFECTADOS:
+- Voltaje panel: -- V (sin datos) o valor real
+- Corriente panel: -- A (sin datos) o valor real
+- Potencia: -- W (sin datos) o valor real
+- Voltaje batería: -- V (sin datos) o valor real
+- Estado: "Sin datos" o estado real (Bulk/Absorption/Float)
+
+═══════════════════════════════════════════════════════════════
+4. NUEVA FUNCIÓN mostrarDatosVacios()
+═══════════════════════════════════════════════════════════════
+
+JavaScript añadido que:
+- Se ejecuta al cargar la página
+- Se ejecuta cuando se pierde conexión
+- Muestra "--" en todos los campos
+- Oculta indicadores de estado
+
+═══════════════════════════════════════════════════════════════
+5. CÓMO PROBAR
+═══════════════════════════════════════════════════════════════
+
+PASO 1: Verificar conexión Victron
+cd /home/admin/drone_acuatico
+python3 test_victron.py
+
+PASO 2: Reiniciar servidor
+pkill -9 -f 'servidor.py'
+cd /home/admin/drone_acuatico
+source venv_pi/bin/activate
+python3 servidor.py &
+
+PASO 3: Abrir navegador
+http://[IP_RASPBERRY]:8080
+Click en "☀️ Energía Solar"
+
+RESULTADOS ESPERADOS:
+- SI Victron conectado:
+  * Panel conexión: 🟢 Conectado (borde verde)
+  * Puerto: /dev/ttyUSB0 (o similar)
+  * Datos reales: 12.45V, 0.25A, 3W, etc.
+
+- SI Victron NO conectado:
+  * Panel conexión: 🔴 Desconectado (borde rojo)
+  * Todos los datos: "-- V", "-- A", "-- W"
+  * Estado: "Sin datos"
+
+═══════════════════════════════════════════════════════════════
+6. ESTRUCTURA DE DATOS
+═══════════════════════════════════════════════════════════════
+
+RESPUESTA obtener_solar() cuando CONECTADO:
+{
+    'conectado': True,
+    'exito': True,
+    'puerto': '/dev/ttyUSB0',
+    'panel_voltaje': 18.5,
+    'panel_corriente': 2.1,
+    'potencia': 38,
+    'bateria_voltaje': 12.8,
+    'bateria_corriente': 1.5,
+    'estado': 'bulk',
+    'yield_today': 450,
+    'max_power_today': 75
+}
+
+RESPUESTA obtener_solar() cuando DESCONECTADO:
+{
+    'conectado': False,
+    'exito': False,
+    'panel_voltaje': 0.0,
+    'panel_corriente': 0.0,
+    'potencia': 0,
+    'bateria_voltaje': 0.0,
+    'bateria_corriente': 0.0,
+    'estado': 'desconectado',
+    'error': 'Puerto Victron no encontrado'
+}
+
+═══════════════════════════════════════════════════════════════
+7. VENTAJAS
+═══════════════════════════════════════════════════════════════
+
+✅ Usuario sabe inmediatamente si hay conexión real
+✅ No se confunde con datos simulados/falsos
+✅ Transparencia total del sistema
+✅ Fácil diagnosticar problemas de conexión
+✅ Página limpia cuando no hay hardware conectado
+
+═══════════════════════════════════════════════════════════════
+FIN DEL DOCUMENTO
+═══════════════════════════════════════════════════════════════

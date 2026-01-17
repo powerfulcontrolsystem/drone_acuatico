@@ -463,19 +463,56 @@ def obtener_uso_disco_porcentaje(dispositivo='/'):
 
 def obtener_bateria():
     """
-    Obtiene el estado de la batería.
-    Actualmente simulado - reemplazar con lectura real del sensor.
+    Obtiene el estado de la batería desde el controlador Victron.
+    Lee datos reales del puerto serial VE.Direct.
     
     Returns:
-        dict: {'porcentaje': int, 'voltaje': float, 'estado': str}
+        dict: {'porcentaje': int, 'voltaje': float, 'estado': str, 'conectado': bool}
     """
-    # TODO: Implementar lectura real del sensor de batería y panel solar
-    return {
-        'porcentaje': 85,
-        'voltaje': 12.4,
-        'estado': 'cargando',
-        'cargando': True
-    }
+    try:
+        # Leer datos del Victron
+        datos_victron = leer_victron()
+        
+        if datos_victron and datos_victron.get('exito'):
+            # Extraer voltaje de batería del Victron
+            voltaje = datos_victron.get('bateria_voltaje', 0.0)
+            corriente = datos_victron.get('bateria_corriente', 0.0)
+            estado = datos_victron.get('estado', 'desconectado')
+            
+            # Calcular porcentaje de carga basado en voltaje (aproximado para batería de 12V)
+            # Rango típico: 10.5V (0%) a 14.7V (100%) para batería de litio
+            # Para ácido-plomo: 10.5V (0%) a 12.6V (100%)
+            # Usando rango litio por defecto (más preciso)
+            porcentaje = max(0, min(100, int((voltaje - 10.5) / (14.7 - 10.5) * 100)))
+            
+            return {
+                'porcentaje': porcentaje,
+                'voltaje': voltaje,
+                'corriente': corriente,
+                'estado': estado,
+                'conectado': True
+            }
+        else:
+            # Victron no disponible
+            logger.warning("Victron no disponible para obtener datos de batería")
+            return {
+                'porcentaje': 0,
+                'voltaje': 0.0,
+                'corriente': 0.0,
+                'estado': 'desconectado',
+                'conectado': False,
+                'error': datos_victron.get('error', 'No conectado') if datos_victron else 'No detectado'
+            }
+    except Exception as e:
+        logger.error(f"Error obteniendo datos de batería: {e}")
+        return {
+            'porcentaje': 0,
+            'voltaje': 0.0,
+            'corriente': 0.0,
+            'estado': 'error',
+            'conectado': False,
+            'error': str(e)
+        }
 
 
 def obtener_peso():
@@ -503,29 +540,309 @@ def obtener_peso():
 
 def obtener_solar():
     """
-    Obtiene el estado de los paneles solares y carga.
-    Actualmente simulado hasta integrar lecturas reales.
+    Obtiene el estado de los paneles solares y carga del controlador Victron 75/15.
+    Lee datos reales desde el puerto serial VE.Direct.
+    Solo retorna datos reales, NO datos simulados.
     """
     try:
-        # TODO: Integrar lectura real de controlador/MPPT
-        panel_volt = 18.5
-        panel_amp = 2.3
-        potencia = round(panel_volt * panel_amp, 1)
+        # Intentar leer del Victron
+        datos_victron = leer_victron()
+        if datos_victron and datos_victron.get('exito'):
+            datos_victron['conectado'] = True
+            return datos_victron
+        
+        # Si falla, retornar estructura vacía indicando desconexión
+        logger.warning("Victron no disponible - sin datos")
         return {
-            'panel_voltaje': panel_volt,
-            'panel_corriente': panel_amp,
-            'potencia': potencia,
-            'bateria_voltaje': 12.4,
-            'estado': 'cargando'
+            'panel_voltaje': 0.0,
+            'panel_corriente': 0.0,
+            'potencia': 0,
+            'bateria_voltaje': 0.0,
+            'bateria_corriente': 0.0,
+            'estado': 'desconectado',
+            'conectado': False,
+            'exito': False,
+            'error': datos_victron.get('error', 'No conectado') if datos_victron else 'No detectado'
         }
     except Exception as e:
         logger.error(f"Error obteniendo datos solares: {e}")
         return {
             'panel_voltaje': 0.0,
             'panel_corriente': 0.0,
-            'potencia': 0.0,
+            'potencia': 0,
             'bateria_voltaje': 0.0,
-            'estado': 'desconocido'
+            'bateria_corriente': 0.0,
+            'estado': 'error',
+            'conectado': False,
+            'exito': False,
+            'error': str(e)
+        }
+
+
+def detectar_puerto_victron():
+    """
+    Detecta automáticamente el puerto serial del controlador Victron.
+    Busca en /dev/ttyUSB* y /dev/ttyACM*
+    
+    Returns:
+        str: Ruta del puerto detectado o None
+    """
+    import glob
+    
+    # Puertos comunes para Victron VE.Direct
+    posibles_puertos = (
+        glob.glob('/dev/ttyUSB*') + 
+        glob.glob('/dev/ttyACM*') +
+        glob.glob('/dev/serial/by-id/*Victron*') +
+        glob.glob('/dev/serial/by-id/*VE*')
+    )
+    
+    for puerto in posibles_puertos:
+        try:
+            # Intentar abrir el puerto brevemente
+            with serial.Serial(puerto, 19200, timeout=0.5) as ser:
+                # Leer algunas líneas para verificar formato VE.Direct
+                for _ in range(10):
+                    linea = ser.readline().decode('ascii', errors='ignore').strip()
+                    if linea.startswith('V\t') or linea.startswith('I\t') or linea.startswith('VPV\t'):
+                        logger.info(f"Victron detectado en {puerto}")
+                        return puerto
+        except Exception as e:
+            logger.debug(f"Puerto {puerto} no es Victron: {e}")
+            continue
+    
+    logger.warning("No se detectó controlador Victron en ningún puerto serial")
+    return None
+
+
+def leer_victron(puerto=None, timeout=5):
+    """
+    Lee datos del controlador Victron 75/15 por VE.Direct (protocolo serial).
+    
+    Protocolo VE.Direct:
+    - Baudrate: 19200
+    - Data bits: 8
+    - Parity: None
+    - Stop bits: 1
+    - Flow control: None
+    
+    Formato de datos (texto ASCII):
+    V    12450    (Voltaje batería en mV)
+    I    5000     (Corriente batería en mA)
+    VPV  18500    (Voltaje panel en mV)
+    PPV  45       (Potencia panel en W)
+    CS   3        (Estado de carga)
+    ERR  0        (Código de error)
+    LOAD ON       (Estado de carga)
+    IL   0        (Corriente de carga)
+    H19  456      (Energía total generada)
+    H20  123      (Energía generada hoy)
+    H21  456      (Máxima potencia hoy)
+    H22  789      (Energía generada ayer)
+    H23  234      (Máxima potencia ayer)
+    Checksum X    (Checksum del bloque)
+    
+    Args:
+        puerto (str): Puerto serial (auto-detecta si es None)
+        timeout (float): Timeout de lectura en segundos (aumentado a 5s para mejor estabilidad)
+    
+    Returns:
+        dict: Datos del Victron o None si hay error
+    """
+    try:
+        # Auto-detectar puerto si no se especifica
+        if puerto is None:
+            puerto = detectar_puerto_victron()
+            if puerto is None:
+                return {
+                    'exito': False,
+                    'error': 'Puerto Victron no encontrado',
+                    'panel_voltaje': 0.0,
+                    'panel_corriente': 0.0,
+                    'potencia': 0,
+                    'bateria_voltaje': 0.0,
+                    'bateria_corriente': 0.0,
+                    'estado': 'desconectado'
+                }
+        
+            # Abrir puerto serial
+        with serial.Serial(puerto, 19200, timeout=timeout) as ser:
+            # Limpiar buffer antes de leer
+            ser.reset_input_buffer()
+            
+            datos = {}
+            inicio = time.time()
+            
+            # Leer hasta obtener un bloque completo (termina con Checksum)
+            while (time.time() - inicio) < timeout:
+                try:
+                    linea = ser.readline().decode('ascii', errors='ignore').strip()
+                    
+                    if not linea:
+                        continue
+                    
+                    # Dividir por tabulación
+                    partes = linea.split('\t')
+                    if len(partes) == 2:
+                        clave, valor = partes[0], partes[1]
+                        datos[clave] = valor
+                    
+                    # Si encontramos Checksum, tenemos un bloque completo
+                    if linea.startswith('Checksum'):
+                        break
+                
+                except UnicodeDecodeError:
+                    continue
+                except Exception as e:
+                    logger.debug(f"Error leyendo línea Victron: {e}")
+                    continue
+            
+            # Verificar que recibimos datos mínimos
+            if not datos or 'V' not in datos:
+                logger.warning("Victron: Bloque de datos incompleto")
+                return {
+                    'exito': False,
+                    'error': 'Datos incompletos o timeout',
+                    'panel_voltaje': 0.0,
+                    'panel_corriente': 0.0,
+                    'potencia': 0,
+                    'bateria_voltaje': 0.0,
+                    'bateria_corriente': 0.0,
+                    'estado': 'error'
+                }
+            
+            # Convertir datos a formato usable
+            resultado = parsear_datos_victron(datos)
+            resultado['exito'] = True
+            resultado['puerto'] = puerto
+            
+            return resultado
+    
+    except serial.SerialException as e:
+        logger.error(f"Error serial Victron: {e}")
+        return {
+            'exito': False,
+            'error': f'Error serial: {str(e)}',
+            'panel_voltaje': 0.0,
+            'panel_corriente': 0.0,
+            'potencia': 0,
+            'bateria_voltaje': 0.0,
+            'estado': 'error'
+        }
+    except Exception as e:
+        logger.error(f"Error leyendo Victron: {e}")
+        return {
+            'exito': False,
+            'error': str(e),
+            'panel_voltaje': 0.0,
+            'panel_corriente': 0.0,
+            'potencia': 0,
+            'bateria_voltaje': 0.0,
+            'estado': 'error'
+        }
+
+
+def parsear_datos_victron(datos):
+    """
+    Convierte los datos raw del Victron a formato legible.
+    
+    Args:
+        datos (dict): Datos raw del Victron (claves como 'V', 'I', 'VPV', etc.)
+    
+    Returns:
+        dict: Datos parseados con unidades correctas
+    """
+    try:
+        # Estados de carga del Victron
+        estados_carga = {
+            '0': 'apagado',
+            '2': 'falla',
+            '3': 'bulk',
+            '4': 'absorption',
+            '5': 'float',
+            '7': 'equalize',
+            '252': 'external_control'
+        }
+        
+        # Voltaje batería (mV a V)
+        bateria_voltaje = float(datos.get('V', 0)) / 1000.0
+        
+        # Corriente batería (mA a A) - puede ser negativa
+        bateria_corriente = float(datos.get('I', 0)) / 1000.0
+        
+        # Voltaje panel (mV a V)
+        panel_voltaje = float(datos.get('VPV', 0)) / 1000.0
+        
+        # Potencia panel (W)
+        potencia_panel = int(datos.get('PPV', 0))
+        
+        # Calcular corriente panel aproximada (P = V × I)
+        if panel_voltaje > 0:
+            panel_corriente = potencia_panel / panel_voltaje
+        else:
+            panel_corriente = 0.0
+        
+        # Estado de carga
+        estado_code = datos.get('CS', '0')
+        estado = estados_carga.get(estado_code, 'desconocido')
+        
+        # Código de error
+        error_code = int(datos.get('ERR', 0))
+        
+        # Yield today (Wh generados hoy)
+        yield_today = int(datos.get('H20', 0))
+        
+        # Potencia máxima hoy (W)
+        max_power_today = int(datos.get('H21', 0))
+        
+        # Yield total (kWh × 10)
+        yield_total = float(datos.get('H19', 0)) / 10.0
+        
+        # Yield ayer (Wh)
+        yield_ayer = int(datos.get('H22', 0))
+        
+        # Potencia máxima ayer (W)
+        max_power_ayer = int(datos.get('H23', 0))
+        
+        # Calcular porcentaje de batería basado en voltaje (estimación)
+        # Rango típico batería LiFePO4: 10V (0%) - 14.2V (100%)
+        # Rango típico batería SLA/AGM: 11.5V (0%) - 13.8V (100%)
+        # Usamos rango genérico: 10V-14V
+        min_voltaje = 10.0
+        max_voltaje = 14.0
+        porcentaje_bateria = max(0, min(100, int((bateria_voltaje - min_voltaje) / (max_voltaje - min_voltaje) * 100)))
+        
+        logger.info(f"Victron: Panel {panel_voltaje:.1f}V {panel_corriente:.2f}A ({potencia_panel}W), "
+                   f"Batería {bateria_voltaje:.1f}V {bateria_corriente:.2f}A ({porcentaje_bateria}%), Estado: {estado}")
+        
+        return {
+            'panel_voltaje': round(panel_voltaje, 2),
+            'panel_corriente': round(panel_corriente, 2),
+            'potencia': potencia_panel,
+            'bateria_voltaje': round(bateria_voltaje, 2),
+            'bateria_corriente': round(bateria_corriente, 2),
+            'porcentaje': porcentaje_bateria,
+            'estado': estado,
+            'error_code': error_code,
+            'yield_today': yield_today,
+            'yield_total': yield_total,
+            'max_power_today': max_power_today,
+            'yield_ayer': yield_ayer,
+            'max_power_ayer': max_power_ayer,
+            'cargando': potencia_panel > 0,
+            'raw_data': datos
+        }
+    
+    except Exception as e:
+        logger.error(f"Error parseando datos Victron: {e}")
+        return {
+            'panel_voltaje': 0.0,
+            'panel_corriente': 0.0,
+            'potencia': 0,
+            'bateria_voltaje': 0.0,
+            'bateria_corriente': 0.0,
+            'estado': 'error',
+            'error': str(e)
         }
 
 
@@ -612,6 +929,119 @@ def obtener_velocidad_red():
     
     # Retornar velocidad desconocida si hay error
     return {'velocidad': 0}
+
+
+def obtener_wifi():
+    """
+    Obtiene el estado de la conexión WiFi (SSID, RSSI dBm y calidad %).
+    Intenta con 'iw dev wlan0 link' y, si falla, usa 'iwconfig wlan0'.
+    """
+    try:
+        # Método 1: iw (moderno)
+        try:
+            res = subprocess.run(
+                ['iw', 'dev', 'wlan0', 'link'],
+                capture_output=True,
+                text=True,
+                timeout=3
+            )
+            if res.returncode == 0:
+                out = res.stdout
+                logger.debug(f"Salida iw: {out}")
+                ssid = None
+                rssi = None
+                for line in out.splitlines():
+                    line = line.strip()
+                    if line.startswith('SSID:'):
+                        ssid = line.split(':', 1)[1].strip()
+                    if line.startswith('signal:') and 'dBm' in line:
+                        # Formato: signal: -49 dBm
+                        try:
+                            rssi = int(line.split(':', 1)[1].strip().split(' ')[0])
+                        except:
+                            pass
+                if rssi is not None:
+                    calidad = max(0, min(100, 2 * (rssi + 100)))
+                    logger.info(f"WiFi - SSID: {ssid}, RSSI: {rssi} dBm, Calidad: {calidad}%")
+                    return {'ssid': ssid or '', 'rssi_dbm': rssi, 'calidad': int(calidad)}
+        except FileNotFoundError:
+            logger.debug("Comando 'iw' no encontrado")
+            pass
+
+        # Método 2: iwconfig (legacy)
+        try:
+            res = subprocess.run(
+                ['iwconfig', 'wlan0'],
+                capture_output=True,
+                text=True,
+                timeout=3
+            )
+            if res.returncode == 0:
+                out = res.stdout
+                ssid = ''
+                rssi = None
+                calidad = None
+                for token in out.replace('\n', ' ').split():
+                    if token.startswith('ESSID:'):
+                        ssid = token.split(':', 1)[1].strip().strip('"')
+                # Link Quality=70/70  Signal level=-39 dBm
+                import re
+                mq = re.search(r'Link Quality=(\d+)/(\d+)', out)
+                if mq:
+                    try:
+                        qv = int(mq.group(1)); qt = int(mq.group(2)) or 70
+                        calidad = int(qv * 100 / qt)
+                    except:
+                        pass
+                ms = re.search(r'Signal level=\s*(-?\d+)\s*dBm', out)
+                if ms:
+                    try:
+                        rssi = int(ms.group(1))
+                    except:
+                        pass
+                if rssi is not None and calidad is None:
+                    calidad = max(0, min(100, 2 * (rssi + 100)))
+                if rssi is not None or calidad is not None:
+                    logger.info(f"WiFi (iwconfig) - SSID: {ssid}, RSSI: {rssi} dBm, Calidad: {calidad}%")
+                    return {'ssid': ssid, 'rssi_dbm': rssi if rssi is not None else 0, 'calidad': int(calidad if calidad is not None else 0)}
+        except FileNotFoundError:
+            logger.debug("Comando 'iwconfig' no encontrado")
+            pass
+        
+        # Método 3: nmcli (si está disponible)
+        try:
+            res = subprocess.run(
+                ['nmcli', 'dev', 'wifi', 'show'],
+                capture_output=True,
+                text=True,
+                timeout=3
+            )
+            if res.returncode == 0:
+                out = res.stdout
+                ssid = None
+                rssi = None
+                import re
+                # Buscar SSID
+                ssid_match = re.search(r'SSID:\s*(.+)', out)
+                if ssid_match:
+                    ssid = ssid_match.group(1).strip()
+                # Buscar signal strength (0-100)
+                signal_match = re.search(r'SIGNAL:\s*(\d+)', out)
+                if signal_match:
+                    signal = int(signal_match.group(1))
+                    # Convertir porcentaje a dBm (aproximado): signal% = 2*(rssi+100)
+                    # rssi = signal/2 - 100
+                    rssi = int(signal / 2 - 100)
+                    logger.info(f"WiFi (nmcli) - SSID: {ssid}, RSSI: {rssi} dBm (signal: {signal}%)")
+                    return {'ssid': ssid or '', 'rssi_dbm': rssi, 'calidad': int(signal)}
+        except (FileNotFoundError, Exception) as e:
+            logger.debug(f"Método nmcli no disponible: {e}")
+            pass
+    except Exception as e:
+        logger.warning(f"Error obteniendo WiFi: {e}")
+    
+    logger.warning("No se pudo obtener información WiFi, retornando valores por defecto")
+    return {'ssid': '', 'rssi_dbm': 0, 'calidad': 0}
 
 
 # ==================== FUNCIONES GPS ====================

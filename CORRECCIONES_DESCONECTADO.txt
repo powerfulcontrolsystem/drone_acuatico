@@ -1,0 +1,235 @@
+═══════════════════════════════════════════════════════════════
+CORRECCIONES IMPLEMENTADAS - SIN DATOS/DESCONECTADO
+═══════════════════════════════════════════════════════════════
+
+FECHA: 16 de Enero de 2026
+PROBLEMA: Página muestra "🔴 Desconectado" sin datos
+SOLUCIÓN: Añadir cálculo de porcentaje de batería + mejorar flujo JS
+
+═══════════════════════════════════════════════════════════════
+1. ERROR ENCONTRADO
+═══════════════════════════════════════════════════════════════
+
+❌ PROBLEMA 1: Falta de campo "porcentaje"
+   - La página esperaba campo 'porcentaje' en datos solares
+   - Victron NO envía porcentaje directamente
+   - parsear_datos_victron() no lo calculaba
+   - actualizarBateria() recibía 'porcentaje' como 0 o undefined
+   - Resultado: Barra de batería siempre en 0%
+
+❌ PROBLEMA 2: Flujo JavaScript incompleto
+   - Servidor enviaba datos con tipo='solar'
+   - JavaScript solo llamaba actualizarPanelSolar()
+   - NO llamaba actualizarBateria() con los datos solares
+   - Batería nunca se actualizaba
+
+═══════════════════════════════════════════════════════════════
+2. SOLUCIONES APLICADAS
+═══════════════════════════════════════════════════════════════
+
+✅ SOLUCIÓN 1: Calcular porcentaje de batería
+   Archivo: funciones.py, función parsear_datos_victron()
+   
+   Antes:
+   - Retornaba sin campo 'porcentaje'
+   - JavaScript mostraba "-- %" o "0 %"
+   
+   Ahora:
+   - Calcula porcentaje del voltaje de batería
+   - Rango: 10V (0%) a 14V (100%)
+   - Fórmula: porcentaje = (V - 10) / 4 * 100
+   - Limitado a rango 0-100%
+   
+   Ejemplo:
+   - 10V → 0%
+   - 12V → 50%
+   - 14V → 100%
+   
+   ✅ Ahora retorna:
+   'porcentaje': porcentaje_bateria
+
+✅ SOLUCIÓN 2: Mejorar flujo JavaScript
+   Archivo: energia_solar.html, función conectarWS()
+   
+   Antes:
+   ws.onmessage: solo llamaba actualizarPanelSolar()
+   
+   Ahora:
+   ws.onmessage: llama AMBAS funciones con mismos datos
+   - actualizarPanelSolar(data.datos)  // Panel
+   - actualizarBateria(data.datos)     // Batería
+   
+   ✅ Ambos paneles se actualizan correctamente
+
+═══════════════════════════════════════════════════════════════
+3. ESTRUCTURA COMPLETA DE DATOS
+═══════════════════════════════════════════════════════════════
+
+SERVIDOR ENVÍA (obtener_solar()):
+{
+  'conectado': True/False,
+  'exito': True/False,
+  'error': '...' si hay error,
+  'puerto': '/dev/ttyUSB0',
+  
+  // Panel Solar
+  'panel_voltaje': 18.5,      // V
+  'panel_corriente': 2.1,     // A
+  'potencia': 38,             // W
+  
+  // Batería
+  'bateria_voltaje': 12.8,    // V
+  'bateria_corriente': 0.5,   // A
+  'porcentaje': 70,           // % ✅ NUEVO
+  
+  // Estado
+  'estado': 'bulk',           // bulk/absorption/float/apagado/falla
+  'error_code': 0,
+  
+  // Energía
+  'yield_today': 450,         // Wh
+  'yield_total': 125.4,       // kWh
+  'max_power_today': 75,      // W
+  'yield_ayer': 380,          // Wh
+  'max_power_ayer': 65,       // W
+  
+  'cargando': True/False,
+  'raw_data': {...}
+}
+
+PÁGINA RECIBE:
+{
+  'tipo': 'solar',
+  'datos': { ...todos los campos arriba... }
+}
+
+JAVASCRIPT PROCESA:
+1. actualizarPanelSolar(datos)
+   - Muestra: Panel Voltaje, Corriente, Potencia
+   - Muestra: Estado (Bulk, Absorption, Float)
+   - Muestra: Energía hoy, total, ayer
+   - Muestra: Código de error
+   - Muestra: Puerto serial
+
+2. actualizarBateria(datos)
+   - Muestra: Voltaje batería
+   - Muestra: Porcentaje (0-100%)
+   - Muestra: Barra de carga coloreada
+   - Muestra: Estado (Cargando, Descargando, Llena)
+
+═══════════════════════════════════════════════════════════════
+4. CÓMO PROBAR
+═══════════════════════════════════════════════════════════════
+
+OPCIÓN A: Script automático (RECOMENDADO)
+cd /home/admin/drone_acuatico
+bash reiniciar_y_probar.sh
+
+OPCIÓN B: Manual
+# 1. Detener servidor anterior
+pkill -9 -f 'servidor.py'
+
+# 2. Probar Victron
+python3 /home/admin/drone_acuatico/diagnostico_rapido.py
+
+# 3. Reiniciar servidor
+cd /home/admin/drone_acuatico
+source venv_pi/bin/activate
+python3 servidor.py &
+
+# 4. Verificar
+sleep 3
+ps aux | grep servidor.py | grep -v grep
+
+OPCIÓN C: En navegador
+1. Abrir: http://192.168.1.7:8080
+2. Click en "☀️ Energía Solar"
+
+RESULTADOS ESPERADOS:
+
+🟢 Si Victron conectado:
+   ├─ Panel conexión: 🟢 Conectado (borde verde)
+   ├─ Puerto: /dev/ttyUSB0
+   ├─ Panel Solar:
+   │  ├─ Voltaje: 18.5V
+   │  ├─ Corriente: 2.1A
+   │  ├─ Potencia: 38W
+   │  └─ Estado: 📈 Carga Rápida
+   ├─ Batería:
+   │  ├─ Voltaje: 12.8V
+   │  ├─ Carga: 70% [███████░░]
+   │  └─ Estado: ⚡ Cargando (+0.50A)
+   └─ Diagnóstico:
+      ├─ Error: ✅ Sin errores (0)
+      ├─ Energía Ayer: 380 Wh
+      └─ Máx. Ayer: 65W
+
+🔴 Si Victron NO conectado:
+   ├─ Panel conexión: 🔴 Desconectado (borde rojo)
+   ├─ Todos los campos: "--"
+   └─ Estado: "Sin datos"
+
+═══════════════════════════════════════════════════════════════
+5. VERIFICACIÓN DE CAMBIOS
+═══════════════════════════════════════════════════════════════
+
+ARCHIVO 1: funciones.py (MODIFICADO)
+✅ Línea ~770: Nuevo cálculo de porcentaje
+   porcentaje_bateria = max(0, min(100, int((bateria_voltaje - 10.0) / 4.0 * 100)))
+
+✅ Línea ~790: Retorna 'porcentaje' en el diccionario
+   return { 'porcentaje': porcentaje_bateria, ... }
+
+ARCHIVO 2: energia_solar.html (MODIFICADO)
+✅ Línea ~408: onmessage ahora llama ambas funciones
+   if (data.tipo === 'solar' && data.datos) {
+       actualizarPanelSolar(data.datos);
+       actualizarBateria(data.datos);  // ✅ NUEVO
+   }
+
+✅ Función actualizarBateria() ya tenía:
+   const porcentaje = datos.porcentaje || 0;  // ✅ Soporta el campo nuevo
+
+═══════════════════════════════════════════════════════════════
+6. TROUBLESHOOTING
+═══════════════════════════════════════════════════════════════
+
+PROBLEMA: "🔴 Desconectado" pero Victron está conectado
+SOLUCIÓN:
+  1. Ejecutar: python3 diagnostico_rapido.py
+  2. Verificar que muestre datos
+  3. Si muestra datos pero página no: Limpiar caché navegador (Ctrl+Shift+R)
+  4. Si diagnóstico falla: Ver sección anterior "no se conecta bien"
+
+PROBLEMA: Porcentaje siempre en 0%
+SOLUCIÓN:
+  1. Revisar voltaje batería que se muestra
+  2. Si es 0V: Batería desconectada o no envía datos
+  3. Si es 12V+: Porcentaje debería ser >0%
+  4. Revisar cálculo: (12 - 10) / 4 * 100 = 50%
+
+PROBLEMA: Barra de batería no se colora
+SOLUCIÓN:
+  1. Abrir: Firefox → Herr. → Inspector → Console
+  2. Ver si hay errores JavaScript
+  3. Verificar que actualizarBateria() se llama
+
+═══════════════════════════════════════════════════════════════
+7. PRÓXIMAS MEJORAS (opcionales)
+═══════════════════════════════════════════════════════════════
+
+Si el usuario quiere calibración de batería más precisa:
+  - Permitir configurar voltaje mín/máx por tipo de batería
+  - Usar tabla de descarga según tecnología
+  - Guardar calibración en BD
+
+Posibles tipos de batería:
+  - LiFePO4: 10V-14.4V
+  - Li-ion: 9V-12.6V
+  - SLA/AGM: 11.5V-13.8V
+  - GEL: 11.5V-13.8V
+  - Ácido-plomo: 10V-13.2V
+
+═══════════════════════════════════════════════════════════════
+FIN DEL DOCUMENTO
+═══════════════════════════════════════════════════════════════
