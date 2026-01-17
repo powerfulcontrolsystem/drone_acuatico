@@ -955,114 +955,108 @@ def obtener_velocidad_red():
 def obtener_wifi():
     """
     Obtiene el estado de la conexión WiFi (SSID, RSSI dBm y calidad %).
-    Intenta con 'iw dev wlan0 link' y, si falla, usa 'iwconfig wlan0'.
+    Usa nmcli como método principal (más confiable en Raspberry Pi).
     """
     try:
-        # Método 1: iw (moderno)
+        # Método principal: nmcli dev wifi list (más confiable)
         try:
             res = subprocess.run(
-                ['iw', 'dev', 'wlan0', 'link'],
+                ['nmcli', 'dev', 'wifi', 'list', '--rescan', 'no'],
                 capture_output=True,
                 text=True,
-                timeout=3
-            )
-            if res.returncode == 0:
-                out = res.stdout
-                logger.debug(f"Salida iw: {out}")
-                ssid = None
-                rssi = None
-                for line in out.splitlines():
-                    line = line.strip()
-                    if line.startswith('SSID:'):
-                        ssid = line.split(':', 1)[1].strip()
-                    if line.startswith('signal:') and 'dBm' in line:
-                        # Formato: signal: -49 dBm
-                        try:
-                            rssi = int(line.split(':', 1)[1].strip().split(' ')[0])
-                        except:
-                            pass
-                if rssi is not None:
-                    calidad = max(0, min(100, 2 * (rssi + 100)))
-                    logger.info(f"WiFi - SSID: {ssid}, RSSI: {rssi} dBm, Calidad: {calidad}%")
-                    return {'ssid': ssid or '', 'rssi_dbm': rssi, 'calidad': int(calidad)}
-        except FileNotFoundError:
-            logger.debug("Comando 'iw' no encontrado")
-            pass
-
-        # Método 2: iwconfig (legacy)
-        try:
-            res = subprocess.run(
-                ['iwconfig', 'wlan0'],
-                capture_output=True,
-                text=True,
-                timeout=3
+                timeout=5
             )
             if res.returncode == 0:
                 out = res.stdout
                 ssid = ''
-                rssi = None
                 calidad = None
-                for token in out.replace('\n', ' ').split():
-                    if token.startswith('ESSID:'):
-                        ssid = token.split(':', 1)[1].strip().strip('"')
-                # Link Quality=70/70  Signal level=-39 dBm
+                rssi = None
+                
+                # Buscar la primera línea con SSID (la red conectada tiene asterisco *)
+                # Formato: BSSID  SSID  IN FRA  CHAN  RATE  SIGNAL  BARS  SECURITY
                 import re
-                mq = re.search(r'Link Quality=(\d+)/(\d+)', out)
-                if mq:
-                    try:
-                        qv = int(mq.group(1)); qt = int(mq.group(2)) or 70
-                        calidad = int(qv * 100 / qt)
-                    except:
-                        pass
-                ms = re.search(r'Signal level=\s*(-?\d+)\s*dBm', out)
-                if ms:
-                    try:
-                        rssi = int(ms.group(1))
-                    except:
-                        pass
-                if rssi is not None and calidad is None:
-                    calidad = max(0, min(100, 2 * (rssi + 100)))
-                if rssi is not None or calidad is not None:
-                    logger.info(f"WiFi (iwconfig) - SSID: {ssid}, RSSI: {rssi} dBm, Calidad: {calidad}%")
-                    return {'ssid': ssid, 'rssi_dbm': rssi if rssi is not None else 0, 'calidad': int(calidad if calidad is not None else 0)}
+                lineas = out.split('\n')
+                
+                # Buscar red conectada (con asterisco) primero
+                for linea in lineas:
+                    if '*' in linea:  # Red conectada
+                        # Extraer campos usando regex
+                        # Formato aproximado: AA:BB:CC:DD:EE:FF  SSID  ...  SIGNAL(0-100)
+                        partes = linea.split()
+                        if len(partes) >= 7:
+                            try:
+                                # El campo de signal está típicamente en posición 6
+                                calidad = int(partes[6])
+                                # Extraer SSID (entre BSSID y los siguientes campos)
+                                # SSID empieza después del BSSID
+                                for i, parte in enumerate(partes):
+                                    if ':' in parte and len(parte.split(':')) == 6:  # Es un MAC
+                                        if i + 1 < len(partes):
+                                            ssid = partes[i + 1]
+                                        break
+                                
+                                if calidad and calidad > 0:
+                                    # Convertir porcentaje a dBm (aproximado)
+                                    rssi = int(calidad / 2 - 100)
+                                    logger.info(f"WiFi (nmcli) - SSID: {ssid}, Calidad: {calidad}%, RSSI: {rssi} dBm")
+                                    return {'ssid': ssid or '', 'rssi_dbm': rssi, 'calidad': int(calidad)}
+                            except (ValueError, IndexError) as e:
+                                logger.debug(f"Error parseando línea WiFi: {e}")
+                                continue
+                
+                # Si no encontró red conectada, buscar cualquier red con calidad > 0
+                for linea in lineas:
+                    if linea.strip() and not linea.startswith('BSSID'):
+                        partes = linea.split()
+                        if len(partes) >= 7:
+                            try:
+                                calidad = int(partes[6])
+                                if calidad and calidad > 0:
+                                    for i, parte in enumerate(partes):
+                                        if ':' in parte and len(parte.split(':')) == 6:
+                                            if i + 1 < len(partes):
+                                                ssid = partes[i + 1]
+                                            break
+                                    rssi = int(calidad / 2 - 100)
+                                    logger.info(f"WiFi (nmcli fallback) - SSID: {ssid}, Calidad: {calidad}%, RSSI: {rssi} dBm")
+                                    return {'ssid': ssid or '', 'rssi_dbm': rssi, 'calidad': int(calidad)}
+                            except (ValueError, IndexError):
+                                continue
         except FileNotFoundError:
-            logger.debug("Comando 'iwconfig' no encontrado")
-            pass
+            logger.debug("Comando 'nmcli' no encontrado")
+        except Exception as e:
+            logger.debug(f"Error con nmcli: {e}")
         
-        # Método 3: nmcli (si está disponible)
+        # Método alternativo: wpa_cli
         try:
             res = subprocess.run(
-                ['nmcli', 'dev', 'wifi', 'show'],
+                ['wpa_cli', 'signal_poll'],
                 capture_output=True,
                 text=True,
                 timeout=3
             )
             if res.returncode == 0:
                 out = res.stdout
-                ssid = None
                 rssi = None
+                
                 import re
-                # Buscar SSID
-                ssid_match = re.search(r'SSID:\s*(.+)', out)
-                if ssid_match:
-                    ssid = ssid_match.group(1).strip()
-                # Buscar signal strength (0-100)
-                signal_match = re.search(r'SIGNAL:\s*(\d+)', out)
-                if signal_match:
-                    signal = int(signal_match.group(1))
-                    # Convertir porcentaje a dBm (aproximado): signal% = 2*(rssi+100)
-                    # rssi = signal/2 - 100
-                    rssi = int(signal / 2 - 100)
-                    logger.info(f"WiFi (nmcli) - SSID: {ssid}, RSSI: {rssi} dBm (signal: {signal}%)")
-                    return {'ssid': ssid or '', 'rssi_dbm': rssi, 'calidad': int(signal)}
+                # RSSI en formato: RSSI=-40
+                rssi_match = re.search(r'RSSI=(-?\d+)', out)
+                if rssi_match:
+                    rssi = int(rssi_match.group(1))
+                    if rssi and rssi < 0:
+                        calidad = max(0, min(100, 2 * (rssi + 100)))
+                        if calidad > 0:
+                            logger.info(f"WiFi (wpa_cli) - RSSI: {rssi} dBm, Calidad: {calidad}%")
+                            return {'ssid': '', 'rssi_dbm': rssi, 'calidad': int(calidad)}
         except (FileNotFoundError, Exception) as e:
-            logger.debug(f"Método nmcli no disponible: {e}")
-            pass
+            logger.debug(f"wpa_cli no disponible: {e}")
+        
     except Exception as e:
         logger.warning(f"Error obteniendo WiFi: {e}")
     
-    logger.warning("No se pudo obtener información WiFi, retornando valores por defecto")
-    return {'ssid': '', 'rssi_dbm': 0, 'calidad': 0}
+    logger.warning("No se pudo obtener información WiFi")
+    return {'ssid': '', 'rssi_dbm': None, 'calidad': None}
 
 
 # ==================== FUNCIONES GPS ====================

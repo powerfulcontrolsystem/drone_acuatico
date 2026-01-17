@@ -12,7 +12,8 @@ Siempre responder en **español**.
 Consultar [Descripcion del proyecto.md](Descripcion%20del%20proyecto.md) para entender el contexto antes de proponer mejoras.
 
 ### Actualización del Repositorio
-Después de realizar cambios, ejecutar:
+No actualizar el repositorio sin autorización explícita del usuario. El usuario debe probar el proyecto primero y luego autorizarlo.
+Cuando autorizado, ejecutar:
 ```bash
 ssh admin@192.168.1.14 "cd /home/admin/drone_acuatico && ./subir_cambios_a_repositorio.sh 'Mensaje descriptivo del cambio'"
 ```

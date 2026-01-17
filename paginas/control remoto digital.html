@@ -786,8 +786,8 @@
 											CPU: <span id="cpu-valor">--</span>
 										</td>
 										<td style="border:1px solid #e0e0e0; padding:2px 3px; text-align:center; background:#23272b; color:#f2f2f2;">
-											<div id="disk-indicator" style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; width:100%; height:100%; font-size:0.75em;">
-												<span style="font-weight:600;">Disco</span>
+											<div id="disk-indicator" style="display:flex; flex-direction:row; align-items:center; justify-content:center; gap:4px; width:100%; height:100%; font-size:0.75em;">
+												<span style="font-weight:600;">Disco:</span>
 												<span id="disk-uso" style="color:#cfd8dc; font-weight:500;">--</span>
 											</div>
 										</td>
@@ -1094,6 +1094,12 @@
 				} else {
 					document.getElementById('cpu-valor').textContent = '--';
 				}
+				// Disco (uso de SD)
+				if (data.disco && typeof data.disco.porcentaje !== 'undefined') {
+					document.getElementById('disk-uso').textContent = data.disco.porcentaje + ' %';
+				} else {
+					document.getElementById('disk-uso').textContent = '--';
+				}
 				// Almacenamiento (SD) - placeholder IO
 				const readEl = document.getElementById('disk-read');
 				const writeEl = document.getElementById('disk-write');
@@ -1127,20 +1133,26 @@
 				// WiFi
 				if (data.wifi && typeof data.wifi.calidad !== 'undefined') {
 					const wifiCalidad = Number(data.wifi.calidad);
-					document.getElementById('wifi-strength').textContent = Math.max(0, Math.min(100, wifiCalidad));
-					
-					// Cambiar color del SVG según la intensidad
-					const wifiSignal = document.getElementById('wifi-signal');
-					if (wifiSignal) {
-						if (wifiCalidad >= 75) {
-							wifiSignal.style.stroke = '#4caf50'; // Verde - Excelente
-						} else if (wifiCalidad >= 50) {
-							wifiSignal.style.stroke = '#fdd835'; // Amarillo - Bueno
-						} else if (wifiCalidad >= 25) {
-							wifiSignal.style.stroke = '#fb8c00'; // Naranja - Aceptable
-						} else {
-							wifiSignal.style.stroke = '#e53935'; // Rojo - Débil
+					if (wifiCalidad > 0) {
+						document.getElementById('wifi-strength').textContent = Math.max(0, Math.min(100, wifiCalidad));
+						
+						// Cambiar color del SVG según la intensidad
+						const wifiSignal = document.getElementById('wifi-signal');
+						if (wifiSignal) {
+							if (wifiCalidad >= 75) {
+								wifiSignal.style.stroke = '#4caf50'; // Verde - Excelente
+							} else if (wifiCalidad >= 50) {
+								wifiSignal.style.stroke = '#fdd835'; // Amarillo - Bueno
+							} else if (wifiCalidad >= 25) {
+								wifiSignal.style.stroke = '#fb8c00'; // Naranja - Aceptable
+							} else {
+								wifiSignal.style.stroke = '#e53935'; // Rojo - Débil
+							}
 						}
+					} else {
+						document.getElementById('wifi-strength').textContent = '--';
+						const wifiSignal = document.getElementById('wifi-signal');
+						if (wifiSignal) wifiSignal.style.stroke = '#6ec1e4'; // Color por defecto
 					}
 				} else {
 					document.getElementById('wifi-strength').textContent = '--';
@@ -1166,12 +1178,15 @@
 				}
 
 				// Velocidad (usar calculada de GPS o la del servidor como fallback)
-				if (velocidadGPS !== null) {
-					document.getElementById('vel-valor').textContent = velocidadGPS.toFixed(2) + ' km/h';
-				} else if (data.velocidad !== undefined && data.velocidad !== null) {
-					document.getElementById('vel-valor').textContent = Number(data.velocidad).toFixed(2) + ' km/h';
-				} else {
-					document.getElementById('vel-valor').textContent = '--';
+				// Elemento vel-valor fue eliminado de la interfaz
+				if (document.getElementById('vel-valor')) {
+					if (velocidadGPS !== null) {
+						document.getElementById('vel-valor').textContent = velocidadGPS.toFixed(2) + ' km/h';
+					} else if (data.velocidad !== undefined && data.velocidad !== null) {
+						document.getElementById('vel-valor').textContent = Number(data.velocidad).toFixed(2) + ' km/h';
+					} else {
+						document.getElementById('vel-valor').textContent = '--';
+					}
 				}
 			}
 			// Relés
