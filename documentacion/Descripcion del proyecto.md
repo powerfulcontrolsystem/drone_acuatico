@@ -6,6 +6,9 @@ usuario: admin
 clave: admin
 ip: 192.168.1.18
 
+## Clave SSH pública:
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHQ/bZ2YJM5Lbt9F7tf79nZPLrCzUYiCRpuN9paNlIj6 admin@drone-acuatico
+
 ## ubicación del proyecto en pc Windows
 
 
