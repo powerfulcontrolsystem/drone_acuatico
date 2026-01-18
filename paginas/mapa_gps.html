@@ -130,6 +130,9 @@
 	<div class="panels-container">
 		<div class="panel">
 			<div class="panel-header">📍 Ubicaciones Guardadas</div>
+			<div style="padding: 10px 12px 0 12px;">
+				<input id="busqueda-ubicacion" type="text" placeholder="Buscar por nombre..." style="width:100%;padding:6px 8px;border-radius:6px;border:1px solid #2d3748;background:#181e29;color:#e5e7eb;font-size:1em;outline:none;">
+			</div>
 			<div class="panel-content" id="ubicaciones-list">
 				<div class="lista-vacia">No hay ubicaciones guardadas</div>
 			</div>
@@ -145,6 +148,60 @@
 	<script>
 		window.autoCenter = true;
 		let ws;
+		let ubicacionesGuardadas = [];
+		let marcadorUbicacionSeleccionada = null;
+	// --- UBICACIONES GUARDADAS ---
+	async function cargarUbicaciones(busqueda = "") {
+		try {
+			let url = '/api/ubicaciones';
+			if (busqueda && busqueda.trim() !== "") {
+				url += '?busqueda=' + encodeURIComponent(busqueda.trim());
+			}
+			const res = await fetch(url);
+			if (!res.ok) throw new Error('No se pudo obtener ubicaciones');
+			const data = await res.json();
+			if (!data.exito) throw new Error('No se pudo obtener ubicaciones');
+			ubicacionesGuardadas = data.ubicaciones || [];
+			renderizarUbicaciones();
+		} catch (e) {
+			document.getElementById('ubicaciones-list').innerHTML = '<div class="lista-vacia">Error cargando ubicaciones</div>';
+		}
+	}
+
+	function renderizarUbicaciones() {
+		const cont = document.getElementById('ubicaciones-list');
+		if (!ubicacionesGuardadas || ubicacionesGuardadas.length === 0) {
+			cont.innerHTML = '<div class="lista-vacia">No hay ubicaciones guardadas</div>';
+			return;
+		}
+		cont.innerHTML = '';
+		ubicacionesGuardadas.forEach(ubic => {
+			const div = document.createElement('div');
+			div.className = 'lista-item';
+			div.textContent = ubic.nombre + (ubic.descripcion ? ' — ' + ubic.descripcion : '');
+			div.title = `Lat: ${ubic.latitud}, Lon: ${ubic.longitud}`;
+			div.onclick = () => seleccionarUbicacion(ubic);
+			cont.appendChild(div);
+		});
+	}
+
+	function seleccionarUbicacion(ubic) {
+		if (!window._leafletMap) return;
+		// Eliminar marcador anterior
+		if (marcadorUbicacionSeleccionada) {
+			window._leafletMap.removeLayer(marcadorUbicacionSeleccionada);
+		}
+		// Crear marcador café
+		marcadorUbicacionSeleccionada = L.circleMarker([ubic.latitud, ubic.longitud], {
+			radius: 10,
+			color: '#7c4700',
+			fillColor: '#a97c50',
+			fillOpacity: 0.95,
+			weight: 3
+		}).addTo(window._leafletMap);
+		marcadorUbicacionSeleccionada.bindPopup(`<b>${ubic.nombre}</b><br>Lat: ${ubic.latitud}<br>Lon: ${ubic.longitud}`).openPopup();
+		window._leafletMap.setView([ubic.latitud, ubic.longitud], 17, { animate: true });
+	}
 
 		function actualizarGpsUI(g) {
 			const valido = !!g?.valido && isFinite(g.latitud) && isFinite(g.longitud);
@@ -224,6 +281,12 @@
 			conectarWS();
 			consultarGpsActual();
 			setInterval(consultarGpsActual, 4000);
+			// Cargar ubicaciones guardadas
+			cargarUbicaciones();
+			// Buscar por nombre
+			document.getElementById('busqueda-ubicacion').addEventListener('input', e => {
+				cargarUbicaciones(e.target.value);
+			});
 		});
 	</script>
 </body>

@@ -777,21 +777,42 @@ async def api_apagar_handler(request):
 
 
 async def api_ubicaciones_handler(request):
-    """Devuelve ubicaciones guardadas con filtros opcionales."""
-    try:
-        q = request.query.get('q', '')
-        categoria = request.query.get('categoria', '')
-        ubicaciones = obtener_ubicaciones(q, categoria)
-        return web.json_response({
-            'exito': True,
-            'ubicaciones': ubicaciones
-        })
-    except Exception as e:
-        logger.error(f"Error obteniendo ubicaciones: {e}")
-        return web.json_response({
-            'exito': False,
-            'error': str(e)
-        }, status=500)
+    """GET: Devuelve ubicaciones guardadas. POST: Guarda una nueva ubicación."""
+    if request.method == 'GET':
+        try:
+            busqueda = request.query.get('q') or request.query.get('busqueda') or ''
+            categoria = request.query.get('categoria', '')
+            ubicaciones = obtener_ubicaciones(categoria, busqueda)
+            return web.json_response({
+                'exito': True,
+                'ubicaciones': ubicaciones
+            })
+        except Exception as e:
+            logger.error(f"Error obteniendo ubicaciones: {e}")
+            return web.json_response({
+                'exito': False,
+                'error': str(e)
+            }, status=500)
+    elif request.method == 'POST':
+        try:
+            datos = await request.json()
+            nombre = datos.get('nombre') or ''
+            descripcion = datos.get('descripcion') or ''
+            latitud = datos.get('latitud')
+            longitud = datos.get('longitud')
+            if not (isinstance(latitud, (float, int)) and isinstance(longitud, (float, int))):
+                return web.json_response({'exito': False, 'error': 'Latitud y longitud requeridas'}, status=400)
+            from base_de_datos.base_datos import guardar_ubicacion
+            ubic_id = guardar_ubicacion(nombre, descripcion, latitud, longitud)
+            if ubic_id:
+                return web.json_response({'exito': True, 'id': ubic_id})
+            else:
+                return web.json_response({'exito': False, 'error': 'No se pudo guardar la ubicación'}, status=500)
+        except Exception as e:
+            logger.error(f"Error guardando ubicación: {e}")
+            return web.json_response({'exito': False, 'error': str(e)}, status=500)
+    else:
+        return web.json_response({'exito': False, 'error': 'Método no permitido'}, status=405)
 
 
 async def api_gps_actual_handler(request):
@@ -977,7 +998,7 @@ def crear_app():
     app.router.add_get('/api/gps/actual', api_gps_actual_handler)
     app.router.add_get('/api/test/wifi', api_test_wifi_handler)
     app.router.add_get('/api/onvif/discover', api_onvif_discover_handler)
-    app.router.add_get('/api/ubicaciones', api_ubicaciones_handler)
+    app.router.add_route('*', '/api/ubicaciones', api_ubicaciones_handler)
     app.router.add_get('/api/recorridos', api_recorridos_handler)
     app.router.add_get('/api/recorridos/{recorrido_id}', api_recorrido_detalle_handler)
     app.router.add_get('/ws', websocket_handler)

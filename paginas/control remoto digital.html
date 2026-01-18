@@ -1521,13 +1521,40 @@
 				// Eventos GPS
 				const btnGuardarGPS = document.getElementById('gps-guardar');
 				if (btnGuardarGPS) {
-					btnGuardarGPS.addEventListener('click', () => {
-						if (!(window.ws && window.ws.readyState === 1)) {
-							alert('Error: WebSocket no conectado');
+					btnGuardarGPS.addEventListener('click', async () => {
+						// Obtener la última posición GPS mostrada en la UI
+						const latStr = document.getElementById('gps-lat')?.textContent;
+						const lonStr = document.getElementById('gps-lon')?.textContent;
+						const lat = parseFloat(latStr);
+						const lon = parseFloat(lonStr);
+						if (!isFinite(lat) || !isFinite(lon)) {
+							alert('No hay posición GPS válida para guardar.');
 							return;
 						}
-						console.log('Solicitando guardar posición GPS actual...');
-						window.ws.send(JSON.stringify({ tipo: 'gps_guardar' }));
+						let nombre = prompt('Nombre de la ubicación (opcional):');
+						if (nombre === null) return; // Cancelado
+						nombre = nombre.trim() || `Ubicación ${new Date().toLocaleString('es-ES', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'})}`;
+						let descripcion = '';
+						try {
+							const res = await fetch('/api/ubicaciones', {
+								method: 'POST',
+								headers: { 'Content-Type': 'application/json' },
+								body: JSON.stringify({
+									nombre,
+									descripcion,
+									latitud: lat,
+									longitud: lon
+								})
+							});
+							const data = await res.json();
+							if (res.ok && data.exito) {
+								alert('✔ Ubicación guardada');
+							} else {
+								alert('✖ Error al guardar ubicación: ' + (data.error || data.mensaje || '')); 
+							}
+						} catch (e) {
+							alert('✖ Error al guardar ubicación: ' + e.message);
+						}
 					});
 				}
 
