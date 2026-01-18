@@ -72,6 +72,9 @@ function actualizarRuta() {
 
 // Carga y muestra un mapa Leaflet centrado en la ubicación GPS recibida
 function mostrarMapaGPS(lat, lon, gpsActivo) {
+    if (!isFinite(lat) || !isFinite(lon)) {
+        return;
+    }
     if (!window.L) {
         const leafletCss = document.createElement('link');
         leafletCss.rel = 'stylesheet';
@@ -110,7 +113,11 @@ function crearMapa(lat, lon, gpsActivo) {
     window._gpsActual = { lat: lat, lon: lon };
     
     if (window._leafletMap) {
-        window._leafletMap.setView([lat, lon], 16);
+        const keepZoom = window._leafletMap.getZoom() || 16;
+        if (window.autoCenter !== false) {
+            const z = Math.max(keepZoom, 16);
+            window._leafletMap.setView([lat, lon], z);
+        }
         if (window._leafletMarker) {
             window._leafletMarker.setLatLng([lat, lon]);
             window._leafletMarker.setIcon(puntoIcon);

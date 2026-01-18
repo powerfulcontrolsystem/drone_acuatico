@@ -183,8 +183,8 @@
 	z-index: 1;
 	}
 			   .indicador-item {
-				   font-size: 12px !important;
-				   font-family: 'Segoe UI', 'Roboto', Arial, sans-serif !important;
+				   font-size: 13px !important;
+				   font-family: 'Bernard MT Condensed', 'Bernard MT', 'Segoe UI', 'Roboto', Arial, sans-serif !important;
 			   }
 		.reles-botones {
 			display: grid;
@@ -686,9 +686,9 @@
 		<div style="width:100%; display:flex; justify-content:center; align-items:stretch;">
 			<div class="cuadro-externo-inferior control-botones" style="background:#1a1f28; border:2px solid #2d3748; border-radius:8px; box-shadow:0 2px 12px rgba(0,0,0,0.4); padding:0px; display:flex; justify-content:center; align-items:center;">
 					<div class="fila-inferior" style="display:flex; justify-content:center; gap:8px;">
-						<!-- Contenedor de la Cruz -->
-						<div style="margin:0; padding:0; width:auto; box-sizing:border-box; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0;">
-							<div style="font-size:0.85em; font-weight:600; color:#6ec1e4; margin:0; padding:0; text-align:center; line-height:1; margin-bottom:0;">Mando</div>
+						<!-- Contenedor de la Cruz en recuadro -->
+						<div style="margin:0; padding:8px 8px 12px 8px; width:auto; box-sizing:border-box; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; border:2px solid #2196f3; border-radius:12px; background:#181e29; box-shadow:0 2px 8px #2196f355;">
+							<div style="font-size:0.95em; font-weight:700; color:#6ec1e4; margin:0; padding:0; text-align:center; line-height:1; margin-bottom:2px;">Mando</div>
 							<div class="mando-grid" style="margin:0; padding:0; margin-top:0;">
 								<button class="btn btn-direccion" id="btn-arriba">▲</button>
 								<button class="btn btn-direccion" id="btn-izquierda">◀</button>
@@ -696,6 +696,8 @@
 								<button class="btn btn-direccion" id="btn-derecha">▶</button>
 								<button class="btn btn-direccion" id="btn-abajo">▼</button>
 							</div>
+							<!-- Botón Guardar ubicación debajo de la cruz -->
+							<button id="gps-guardar" class="btn" style="margin-top:10px; width:120px; background:#2196f3; color:#fff; font-weight:600; border-radius:6px; border:none; box-shadow:0 2px 6px #2196f355; font-size:1em; padding:6px 0; cursor:pointer;">Guardar ubicación</button>
 						</div>
 					<!-- Panel de Velocidad -->
 					<div class="panel-bajo" style="margin:0; display:flex; flex-direction:column; justify-content:flex-start; align-items:center; min-width:70px; max-width:90px; width:75px; padding:0; box-sizing:border-box;">
@@ -714,7 +716,7 @@
 						</div>
 						<div class="panel-bajo" style="margin-left:0;margin-right:0; margin-top:0; padding-left:4px; padding-right:4px; width:100%; box-sizing:border-box;">
 							<div style="font-size:0.85em; font-weight:600; color:#6ec1e4; margin-bottom:2px; text-align:center; width:100%;">Indicadores</div>
-							<table class="tabla-indicadores" style="width:100%; max-width:1000px; margin:0 auto; border-collapse:collapse; background:#23272b; border-radius:6px; box-shadow:0 1px 6px #0001; color:#f2f2f2; table-layout:fixed; font-family:'Space Grotesk','Segoe UI',sans-serif; font-size:0.70em;">
+							<table class="tabla-indicadores" style="width:100%; max-width:1000px; margin:0 auto; border-collapse:collapse; background:#23272b; border-radius:6px; box-shadow:0 1px 6px #0001; color:#f2f2f2; table-layout:fixed; font-family:'Bernard MT Condensed','Bernard MT','Segoe UI',sans-serif; font-size:13px;">
 								<colgroup>
 									<col style="width:33.33%">
 									<col style="width:33.33%">
@@ -722,7 +724,7 @@
 								</colgroup>
 								<tbody>
 									<tr>
-										<td style="border:1px solid #e0e0e0; padding:2px 3px; text-align:center; background:#23272b; color:#f2f2f2;">
+										<td style="border:1px solid #e0e0e0; padding:2px 3px; text-align:center; background:#23272b; color:#f2f2f2; font-size:13px; font-family:'Bernard MT Condensed','Bernard MT','Segoe UI',sans-serif;">
 											<span id="indicador-conexion" class="desconectado">
 												<svg id="svg-osciloscopio" width="12" height="12" viewBox="0 0 16 16" style="vertical-align:middle;">
 													<!-- Marco del osciloscopio -->
@@ -733,28 +735,28 @@
 													<!-- Onda animada (latido cardíaco) -->
 													<polyline id="onda-conexion" points="2,8 3,8 4,7 5,6 6,8 7,8 8,6 9,4 10,8 11,8 12,7 13,6 14,8 15,8" stroke="#4caf50" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 												</svg>
-												<span id="texto-conexion" style="color:#4caf50; font-weight:600;">Conectado</span>
+												<span id="texto-conexion" style="color:#4caf50; font-weight:600; font-family:'Bernard MT Condensed','Bernard MT','Segoe UI',sans-serif;">Conectado</span>
 											</span>
 										</td>
-										<td style="border:1px solid #e0e0e0; padding:2px 3px; text-align:center; background:#23272b; color:#f2f2f2;">
+										<td style="border:1px solid #e0e0e0; padding:2px 3px; text-align:center; background:#23272b; color:#f2f2f2; font-size:13px; font-family:'Bernard MT Condensed','Bernard MT','Segoe UI',sans-serif;">
 											<svg width="12" height="12" viewBox="0 0 16 16" style="vertical-align:middle;"><rect x="2" y="4" width="12" height="8" rx="2" fill="#6ec1e4"/></svg>
 											RAM: <span id="ram-valor">--</span>
 										</td>
-										<td style="border:1px solid #e0e0e0; padding:2px 3px; text-align:center; background:#23272b; color:#f2f2f2;">
+										<td style="border:1px solid #e0e0e0; padding:2px 3px; text-align:center; background:#23272b; color:#f2f2f2; font-size:13px; font-family:'Bernard MT Condensed','Bernard MT','Segoe UI',sans-serif;">
 											<svg width="12" height="12" viewBox="0 0 16 16" style="vertical-align:middle;"><rect x="7" y="2" width="2" height="8" fill="#e6a23c"/><circle cx="8" cy="12" r="3" fill="#e6a23c"/></svg>
 											Temp: <span id="temp-valor">--</span>
 										</td>
 									</tr>
 									<tr>
-										<td style="border:1px solid #e0e0e0; padding:2px 3px; text-align:center; background:#23272b; color:#f2f2f2;">
+										<td style="border:1px solid #e0e0e0; padding:2px 3px; text-align:center; background:#23272b; color:#f2f2f2; font-size:13px; font-family:'Bernard MT Condensed','Bernard MT','Segoe UI',sans-serif;">
 											<svg width="12" height="12" viewBox="0 0 16 16" style="vertical-align:middle;"><rect x="3" y="5" width="10" height="6" rx="2" fill="#43a047"/><rect x="13" y="7" width="2" height="2" fill="#43a047"/></svg>
 											Bat: <span id="bat-valor">--</span> | <span id="bat-voltaje">--</span>V
 										</td>
-										<td style="border:1px solid #e0e0e0; padding:2px 3px; text-align:center; background:#23272b; color:#f2f2f2;">
+										<td style="border:1px solid #e0e0e0; padding:2px 3px; text-align:center; background:#23272b; color:#f2f2f2; font-size:13px; font-family:'Bernard MT Condensed','Bernard MT','Segoe UI',sans-serif;">
 											<svg width="12" height="12" viewBox="0 0 16 16" style="vertical-align:middle;"><circle cx="8" cy="8" r="7" fill="#6ec1e4"/></svg>
 											Red: <span id="red-valor">--</span>
 										</td>
-										<td style="border:1px solid #e0e0e0; padding:2px 3px; text-align:center; background:#23272b; color:#f2f2f2;">
+										<td style="border:1px solid #e0e0e0; padding:2px 3px; text-align:center; background:#23272b; color:#f2f2f2; font-size:13px; font-family:'Bernard MT Condensed','Bernard MT','Segoe UI',sans-serif;">
 											<div id="wifi-container" style="display:flex; align-items:center; justify-content:center; gap:4px; width:100%; height:100%;">
 												<svg id="wifi-signal" width="14" height="14" viewBox="0 0 24 24" style="vertical-align:middle;" fill="none" stroke="#6ec1e4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 													<path d="M5 12.55a11 11 0 0 1 14.08 0"></path>
@@ -762,48 +764,48 @@
 													<path d="M9 20h6"></path>
 													<circle cx="12" cy="23" r="1"></circle>
 												</svg>
-												<span style="font-size:0.9em; font-weight:600;">WiFi: <span id="wifi-strength">--</span>%</span>
+												<span style="font-size:13px; font-weight:600; font-family:'Bernard MT Condensed','Bernard MT','Segoe UI',sans-serif;">WiFi: <span id="wifi-strength">--</span>%</span>
 											</div>
 										</td>
-										<td style="border:1px solid #e0e0e0; padding:2px 3px; text-align:center; background:#23272b; color:#f2f2f2;">
+										<td style="border:1px solid #e0e0e0; padding:2px 3px; text-align:center; background:#23272b; color:#f2f2f2; font-size:13px; font-family:'Bernard MT Condensed','Bernard MT','Segoe UI',sans-serif;">
 										</td>
 									</tr>
 									<tr>
-										<td style="border:1px solid #cfd8dc; padding:2px 3px; text-align:center;">
+										<td style="border:1px solid #cfd8dc; padding:2px 3px; text-align:center; font-size:13px; font-family:'Bernard MT Condensed','Bernard MT','Segoe UI',sans-serif;">
 											<svg width="12" height="12" viewBox="0 0 16 16" style="vertical-align:middle;"><circle cx="8" cy="8" r="4" fill="#ffd600"/></svg>
 											Solar: <span id="solar-valor">--</span>
 										</td>
-										<td style="border:1px solid #cfd8dc; padding:2px 3px; text-align:center;">
+										<td style="border:1px solid #cfd8dc; padding:2px 3px; text-align:center; font-size:13px; font-family:'Bernard MT Condensed','Bernard MT','Segoe UI',sans-serif;">
 											<svg width="12" height="12" viewBox="0 0 16 16" style="vertical-align:middle;"><rect x="4" y="8" width="8" height="4" fill="#b71c1c"/></svg>
 											Peso: <span id="peso-valor">--</span>
 										</td>
-										<td style="border:1px solid #cfd8dc; padding:2px 3px; text-align:center;">
+										<td style="border:1px solid #cfd8dc; padding:2px 3px; text-align:center; font-size:13px; font-family:'Bernard MT Condensed','Bernard MT','Segoe UI',sans-serif;">
 										</td>
 									</tr>
 									<tr>
-										<td style="border:1px solid #e0e0e0; padding:2px 3px; text-align:center; background:#23272b; color:#f2f2f2;">
+										<td style="border:1px solid #e0e0e0; padding:2px 3px; text-align:center; background:#23272b; color:#f2f2f2; font-size:13px; font-family:'Bernard MT Condensed','Bernard MT','Segoe UI',sans-serif;">
 											<svg width="12" height="12" viewBox="0 0 16 16" style="vertical-align:middle;"><circle cx="4" cy="8" r="2" fill="#ff9800"/><circle cx="8" cy="8" r="2" fill="#ff9800"/><circle cx="12" cy="8" r="2" fill="#ff9800"/></svg>
 											CPU: <span id="cpu-valor">--</span>
 										</td>
-										<td style="border:1px solid #e0e0e0; padding:2px 3px; text-align:center; background:#23272b; color:#f2f2f2;">
-											<div id="disk-indicator" style="display:flex; flex-direction:row; align-items:center; justify-content:center; gap:4px; width:100%; height:100%; font-size:0.75em;">
+										<td style="border:1px solid #e0e0e0; padding:2px 3px; text-align:center; background:#23272b; color:#f2f2f2; font-size:13px; font-family:'Bernard MT Condensed','Bernard MT','Segoe UI',sans-serif;">
+											<div id="disk-indicator" style="display:flex; flex-direction:row; align-items:center; justify-content:center; gap:4px; width:100%; height:100%; font-size:13px; font-family:'Bernard MT Condensed','Bernard MT','Segoe UI',sans-serif;">
 												<span style="font-weight:600;">Disco:</span>
 												<span id="disk-uso" style="color:#cfd8dc; font-weight:500;">--</span>
 											</div>
 										</td>
-										<td style="border:1px solid #e0e0e0; padding:2px 3px; text-align:center; background:#23272b; color:#f2f2f2;">
+										<td style="border:1px solid #e0e0e0; padding:2px 3px; text-align:center; background:#23272b; color:#f2f2f2; font-size:13px; font-family:'Bernard MT Condensed','Bernard MT','Segoe UI',sans-serif;">
 										</td>
 									</tr>
 									<tr>
-										<td style="border:1px solid #e0e0e0; padding:2px 3px; text-align:center; background:#23272b; color:#f2f2f2;">
+										<td style="border:1px solid #e0e0e0; padding:2px 3px; text-align:center; background:#23272b; color:#f2f2f2; font-size:13px; font-family:'Bernard MT Condensed','Bernard MT','Segoe UI',sans-serif;">
 											<svg width="12" height="12" viewBox="0 0 16 16" style="vertical-align:middle;"><circle cx="8" cy="8" r="7" fill="#6ec1e4"/></svg>
 											Lat: <span id="gps-lat">--</span>
 										</td>
-										<td style="border:1px solid #e0e0e0; padding:2px 3px; text-align:center; background:#23272b; color:#f2f2f2;">
+										<td style="border:1px solid #e0e0e0; padding:2px 3px; text-align:center; background:#23272b; color:#f2f2f2; font-size:13px; font-family:'Bernard MT Condensed','Bernard MT','Segoe UI',sans-serif;">
 											<svg width="12" height="12" viewBox="0 0 16 16" style="vertical-align:middle;"><circle cx="8" cy="8" r="7" fill="#6ec1e4"/></svg>
 											Lon: <span id="gps-lon">--</span>
 										</td>
-										<td style="border:1px solid #e0e0e0; padding:2px 3px; text-align:center; background:#23272b; color:#f2f2f2;">
+										<td style="border:1px solid #e0e0e0; padding:2px 3px; text-align:center; background:#23272b; color:#f2f2f2; font-size:13px; font-family:'Bernard MT Condensed','Bernard MT','Segoe UI',sans-serif;">
 										</td>
 									</tr>
 								</tbody>
@@ -827,6 +829,9 @@
 
 		// Variables para calcular velocidad en tiempo real basada en GPS
 		let ultimaPosicionGPS = { lat: null, lon: null, tiempo: null };
+		// Persistir último valor válido de batería para no mostrar 0/-- al quedar en espera
+		let ultimoBatPct = null;
+		let ultimoBatVolt = null;
 				
 
 		// Función para calcular distancia entre dos puntos GPS (Haversine formula)
@@ -1107,7 +1112,7 @@
 					readEl.textContent = '--';
 					writeEl.textContent = '--';
 				}
-				// Batería (con fallback a datos solares)
+				// Batería (con fallback a datos solares y memoria del último valor válido)
 				const batValorEl = document.getElementById('bat-valor');
 				const batVoltEl = document.getElementById('bat-voltaje');
 				let pct = undefined;
@@ -1122,8 +1127,16 @@
 				if ((volt === undefined || volt === null) && data.solar) {
 					volt = data.solar.bateria_voltaje;
 				}
-				batValorEl.textContent = (pct !== undefined && pct !== null) ? (Number(pct).toFixed(0) + ' %') : '--';
-				batVoltEl.textContent = (volt !== undefined && volt !== null) ? Number(volt).toFixed(2) : '--';
+				const pctNum = Number(pct);
+				const voltNum = Number(volt);
+				if (Number.isFinite(pctNum)) {
+					ultimoBatPct = pctNum;
+				}
+				if (Number.isFinite(voltNum)) {
+					ultimoBatVolt = voltNum;
+				}
+				batValorEl.textContent = (ultimoBatPct !== null) ? (ultimoBatPct.toFixed(0) + ' %') : '--';
+				batVoltEl.textContent = (ultimoBatVolt !== null) ? ultimoBatVolt.toFixed(2) : '--';
 				// Red
 				if (data.red !== undefined && data.red !== null) {
 					document.getElementById('red-valor').textContent = Number(data.red).toFixed(1) + ' Mbps';
@@ -1387,9 +1400,16 @@
 						}
 						if (data.tipo === 'bateria' && data.datos) {
 							const bat = data.datos;
-							if (typeof bat.porcentaje !== 'undefined') {
-								document.getElementById('bat-valor').textContent = bat.porcentaje + ' %';
+							const batPct = Number(bat.porcentaje);
+							const batVolt = Number(bat.voltaje);
+							if (Number.isFinite(batPct)) {
+								ultimoBatPct = batPct;
 							}
+							if (Number.isFinite(batVolt)) {
+								ultimoBatVolt = batVolt;
+							}
+							document.getElementById('bat-valor').textContent = (ultimoBatPct !== null) ? ultimoBatPct.toFixed(0) + ' %' : '--';
+							document.getElementById('bat-voltaje').textContent = (ultimoBatVolt !== null) ? ultimoBatVolt.toFixed(2) : '--';
 						}
 						if (data.tipo === 'peso' && data.datos) {
 							const peso = data.datos;
@@ -1402,13 +1422,16 @@
 							if (typeof solar.potencia !== 'undefined') {
 								document.getElementById('solar-valor').textContent = solar.potencia + ' W';
 							}
-							// Actualizar batería desde solar como respaldo
-							if (typeof solar.porcentaje !== 'undefined') {
-								document.getElementById('bat-valor').textContent = Number(solar.porcentaje).toFixed(0) + ' %';
+							const solarPct = Number(solar.porcentaje);
+							const solarVolt = Number(solar.bateria_voltaje);
+							if (Number.isFinite(solarPct)) {
+								ultimoBatPct = solarPct;
 							}
-							if (typeof solar.bateria_voltaje !== 'undefined') {
-								document.getElementById('bat-voltaje').textContent = Number(solar.bateria_voltaje).toFixed(2);
+							if (Number.isFinite(solarVolt)) {
+								ultimoBatVolt = solarVolt;
 							}
+							document.getElementById('bat-valor').textContent = (ultimoBatPct !== null) ? ultimoBatPct.toFixed(0) + ' %' : '--';
+							document.getElementById('bat-voltaje').textContent = (ultimoBatVolt !== null) ? ultimoBatVolt.toFixed(2) : '--';
 						}
 						if (data.tipo === 'gps' && data.datos) {
 							const gps = data.datos;
