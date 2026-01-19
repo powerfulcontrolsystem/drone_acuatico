@@ -305,6 +305,7 @@
 				}
 			}
 
+			let rutaLayerSeleccionada = null;
 			function renderizarRutas() {
 				const cont = document.getElementById('rutas-list');
 				if (!rutasGuardadas || rutasGuardadas.length === 0) {
@@ -317,8 +318,33 @@
 					div.className = 'lista-item';
 					div.textContent = ruta.nombre + (ruta.activo ? ' (activa)' : '');
 					div.title = `ID: ${ruta.id}\nInicio: ${ruta.fecha_inicio || ''}`;
+					div.onclick = () => mostrarRutaEnMapa(ruta.id, ruta.nombre);
 					cont.appendChild(div);
 				});
+			}
+
+			async function mostrarRutaEnMapa(recorridoId, nombre) {
+				if (!window._leafletMap) return;
+				// Eliminar ruta anterior
+				if (rutaLayerSeleccionada) {
+					window._leafletMap.removeLayer(rutaLayerSeleccionada);
+					rutaLayerSeleccionada = null;
+				}
+				try {
+					const res = await fetch(`/api/recorridos/${recorridoId}`);
+					if (!res.ok) throw new Error('No se pudo obtener el detalle de la ruta');
+					const data = await res.json();
+					if (!data.exito || !data.recorrido || !data.recorrido.posiciones || data.recorrido.posiciones.length === 0) {
+						alert('La ruta no tiene posiciones para mostrar.');
+						return;
+					}
+					const posiciones = data.recorrido.posiciones.map(p => [p.latitud, p.longitud]);
+					rutaLayerSeleccionada = L.polyline(posiciones, { color: '#5ad3f0', weight: 5, opacity: 0.85 }).addTo(window._leafletMap);
+					rutaLayerSeleccionada.bindPopup(`Ruta:<br>${nombre}<br>Puntos: ${posiciones.length}`);
+					window._leafletMap.fitBounds(rutaLayerSeleccionada.getBounds(), { padding: [30, 30] });
+				} catch (e) {
+					alert('Error mostrando la ruta: ' + e.message);
+				}
 			}
 				</script>
 </body>
