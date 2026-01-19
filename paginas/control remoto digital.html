@@ -137,20 +137,20 @@
 	}
 
 	/* Estilos para el menú flotante de opciones */
-	#menu-opciones {
-		position: fixed;
-		top: 70px;
-		right: 18px;
-		background: #1a1f28;
-		border: 2px solid #2d3748;
-		border-radius: 12px;
-		box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-		padding: 8px 0;
-		min-width: 240px;
-		z-index: 998;
-	}
-
-	#menu-opciones .btn-menu {
+		#menu-opciones-izq {
+			position: absolute;
+			bottom: 56px;
+			left: 0;
+			display: flex;
+			flex-direction: column;
+			gap: 4px;
+			min-width: 200px;
+			background: #1a1f28;
+			border: 2px solid #2196f3;
+			border-radius: 8px;
+			padding: 8px;
+			box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+		}
 		display: block;
 		width: 100%;
 		padding: 12px 20px;
@@ -321,6 +321,17 @@
 			display: flex;
 			flex-direction: column;
 			align-items: flex-end;
+			gap: 8px;
+		}
+		/* Botón tuerca flotante en esquina inferior izquierda */
+		#menu-flotante-izq {
+			position: fixed;
+			bottom: 18px;
+			left: 18px;
+			z-index: 9999;
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
 			gap: 8px;
 		}
 		
@@ -508,6 +519,21 @@
 				<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2196f3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.09a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.09a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.09a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
 			</button>
 		</div>
+		<!-- Tuerca flotante en esquina inferior izquierda -->
+		<div id="menu-flotante-izq">
+			<div id="menu-opciones-izq" style="display:none;">
+				<button class="btn-menu" onclick="document.documentElement.requestFullscreen()">🖵 Pantalla completa</button>
+				<button class="btn-menu" onclick="window.location.href='mapa_gps.html'">🧭 Mapa GPS</button>
+				<button class="btn-menu" onclick="window.location.href='energia_solar.html'">☀️ Energía Solar</button>
+				<button class="btn-menu" onclick="window.location.href='configuracion.html'">⚙️ Configuración</button>
+				<button class="btn-menu" onclick="abrirRouter()">📡 Router 4G/5G</button>
+				<button class="btn-menu" onclick="if(confirm('¿Reiniciar el sistema?')) fetch('/api/reiniciar', {method:'POST'}).then(()=>window.location.reload())">🔄 Reiniciar</button>
+				<button class="btn-menu" onclick="if(confirm('¿Apagar el sistema?')) fetch('/api/apagar', {method:'POST'})">⏻ Apagar</button>
+			</div>
+			<button id="btn-tuerca-izq" class="btn-menu" type="button" aria-label="Menú de opciones izquierdo" style="width: 44px; height: 44px; padding: 0; display: flex; align-items: center; justify-content: center;">
+				<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2196f3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.09a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.09a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.09a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+			</button>
+		</div>
 		<script>
 			const btnTuerca = document.getElementById('btn-tuerca');
 			const btnPantallaCompleta = document.getElementById('btn-pantalla-completa');
@@ -516,8 +542,16 @@
 				e.stopPropagation();
 				menuOpciones.style.display = menuOpciones.style.display === 'none' ? 'block' : 'none';
 			};
+			// Menú tuerca izquierdo
+			const btnTuercaIzq = document.getElementById('btn-tuerca-izq');
+			const menuOpcionesIzq = document.getElementById('menu-opciones-izq');
+			btnTuercaIzq.onclick = function(e) {
+				e.stopPropagation();
+				menuOpcionesIzq.style.display = menuOpcionesIzq.style.display === 'none' ? 'block' : 'none';
+			};
 			document.addEventListener('click', function(e) {
 				if (menuOpciones.style.display === 'block') menuOpciones.style.display = 'none';
+				if (menuOpcionesIzq.style.display === 'block') menuOpcionesIzq.style.display = 'none';
 			});
 
 			// Botón pantalla completa
