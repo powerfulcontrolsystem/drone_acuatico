@@ -151,21 +151,6 @@
 			padding: 8px;
 			box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
 		}
-		display: block;
-		width: 100%;
-		padding: 12px 20px;
-		margin: 0;
-		border: none;
-		border-radius: 0;
-		background: transparent;
-		color: #e5e7eb;
-		text-align: left;
-		cursor: pointer;
-		transition: all 0.2s ease;
-		box-shadow: none;
-		font-size: 1em;
-			font-weight: 500;
-	}
 	
 	#menu-opciones .btn-menu:hover {
 	background: rgba(33, 150, 243, 0.2);
@@ -745,6 +730,7 @@
 							<button class="btn btn-velocidad" id="vel-lenta">1</button>
 							<button class="btn btn-velocidad" id="vel-media">2</button>
 							<button class="btn btn-velocidad" id="vel-rapida">3</button>
+							<button class="btn btn-velocidad" id="vel-maxima">4</button>
 							</div>
 						</div>
 						<div class="panel-bajo" style="margin:0; padding:0; width:100%; box-sizing:border-box;">
@@ -1303,9 +1289,10 @@
 				console.log('Aplicando velocidad UI:', velocidad);
 				velocidadActual = velocidad;
 				const mapeoVelocidad = [
-					{ id: 'vel-lenta', valor: 30 },
+					{ id: 'vel-lenta', valor: 40 },
 					{ id: 'vel-media', valor: 60 },
-					{ id: 'vel-rapida', valor: 90 }
+					{ id: 'vel-rapida', valor: 80 },
+					{ id: 'vel-maxima', valor: 100 }
 				];
 				mapeoVelocidad.forEach(v => {
 					const btn = document.getElementById(v.id);
@@ -1534,9 +1521,10 @@
 
 				// Conectar eventos de botones de velocidad
 				const mapeoVelocidad = [
-					{ id: 'vel-lenta', valor: 30 },
+					{ id: 'vel-lenta', valor: 40 },
 					{ id: 'vel-media', valor: 60 },
-					{ id: 'vel-rapida', valor: 90 }
+					{ id: 'vel-rapida', valor: 80 },
+					{ id: 'vel-maxima', valor: 100 }
 				];
 				mapeoVelocidad.forEach(cfg => {
 					const btn = document.getElementById(cfg.id);
