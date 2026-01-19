@@ -200,15 +200,49 @@ def controlar_motor(direccion, velocidad):
         tuple: (exito: bool, error: str o None)
     """
     if not GPIO_DISPONIBLE:
-        logger.info(f"[SIM] Motor {direccion} al {velocidad}%")
+        logger.info(f"[SIM] Motor {direccion} al {velocidad}% (tanque)")
         return True, None
-    
+
     try:
-        # Implementación simplificada - expandir según hardware
-        logger.info(f"Motor {direccion} al {velocidad}%")
-        # Aquí iría la lógica de PWM para controlar motores
+        # Pines de motores tanque
+        pin_izq = MOTORES_PWM[1]  # GPIO 18
+        pin_der = MOTORES_PWM[2]  # GPIO 13
+
+        # Inicializar PWM si no existe
+        if not hasattr(controlar_motor, 'pwm_izq') or controlar_motor.pwm_izq is None:
+            controlar_motor.pwm_izq = GPIO.PWM(pin_izq, 100)
+            controlar_motor.pwm_izq.start(0)
+        if not hasattr(controlar_motor, 'pwm_der') or controlar_motor.pwm_der is None:
+            controlar_motor.pwm_der = GPIO.PWM(pin_der, 100)
+            controlar_motor.pwm_der.start(0)
+
+        if direccion == 'adelante':
+            controlar_motor.pwm_izq.ChangeDutyCycle(velocidad)
+            controlar_motor.pwm_der.ChangeDutyCycle(velocidad)
+            logger.info(f"Motores adelante: izq={velocidad}%, der={velocidad}%")
+        elif direccion == 'atras':
+            # Si hay lógica de reversa, implementar aquí
+            controlar_motor.pwm_izq.ChangeDutyCycle(0)
+            controlar_motor.pwm_der.ChangeDutyCycle(0)
+            logger.info("Motores atrás (no implementado, ambos detenidos)")
+        elif direccion == 'izquierda':
+            controlar_motor.pwm_izq.ChangeDutyCycle(0)
+            controlar_motor.pwm_der.ChangeDutyCycle(velocidad)
+            logger.info(f"Giro izquierda: izq=0%, der={velocidad}%")
+        elif direccion == 'derecha':
+            controlar_motor.pwm_izq.ChangeDutyCycle(velocidad)
+            controlar_motor.pwm_der.ChangeDutyCycle(0)
+            logger.info(f"Giro derecha: izq={velocidad}%, der=0%")
+        elif direccion == 'parar':
+            controlar_motor.pwm_izq.ChangeDutyCycle(0)
+            controlar_motor.pwm_der.ChangeDutyCycle(0)
+            logger.info("Motores detenidos")
+        else:
+            logger.warning(f"Dirección desconocida: {direccion}")
+            controlar_motor.pwm_izq.ChangeDutyCycle(0)
+            controlar_motor.pwm_der.ChangeDutyCycle(0)
         return True, None
-    
+
     except Exception as e:
         logger.error(f"Error controlando motor: {e}")
         return False, str(e)

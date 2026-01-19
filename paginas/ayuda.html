@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ayuda - Drone Acuático</title>
+  <link rel="stylesheet" href="/static/tema_universal.css">
+  <style>
+    body {
+      background: #181f2a;
+      color: #e2e8f0;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .top-bar {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 18px 24px 12px 24px;
+      background: #232b3b;
+      border-bottom: 1px solid #2d3748;
+    }
+    .btn {
+      background: #5ad3f0;
+      color: #181f2a;
+      border: none;
+      border-radius: 4px;
+      padding: 6px 16px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background 0.2s;
+    }
+    .btn:hover {
+      background: #3bb3d6;
+    }
+    .ayuda-content {
+      flex: 1;
+      padding: 32px 24px;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    h1 {
+      color: #5ad3f0;
+      margin-bottom: 18px;
+    }
+    ul {
+      margin-top: 0;
+      padding-left: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="top-bar">
+    <button class="btn" id="btn-atras">⟵ Atrás</button>
+    <span style="font-size:1.3rem;font-weight:600;">Ayuda</span>
+  </div>
+  <div class="ayuda-content">
+    <h1>Ayuda del sistema</h1>
+    <p>Bienvenido a la sección de ayuda. Aquí encontrarás información básica sobre el uso del sistema.</p>
+    <ul>
+      <li>Utiliza el menú de la tuerca para acceder a las principales funciones.</li>
+      <li>Puedes ver el mapa GPS, controlar cámaras y consultar el estado de energía solar.</li>
+      <li>Para regresar a la pantalla anterior, usa el botón "Atrás".</li>
+      <li>Si tienes dudas técnicas, contacta al administrador del sistema.</li>
+    </ul>
+  </div>
+  <script>
+    document.getElementById('btn-atras').onclick = function() {
+      if (window.history && window.history.length > 1) {
+        window.history.back();
+      } else {
+        window.location.href = 'control%20remoto%20digital.html';
+      }
+    };
+  </script>
+</body>
+</html>

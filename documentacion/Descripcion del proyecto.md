@@ -13,7 +13,7 @@ ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHQ/bZ2YJM5Lbt9F7tf79nZPLrCzUYiCRpuN9paNlIj6
 
 
 ## ubicación del proyecto en la raspberry
-home/pi/drone_acuatico
+home/admin/drone_acuatico
 
 ## DESCRIPCIÓN
 El dron acuático está diseñado para ofrecer una experiencia de pesca inteligente y navegación autónoma. Se alimenta de energía solar, cuenta con una batería de alta capacidad y dispone de cuatro motores brushless para garantizar una movilidad precisa.
@@ -72,10 +72,10 @@ Este sistema combina energía renovable, sensores avanzados y control remoto par
 ### ESC – MOTORES PROPULSORES
 | GPIO Raspberry | Motor |
 |---------------|-------|
-| GPIO 18 (PWM) | Motor 1 |
-| GPIO 13 (PWM) | Motor 2 |
-| GPIO 19 (PWM) | Motor 3 |
-| GPIO 12 (PWM) | Motor 4 |
+| GPIO 18 (PWM) | Motor 1 | - Izquierdo
+| GPIO 13 (PWM) | Motor 2 | - Derecho
+## | GPIO 19 (PWM) | Motor 3 |
+## | GPIO 12 (PWM) | Motor 4 |
 
 ---
 

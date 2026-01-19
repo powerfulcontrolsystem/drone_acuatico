@@ -257,10 +257,10 @@
 			justify-content: center;
 		}
 		.btn-stop {
-			background: #b91c1c !important;
-			border-color: #ef4444 !important;
+			background: #fff !important;
+			border-color: #fff !important;
 			color: #fff !important;
-			box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25) !important;
+			box-shadow: 0 4px 12px rgba(239, 68, 68, 0.10) !important;
 		}
 		.velocidades-botones .btn-velocidad {
 			width: 100%;
@@ -502,6 +502,7 @@
 				<button class="btn-menu" onclick="window.location.href='mapa_gps.html'">🧭 Mapa GPS</button>
 				<button class="btn-menu" onclick="window.location.href='energia_solar.html'">☀️ Energía Solar</button>
 				<button class="btn-menu" onclick="window.location.href='configuracion.html'">⚙️ Configuración</button>
+				<button class="btn-menu" onclick="window.location.href='ayuda.html'">❓ Ayuda</button>
 				<button class="btn-menu" onclick="abrirRouter()">📡 Router 4G/5G</button>
 				<button class="btn-menu" onclick="if(confirm('¿Reiniciar el sistema?')) fetch('/api/reiniciar', {method:'POST'}).then(()=>window.location.reload())">🔄 Reiniciar</button>
 				<button class="btn-menu" onclick="if(confirm('¿Apagar el sistema?')) fetch('/api/apagar', {method:'POST'})">⏻ Apagar</button>
@@ -588,7 +589,7 @@
 						<video id="videoCam1" controls muted playsinline></video>
 						<div class="menu-cam-flotante">
 							<button class="btn-cam-flotante" id="btnPlayCam1Float" type="button" title="Play/Stop Cam 1" onclick="document.getElementById('playCam1').click()">
-								<svg id="iconPlayCam1Float" width="22" height="22" viewBox="0 0 32 32" fill="#2196f3" style="display:block;">
+								<svg id="iconPlayCam1Float" width="22" height="22" viewBox="0 0 32 32" fill="#fff" style="display:block;">
 									<polygon points="10,6 26,16 10,26"/>
 								</svg>
 							</button>
@@ -608,7 +609,7 @@
 						<div class="cam-controles">
 							<button id="playCam1" class="btn btn-cam btn-cam-icon" title="Play/Stop Cam 1">
 								<span id="iconPlayCam1" style="display:inline-block;width:100%;height:100%;vertical-align:middle;">
-									<svg width="100%" height="100%" viewBox="0 0 22 22" fill="#2196f3" style="display:block;"><polygon points="6,4 18,11 6,18"/></svg>
+									<svg width="100%" height="100%" viewBox="0 0 22 22" fill="#fff" style="display:block;"><polygon points="6,4 18,11 6,18"/></svg>
 								</span>
 							</button>
 							<button id="captureCam1" class="btn btn-cam btn-cam-icon" title="Capturar Foto">
@@ -629,7 +630,7 @@
 						<video id="videoCam2" controls muted playsinline></video>
 						<div class="menu-cam-flotante">
 							<button class="btn-cam-flotante" id="btnPlayCam2Float" type="button" title="Play/Stop Cam 2" onclick="document.getElementById('playCam2').click()">
-								<svg id="iconPlayCam2Float" width="22" height="22" viewBox="0 0 22 22" fill="#2196f3" style="display:block;">
+								<svg id="iconPlayCam2Float" width="22" height="22" viewBox="0 0 22 22" fill="#fff" style="display:block;">
 									<polygon points="6,4 18,11 6,18"/>
 								</svg>
 							</button>
@@ -649,7 +650,7 @@
 						<div class="cam-controles">
 							<button id="playCam2" class="btn btn-cam btn-cam-icon" title="Play/Stop Cam 2">
 								<span id="iconPlayCam2" style="display:inline-block;width:100%;height:100%;vertical-align:middle;">
-									<svg width="100%" height="100%" viewBox="0 0 22 22" fill="#2196f3" style="display:block;"><polygon points="6,4 18,11 6,18"/></svg>
+									<svg width="100%" height="100%" viewBox="0 0 22 22" fill="#fff" style="display:block;"><polygon points="6,4 18,11 6,18"/></svg>
 								</span>
 							</button>
 							<button id="captureCam2" class="btn btn-cam btn-cam-icon" title="Capturar Foto">
@@ -661,7 +662,7 @@
 							</button>
 							<button id="grabar-cam2" class="btn btn-cam btn-cam-icon" title="Grabar video">
 							<span id="iconGrabarCam2" style="display:inline-block;width:100%;height:100%;vertical-align:middle;">
-								<svg width="100%" height="100%" viewBox="0 0 32 32" style="display:block;"><circle cx="16" cy="16" r="12" fill="#d32f2f"/></svg>
+								<svg width="100%" height="100%" viewBox="0 0 32 32" style="display:block;"><circle cx="16" cy="16" r="12" fill="#fff"/></svg>
 							</span>
 							</button>
 						</div>
@@ -700,6 +701,40 @@
 								<button class="btn btn-direccion" id="btn-derecha">▶</button>
 								<button class="btn btn-direccion" id="btn-abajo">▼</button>
 							</div>
+							<script>
+							// Control de la cruz: botón flecha arriba
+							document.addEventListener('DOMContentLoaded', function() {
+								const btnArriba = document.getElementById('btn-arriba');
+								if (btnArriba) {
+									btnArriba.addEventListener('mousedown', function() {
+										if (window.ws && window.ws.readyState === 1) {
+											window.ws.send(JSON.stringify({ tipo: 'motor', direccion: 'adelante' }));
+										}
+									});
+									btnArriba.addEventListener('touchstart', function() {
+										if (window.ws && window.ws.readyState === 1) {
+											window.ws.send(JSON.stringify({ tipo: 'motor', direccion: 'adelante' }));
+										}
+									});
+									// Opcional: detener motores al soltar
+									btnArriba.addEventListener('mouseup', function() {
+										if (window.ws && window.ws.readyState === 1) {
+											window.ws.send(JSON.stringify({ tipo: 'motor', direccion: 'parar' }));
+										}
+									});
+									btnArriba.addEventListener('mouseleave', function() {
+										if (window.ws && window.ws.readyState === 1) {
+											window.ws.send(JSON.stringify({ tipo: 'motor', direccion: 'parar' }));
+										}
+									});
+									btnArriba.addEventListener('touchend', function() {
+										if (window.ws && window.ws.readyState === 1) {
+											window.ws.send(JSON.stringify({ tipo: 'motor', direccion: 'parar' }));
+										}
+									});
+								}
+							});
+							</script>
 							<!-- Botón Guardar ubicación debajo de la cruz -->
 							<button id="gps-guardar" class="btn" style="margin-top:10px; width:120px; background:#2196f3; color:#fff; font-weight:600; border-radius:6px; border:none; box-shadow:0 2px 6px #2196f355; font-size:1em; padding:6px 0; cursor:pointer;">Guardar ubicación</button>
 						</div>
