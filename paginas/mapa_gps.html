@@ -284,10 +284,42 @@
 			// Cargar ubicaciones guardadas
 			cargarUbicaciones();
 			// Buscar por nombre
-			document.getElementById('busqueda-ubicacion').addEventListener('input', e => {
-				cargarUbicaciones(e.target.value);
-			});
-		});
-	</script>
+						document.getElementById('busqueda-ubicacion').addEventListener('input', e => {
+							cargarUbicaciones(e.target.value);
+						});
+						cargarRutas();
+					});
+
+			// --- RUTAS GUARDADAS ---
+			let rutasGuardadas = [];
+			async function cargarRutas() {
+				try {
+					const res = await fetch('/api/recorridos');
+					if (!res.ok) throw new Error('No se pudo obtener rutas');
+					const data = await res.json();
+					if (!data.exito) throw new Error('No se pudo obtener rutas');
+					rutasGuardadas = data.recorridos || [];
+					renderizarRutas();
+				} catch (e) {
+					document.getElementById('rutas-list').innerHTML = '<div class="lista-vacia">Error cargando rutas</div>';
+				}
+			}
+
+			function renderizarRutas() {
+				const cont = document.getElementById('rutas-list');
+				if (!rutasGuardadas || rutasGuardadas.length === 0) {
+					cont.innerHTML = '<div class="lista-vacia">No hay rutas guardadas</div>';
+					return;
+				}
+				cont.innerHTML = '';
+				rutasGuardadas.forEach(ruta => {
+					const div = document.createElement('div');
+					div.className = 'lista-item';
+					div.textContent = ruta.nombre + (ruta.activo ? ' (activa)' : '');
+					div.title = `ID: ${ruta.id}\nInicio: ${ruta.fecha_inicio || ''}`;
+					cont.appendChild(div);
+				});
+			}
+				</script>
 </body>
 </html>

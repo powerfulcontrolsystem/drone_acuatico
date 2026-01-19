@@ -4,7 +4,7 @@
 ## conexion a raspberry
 usuario: admin
 clave: admin
-ip: 192.168.1.18
+ip: 192.168.1.14
 
 ## Clave SSH pública:
 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHQ/bZ2YJM5Lbt9F7tf79nZPLrCzUYiCRpuN9paNlIj6 admin@drone-acuatico
