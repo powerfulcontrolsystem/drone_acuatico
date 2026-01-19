@@ -687,37 +687,62 @@
 								<button class="btn btn-direccion" id="btn-abajo">▼</button>
 							</div>
 							<script>
-							// Control de la cruz: botón flecha arriba
+							// Control de la cruz: mantener botón presionado y stop desactiva todos
 							document.addEventListener('DOMContentLoaded', function() {
-								const btnArriba = document.getElementById('btn-arriba');
-								if (btnArriba) {
-									btnArriba.addEventListener('mousedown', function() {
-										if (window.ws && window.ws.readyState === 1) {
-											window.ws.send(JSON.stringify({ tipo: 'motor', direccion: 'adelante' }));
+								const botones = {
+									arriba: document.getElementById('btn-arriba'),
+									abajo: document.getElementById('btn-abajo'),
+									izquierda: document.getElementById('btn-izquierda'),
+									derecha: document.getElementById('btn-derecha'),
+									centro: document.getElementById('btn-centro')
+								};
+								const direcciones = {
+									arriba: 'adelante',
+									abajo: 'atras',
+									izquierda: 'izquierda',
+									derecha: 'derecha'
+								};
+								function activarBoton(nombre) {
+									Object.keys(botones).forEach(k => {
+										if (k === nombre) {
+											botones[k].classList.add('activo');
+											botones[k].classList.remove('inactivo');
+										} else if (k !== 'centro') {
+											botones[k].classList.remove('activo');
+											botones[k].classList.add('inactivo');
 										}
 									});
-									btnArriba.addEventListener('touchstart', function() {
-										if (window.ws && window.ws.readyState === 1) {
-											window.ws.send(JSON.stringify({ tipo: 'motor', direccion: 'adelante' }));
+								}
+								function desactivarTodos() {
+									Object.keys(botones).forEach(k => {
+										if (k !== 'centro') {
+											botones[k].classList.remove('activo');
+											botones[k].classList.add('inactivo');
 										}
 									});
-									// Opcional: detener motores al soltar
-									btnArriba.addEventListener('mouseup', function() {
+								}
+								// Botones de dirección
+								Object.keys(direcciones).forEach(nombre => {
+									const btn = botones[nombre];
+									if (!btn) return;
+									btn.addEventListener('click', function() {
+										activarBoton(nombre);
 										if (window.ws && window.ws.readyState === 1) {
-											window.ws.send(JSON.stringify({ tipo: 'motor', direccion: 'parar' }));
+											window.ws.send(JSON.stringify({ tipo: 'motor', direccion: direcciones[nombre] }));
 										}
 									});
-									btnArriba.addEventListener('mouseleave', function() {
-										if (window.ws && window.ws.readyState === 1) {
-											window.ws.send(JSON.stringify({ tipo: 'motor', direccion: 'parar' }));
-										}
-									});
-									btnArriba.addEventListener('touchend', function() {
+								});
+								// Botón stop (centro)
+								if (botones.centro) {
+									botones.centro.addEventListener('click', function() {
+										desactivarTodos();
 										if (window.ws && window.ws.readyState === 1) {
 											window.ws.send(JSON.stringify({ tipo: 'motor', direccion: 'parar' }));
 										}
 									});
 								}
+								// Inicialmente desactivados
+								desactivarTodos();
 							});
 							</script>
 							<!-- Botón Guardar ubicación debajo de la cruz -->
@@ -1292,7 +1317,7 @@
 					{ id: 'vel-lenta', valor: 40 },
 					{ id: 'vel-media', valor: 60 },
 					{ id: 'vel-rapida', valor: 80 },
-					{ id: 'vel-maxima', valor: 100 }
+					{ id: 'vel-maxima', valor: 99 }
 				];
 				mapeoVelocidad.forEach(v => {
 					const btn = document.getElementById(v.id);
@@ -1524,7 +1549,7 @@
 					{ id: 'vel-lenta', valor: 40 },
 					{ id: 'vel-media', valor: 60 },
 					{ id: 'vel-rapida', valor: 80 },
-					{ id: 'vel-maxima', valor: 100 }
+					{ id: 'vel-maxima', valor: 99 }
 				];
 				mapeoVelocidad.forEach(cfg => {
 					const btn = document.getElementById(cfg.id);

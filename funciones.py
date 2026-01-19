@@ -52,7 +52,15 @@ UMBRAL_PESO_KG = 5.0
 
 # Estado inicial de IO para precalcular MB/s
 
-# Importaciones opcionales
+
+# --- Soporte para pigpio y fallback a RPi.GPIO ---
+try:
+    import pigpio
+    PIGPIO_DISPONIBLE = True
+except ImportError:
+    pigpio = None
+    PIGPIO_DISPONIBLE = False
+
 try:
     import RPi.GPIO as GPIO
     GPIO_DISPONIBLE = True
@@ -122,37 +130,44 @@ def matar_procesos_servidor_previos():
 # ==================== FUNCIONES GPIO ====================
 def inicializar_gpio():
     """Inicializa los pines GPIO para relés y motores."""
-    if not GPIO_DISPONIBLE:
-        logger.warning("GPIO no disponible - Modo simulación")
-        return False
-    
-    try:
-        # Limpiar GPIO previo (sin advertencias)
+    if PIGPIO_DISPONIBLE:
         try:
+            global _pigpio
+            _pigpio = pigpio.pi()
+            if not _pigpio.connected:
+                logger.error("No se pudo conectar con el daemon pigpio. Asegúrate de que esté corriendo.")
+                return False
+            logger.info("pigpio inicializado correctamente")
+            return True
+        except Exception as e:
+            logger.error(f"Error inicializando pigpio: {e}")
+            return False
+    elif GPIO_DISPONIBLE:
+        try:
+            # Limpiar GPIO previo (sin advertencias)
+            try:
+                GPIO.setwarnings(False)
+                GPIO.cleanup()
+                logger.info("GPIO limpiado (proceso previo)")
+            except:
+                pass
+            GPIO.setmode(GPIO.BCM)
             GPIO.setwarnings(False)
-            GPIO.cleanup()
-            logger.info("GPIO limpiado (proceso previo)")
-        except:
-            pass
-        
-        GPIO.setmode(GPIO.BCM)
-        GPIO.setwarnings(False)
-        
-        # Configurar relés
-        for numero, pin in RELES_PINES.items():
-            GPIO.setup(pin, GPIO.OUT, initial=GPIO.HIGH)  # HIGH = apagado
-            logger.info(f"Relé {numero} → GPIO {pin}")
-        
-        # Configurar motores
-        for numero, pin in MOTORES_PWM.items():
-            GPIO.setup(pin, GPIO.OUT)
-            logger.info(f"Motor {numero} → GPIO {pin}")
-        
-        logger.info("GPIO inicializado correctamente")
-        return True
-    
-    except Exception as e:
-        logger.error(f"Error inicializando GPIO: {e}")
+            # Configurar relés
+            for numero, pin in RELES_PINES.items():
+                GPIO.setup(pin, GPIO.OUT, initial=GPIO.HIGH)  # HIGH = apagado
+                logger.info(f"Relé {numero} → GPIO {pin}")
+            # Configurar motores
+            for numero, pin in MOTORES_PWM.items():
+                GPIO.setup(pin, GPIO.OUT)
+                logger.info(f"Motor {numero} → GPIO {pin}")
+            logger.info("GPIO inicializado correctamente (RPi.GPIO)")
+            return True
+        except Exception as e:
+            logger.error(f"Error inicializando GPIO: {e}")
+            return False
+    else:
+        logger.warning("GPIO/pigpio no disponible - Modo simulación")
         return False
 def controlar_rele(numero, encender):
     """
@@ -199,56 +214,99 @@ def controlar_motor(direccion, velocidad):
     Returns:
         tuple: (exito: bool, error: str o None)
     """
-    if not GPIO_DISPONIBLE:
+    if PIGPIO_DISPONIBLE:
+        try:
+            pin_izq = MOTORES_PWM[1]
+            pin_der = MOTORES_PWM[2]
+            # Duty cycle pigpio: pulso en microsegundos (ESC típico: 1000-2000us)
+            def porcentaje_a_pulso(p):
+                # Ajusta estos valores según tu ESC si es necesario
+                min_us = 1000
+                max_us = 2000
+                return int(min_us + (max_us - min_us) * (p / 100.0))
+            if direccion == 'adelante':
+                _pigpio.set_servo_pulsewidth(pin_izq, porcentaje_a_pulso(velocidad))
+                _pigpio.set_servo_pulsewidth(pin_der, porcentaje_a_pulso(velocidad))
+                logger.info(f"Motores adelante (pigpio): izq={velocidad}%, der={velocidad}%")
+            elif direccion == 'atras':
+                _pigpio.set_servo_pulsewidth(pin_izq, 0)
+                _pigpio.set_servo_pulsewidth(pin_der, 0)
+                logger.info("Motores atrás (pigpio, ambos detenidos)")
+            elif direccion == 'izquierda':
+                _pigpio.set_servo_pulsewidth(pin_izq, 0)
+                _pigpio.set_servo_pulsewidth(pin_der, porcentaje_a_pulso(velocidad))
+                logger.info(f"Giro izquierda (pigpio): izq=0%, der={velocidad}%")
+            elif direccion == 'derecha':
+                _pigpio.set_servo_pulsewidth(pin_izq, porcentaje_a_pulso(velocidad))
+                _pigpio.set_servo_pulsewidth(pin_der, 0)
+                logger.info(f"Giro derecha (pigpio): izq={velocidad}%, der=0%")
+            elif direccion == 'parar':
+                _pigpio.set_servo_pulsewidth(pin_izq, 0)
+                _pigpio.set_servo_pulsewidth(pin_der, 0)
+                logger.info("Motores detenidos (pigpio)")
+            else:
+                logger.warning(f"Dirección desconocida: {direccion}")
+                _pigpio.set_servo_pulsewidth(pin_izq, 0)
+                _pigpio.set_servo_pulsewidth(pin_der, 0)
+            return True, None
+        except Exception as e:
+            logger.error(f"Error controlando motor (pigpio): {e}")
+            return False, str(e)
+    elif GPIO_DISPONIBLE:
+        try:
+            # Pines de motores tanque
+            pin_izq = MOTORES_PWM[1]  # GPIO 18
+            pin_der = MOTORES_PWM[2]  # GPIO 13
+            # Inicializar PWM si no existe
+            if not hasattr(controlar_motor, 'pwm_izq') or controlar_motor.pwm_izq is None:
+                controlar_motor.pwm_izq = GPIO.PWM(pin_izq, 100)
+                controlar_motor.pwm_izq.start(0)
+            if not hasattr(controlar_motor, 'pwm_der') or controlar_motor.pwm_der is None:
+                controlar_motor.pwm_der = GPIO.PWM(pin_der, 100)
+                controlar_motor.pwm_der.start(0)
+            if direccion == 'adelante':
+                controlar_motor.pwm_izq.ChangeDutyCycle(velocidad)
+                controlar_motor.pwm_der.ChangeDutyCycle(velocidad)
+                logger.info(f"Motores adelante: izq={velocidad}%, der={velocidad}%")
+            elif direccion == 'atras':
+                controlar_motor.pwm_izq.ChangeDutyCycle(0)
+                controlar_motor.pwm_der.ChangeDutyCycle(0)
+                logger.info("Motores atrás (no implementado, ambos detenidos)")
+            elif direccion == 'izquierda':
+                controlar_motor.pwm_izq.ChangeDutyCycle(0)
+                controlar_motor.pwm_der.ChangeDutyCycle(velocidad)
+                logger.info(f"Giro izquierda: izq=0%, der={velocidad}%")
+            elif direccion == 'derecha':
+                controlar_motor.pwm_izq.ChangeDutyCycle(velocidad)
+                controlar_motor.pwm_der.ChangeDutyCycle(0)
+                logger.info(f"Giro derecha: izq={velocidad}%, der=0%")
+            elif direccion == 'parar':
+                controlar_motor.pwm_izq.ChangeDutyCycle(0)
+                controlar_motor.pwm_der.ChangeDutyCycle(0)
+                logger.info("Motores detenidos")
+            else:
+                logger.warning(f"Dirección desconocida: {direccion}")
+                controlar_motor.pwm_izq.ChangeDutyCycle(0)
+                controlar_motor.pwm_der.ChangeDutyCycle(0)
+            return True, None
+        except Exception as e:
+            logger.error(f"Error controlando motor: {e}")
+            return False, str(e)
+    else:
         logger.info(f"[SIM] Motor {direccion} al {velocidad}% (tanque)")
         return True, None
-
-    try:
-        # Pines de motores tanque
-        pin_izq = MOTORES_PWM[1]  # GPIO 18
-        pin_der = MOTORES_PWM[2]  # GPIO 13
-
-        # Inicializar PWM si no existe
-        if not hasattr(controlar_motor, 'pwm_izq') or controlar_motor.pwm_izq is None:
-            controlar_motor.pwm_izq = GPIO.PWM(pin_izq, 100)
-            controlar_motor.pwm_izq.start(0)
-        if not hasattr(controlar_motor, 'pwm_der') or controlar_motor.pwm_der is None:
-            controlar_motor.pwm_der = GPIO.PWM(pin_der, 100)
-            controlar_motor.pwm_der.start(0)
-
-        if direccion == 'adelante':
-            controlar_motor.pwm_izq.ChangeDutyCycle(velocidad)
-            controlar_motor.pwm_der.ChangeDutyCycle(velocidad)
-            logger.info(f"Motores adelante: izq={velocidad}%, der={velocidad}%")
-        elif direccion == 'atras':
-            # Si hay lógica de reversa, implementar aquí
-            controlar_motor.pwm_izq.ChangeDutyCycle(0)
-            controlar_motor.pwm_der.ChangeDutyCycle(0)
-            logger.info("Motores atrás (no implementado, ambos detenidos)")
-        elif direccion == 'izquierda':
-            controlar_motor.pwm_izq.ChangeDutyCycle(0)
-            controlar_motor.pwm_der.ChangeDutyCycle(velocidad)
-            logger.info(f"Giro izquierda: izq=0%, der={velocidad}%")
-        elif direccion == 'derecha':
-            controlar_motor.pwm_izq.ChangeDutyCycle(velocidad)
-            controlar_motor.pwm_der.ChangeDutyCycle(0)
-            logger.info(f"Giro derecha: izq={velocidad}%, der=0%")
-        elif direccion == 'parar':
-            controlar_motor.pwm_izq.ChangeDutyCycle(0)
-            controlar_motor.pwm_der.ChangeDutyCycle(0)
-            logger.info("Motores detenidos")
-        else:
-            logger.warning(f"Dirección desconocida: {direccion}")
-            controlar_motor.pwm_izq.ChangeDutyCycle(0)
-            controlar_motor.pwm_der.ChangeDutyCycle(0)
-        return True, None
-
-    except Exception as e:
-        logger.error(f"Error controlando motor: {e}")
-        return False, str(e)
 def liberar_gpio():
     """Libera los recursos GPIO al cerrar."""
-    if GPIO_DISPONIBLE:
+    if PIGPIO_DISPONIBLE:
+        try:
+            global _pigpio
+            for pin in MOTORES_PWM.values():
+                _pigpio.set_servo_pulsewidth(pin, 0)
+            _pigpio.stop()
+            logger.info("pigpio liberado")
+        except Exception as e:
+            logger.error(f"Error liberando pigpio: {e}")
+    elif GPIO_DISPONIBLE:
         try:
             GPIO.cleanup()
             logger.info("GPIO liberado")

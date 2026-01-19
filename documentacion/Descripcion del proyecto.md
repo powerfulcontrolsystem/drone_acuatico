@@ -77,6 +77,10 @@ Este sistema combina energía renovable, sensores avanzados y control remoto par
 ## | GPIO 19 (PWM) | Motor 3 |
 ## | GPIO 12 (PWM) | Motor 4 |
 
+## propulsores subacuaticos
+- motor brushless
+- Los motores son de 480KV
+
 ---
 
 ### SENSOR TF-LUNA Y BRÚJULA (I2C)
@@ -159,13 +163,6 @@ Al superar un umbral configurado:
 - Alerta visual
 - Alerta sonora
 
----
-
-## SEGURIDAD Y CONEXIÓN SSH
-## Carpeta del proyecto Raspberry: home/admin/drone
-El usuario de raspberry es: admin
-Clave de usuario admin: admin
-La dirección ip de la raspberry es : 192.168.1.8
 
 ## protocolo de comunicacion 
 se usara web socket para comunicar la web con el servidor.py
