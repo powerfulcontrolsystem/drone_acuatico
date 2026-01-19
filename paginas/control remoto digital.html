@@ -312,17 +312,7 @@
 			100% { opacity: 1; }
 		}
 		
-		/* Botón tuerca flotante en esquina inferior derecha */
-		#menu-flotante {
-			position: fixed;
-			bottom: 18px;
-			right: 18px;
-			z-index: 9999;
-			display: flex;
-			flex-direction: column;
-			align-items: flex-end;
-			gap: 8px;
-		}
+		/* Eliminado menú tuerca flotante en esquina inferior derecha */
 		/* Botón tuerca flotante en esquina inferior izquierda */
 		#menu-flotante-izq {
 			position: fixed;
@@ -504,21 +494,7 @@
 			<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2196f3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
 		</button>
 		
-		<!-- Tuerca flotante en esquina inferior derecha -->
-		<div id="menu-flotante">
-			<div id="menu-opciones" style="display:none;">
-				<button class="btn-menu" onclick="document.documentElement.requestFullscreen()">🖵 Pantalla completa</button>
-				<button class="btn-menu" onclick="window.location.href='mapa_gps.html'">🧭 Mapa GPS</button>
-				<button class="btn-menu" onclick="window.location.href='energia_solar.html'">☀️ Energía Solar</button>
-				<button class="btn-menu" onclick="window.location.href='configuracion.html'">⚙️ Configuración</button>
-				<button class="btn-menu" onclick="abrirRouter()">📡 Router 4G/5G</button>
-				<button class="btn-menu" onclick="if(confirm('¿Reiniciar el sistema?')) fetch('/api/reiniciar', {method:'POST'}).then(()=>window.location.reload())">🔄 Reiniciar</button>
-				<button class="btn-menu" onclick="if(confirm('¿Apagar el sistema?')) fetch('/api/apagar', {method:'POST'})">⏻ Apagar</button>
-			</div>
-			<button id="btn-tuerca" class="btn-menu" type="button" aria-label="Menú de opciones" style="width: 44px; height: 44px; padding: 0; display: flex; align-items: center; justify-content: center;">
-				<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2196f3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.09a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.09a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.09a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-			</button>
-		</div>
+		<!-- Eliminado menú tuerca flotante en esquina inferior derecha -->
 		<!-- Tuerca flotante en esquina inferior izquierda -->
 		<div id="menu-flotante-izq">
 			<div id="menu-opciones-izq" style="display:none;">
@@ -535,13 +511,7 @@
 			</button>
 		</div>
 		<script>
-			const btnTuerca = document.getElementById('btn-tuerca');
 			const btnPantallaCompleta = document.getElementById('btn-pantalla-completa');
-			const menuOpciones = document.getElementById('menu-opciones');
-			btnTuerca.onclick = function(e) {
-				e.stopPropagation();
-				menuOpciones.style.display = menuOpciones.style.display === 'none' ? 'block' : 'none';
-			};
 			// Menú tuerca izquierdo
 			const btnTuercaIzq = document.getElementById('btn-tuerca-izq');
 			const menuOpcionesIzq = document.getElementById('menu-opciones-izq');
