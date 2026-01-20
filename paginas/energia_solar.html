@@ -36,7 +36,7 @@
 			color: white;
 		}
 		.desconectado {
-			background: #e53935;
+			background: #4caf50;
 			color: white;
 		}
 		.datos {
@@ -74,6 +74,18 @@
 			min-width: auto;
 			font-size: 16px;
 			font-weight: 700;
+		}
+		.valor-principal {
+			color: #fff;
+			font-size: 2em;
+			font-weight: 900;
+			margin-bottom: 2px;
+		}
+		.clave-principal {
+			color: #2196f3;
+			font-size: 1.1em;
+			font-weight: 800;
+			margin-bottom: 2px;
 		}
 		.error {
 			color: #ff9800;
@@ -174,56 +186,75 @@
 		function mostrarDatos(datos) {
 			const estado = document.getElementById('estado');
 			const datosDiv = document.getElementById('datos');
-			
+
 			// WebSocket está conectado si recibimos datos
 			// El campo datos.conectado indica si el Victron responde, no el WebSocket
 			if (datos.conectado === true) {
 				estado.className = 'estado conectado';
 				estado.textContent = '🟢 Victron Conectado';
-				// Guardar datos válidos
 				ultimosDatosValidos = datos;
 			} else {
-				// Victron no responde pero WebSocket sí funciona
-				estado.className = 'estado desconectado';
+				estado.className = 'estado conectado';
 				estado.textContent = '🟡 Esperando datos...';
-				// Usar últimos datos válidos si existen
 				if (ultimosDatosValidos) {
 					datos = ultimosDatosValidos;
 				}
 			}
-			
-			// Mostrar todos los datos
-			let html = '';
-			
-			// Ordenar y mostrar datos
+
+			// Datos principales a mostrar primero
+			const principales = [
+				{ campo: 'porcentaje', etiqueta: 'Batería', sufijo: '%', clase: 'valor-principal', claveClase: 'clave-principal' },
+				{ campo: 'bateria_voltaje', etiqueta: 'Voltaje Bat.', sufijo: 'V', clase: 'valor-principal', claveClase: 'clave-principal' },
+				{ campo: 'potencia', etiqueta: 'Carga Solar', sufijo: 'W', clase: 'valor-principal', claveClase: 'clave-principal' },
+				{ campo: 'bateria_corriente', etiqueta: 'Consumo', sufijo: 'A', clase: 'valor-principal', claveClase: 'clave-principal' }
+			];
+
+			let html = '<div style="grid-column: 1 / -1; display: flex; justify-content: space-between; gap: 10px; margin-bottom: 10px;">';
+			principales.forEach(p => {
+				let valor = datos[p.campo];
+				let valorFormato = '--';
+				if (valor !== undefined && valor !== null && !isNaN(valor)) {
+					if (p.campo === 'porcentaje') {
+						valorFormato = parseFloat(valor).toFixed(0) + p.sufijo;
+					} else if (p.campo === 'bateria_voltaje') {
+						valorFormato = parseFloat(valor).toFixed(2) + p.sufijo;
+					} else if (p.campo === 'potencia') {
+						valorFormato = parseFloat(valor).toFixed(0) + p.sufijo;
+					} else if (p.campo === 'bateria_corriente') {
+						valorFormato = parseFloat(valor).toFixed(2) + p.sufijo;
+					} else {
+						valorFormato = valor.toString();
+					}
+				}
+				html += `<div style="flex:1; text-align:center;">
+					<span class="${p.claveClase}">${p.etiqueta}</span><br>
+					<span class="${p.clase}">${valorFormato}</span>
+				</div>`;
+			});
+			html += '</div>';
+
+			// Resto de los datos
 			const camposOrdenados = [
-				'conectado',
-				'exito',
-				'puerto',
-				'intervalo_frame_s',
-				'error',
-				'',
 				'panel_voltaje',
 				'panel_corriente',
-				'potencia',
-				'',
-				'bateria_voltaje',
-				'bateria_corriente',
-				'porcentaje',
-				'',
-				'estado',
-				'error_code',
-				'',
 				'yield_today',
 				'yield_total',
 				'max_power_today',
 				'yield_ayer',
 				'max_power_ayer',
-				'',
-				'cargando'
+				'bateria_voltaje',
+				'bateria_corriente',
+				'porcentaje',
+				'estado',
+				'error_code',
+				'intervalo_frame_s',
+				'error',
+				'cargando',
+				'conectado',
+				'exito',
+				'puerto'
 			];
-			
-			// Etiquetas en español
+
 			const etiquetas = {
 				'conectado': 'Conectado',
 				'exito': 'Éxito',
@@ -245,17 +276,12 @@
 				'max_power_ayer': 'Máx. Potencia Ayer (W)',
 				'cargando': 'Cargando'
 			};
-			
+
 			camposOrdenados.forEach(campo => {
-				// Saltar líneas en blanco
-				if (campo === '') {
-					return;
-				}
-				
+				// Saltar los que ya están en principales
+				if (principales.some(p => p.campo === campo)) return;
 				const valor = datos[campo];
 				const etiqueta = etiquetas[campo] || campo;
-				
-				// Formatear valor
 				let valorFormato = '';
 				if (valor === undefined || valor === null) {
 					valorFormato = '--';
@@ -278,13 +304,12 @@
 				} else {
 					valorFormato = valor.toString();
 				}
-				
-				html += `<div class="linea">
-					<span class="clave">${etiqueta}:</span>
-					<span class="valor">${valorFormato}</span>
-				</div>`;
+				html += `<div class=\"linea\">
+				<span class=\"clave\">${etiqueta}:</span>
+				<span class=\"valor\">${valorFormato}</span>
+			</div>`;
 			});
-			
+
 			datosDiv.innerHTML = html;
 		}
 		

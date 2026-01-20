@@ -440,11 +440,24 @@ async def procesar_mensaje_ws(ws, datos):
         except Exception:
             pass
     
-    # Control de motores
+
+    # Control de motores desde la página de prueba de algoritmo brushless
+    elif tipo == 'motor' and 'ciclo' in datos:
+        ciclo = int(datos.get('ciclo', 0))
+        # Mueve ambos motores al ciclo indicado
+        exito1, error1 = controlar_motor('adelante', ciclo)
+        estado = f"Motores al {ciclo}% (prueba brushless)"
+        await ws.send_json({
+            'tipo': 'motor_estado',
+            'estado': estado,
+            'exito': exito1,
+            'error': error1
+        })
+
+    # Control de motores normal (mando de control)
     elif tipo == 'motor':
         direccion = datos.get('direccion', 'parar')
         exito, error = controlar_motor(direccion, VELOCIDAD_ACTUAL)
-        
         await ws.send_json({
             'tipo': 'respuesta_motor',
             'direccion': direccion,
@@ -993,6 +1006,10 @@ def crear_app():
     app.router.add_get('/configuracion.html', configuracion_handler)
     app.router.add_get('/mapa_gps.html', mapa_gps_handler)
     app.router.add_get('/energia_solar.html', energia_solar_handler)
+    # Nueva ruta para la página de prueba de motores brushless
+    async def prueba_brushless_handler(request):
+        return web.FileResponse(Path(__file__).parent / 'paginas' / 'prueba_algoritmo_motores_brushless.html')
+    app.router.add_get('/prueba_algoritmo_motores_brushless.html', prueba_brushless_handler)
     app.router.add_get('/api/config', api_config_handler)
     app.router.add_post('/api/config', api_config_handler)
     app.router.add_get('/api/gps/actual', api_gps_actual_handler)

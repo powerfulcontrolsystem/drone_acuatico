@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prueba de algoritmo de motores brushless</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <style>
+        body {
+            background: #181e29;
+            color: #e5e7eb;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            color: #2196f3;
+            margin-bottom: 20px;
+        }
+        .botones {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 30px;
+        }
+        .boton-ciclo {
+            background: #23272b;
+            color: #fff;
+            border: 2px solid #2196f3;
+            border-radius: 6px;
+            padding: 10px 16px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .boton-ciclo:hover {
+            background: #2196f3;
+            color: #fff;
+        }
+        .estado-motor {
+            background: #23272b;
+            color: #4caf50;
+            border-radius: 6px;
+            padding: 12px;
+            font-size: 1.1em;
+            font-weight: 700;
+            margin-bottom: 20px;
+            border: 2px solid #4caf50;
+            box-shadow: 0 2px 8px #4caf5033;
+        }
+        .seccion {
+            margin-bottom: 32px;
+        }
+        .titulo-seccion {
+            color: #ffd600;
+            font-size: 1.1em;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Prueba de algoritmo de motores brushless</h1>
+    <div class="estado-motor" id="estadoMotor">Estado actual: --</div>
+    <div class="seccion">
+        <div class="titulo-seccion">Botones con JavaScript puro</div>
+        <div class="botones" id="botonesJS"></div>
+    </div>
+    <div class="seccion">
+        <div class="titulo-seccion">Botones con p5.js</div>
+        <div class="botones" id="botonesP5"></div>
+    </div>
+    <div class="seccion">
+        <div class="titulo-seccion">Botones con jQuery</div>
+        <div class="botones" id="botonesJQ"></div>
+    </div>
+    <script>
+    // Comunicación con el servidor Python vía WebSocket
+    let ws = null;
+    function conectarWS() {
+        let wsProto = (location.protocol === 'https:') ? 'wss://' : 'ws://';
+        let wsUrl = wsProto + location.hostname + ':8080/ws';
+        ws = new WebSocket(wsUrl);
+        ws.onopen = function() {
+            document.getElementById('estadoMotor').textContent = 'Estado actual: Conectado';
+        };
+        ws.onclose = function() {
+            document.getElementById('estadoMotor').textContent = 'Estado actual: Desconectado';
+        };
+        ws.onerror = function() {
+            document.getElementById('estadoMotor').textContent = 'Estado actual: Error de conexión';
+        };
+        ws.onmessage = function(event) {
+            try {
+                let data = JSON.parse(event.data);
+                if (data.tipo === 'motor_estado') {
+                    document.getElementById('estadoMotor').textContent = 'Estado actual: ' + data.estado;
+                }
+            } catch(e) {}
+        };
+    }
+    conectarWS();
+
+    // Función para enviar ciclo de trabajo
+    function enviarCicloTrabajo(valor, origen) {
+        document.getElementById('estadoMotor').textContent = `Estado actual: Enviando ciclo ${valor}% (${origen})`;
+        if (ws && ws.readyState === 1) {
+            ws.send(JSON.stringify({ tipo: 'motor', ciclo: valor, origen: origen }));
+        }
+    }
+
+    // Crear botones con JavaScript puro
+    const contJS = document.getElementById('botonesJS');
+    for (let i = 10; i <= 100; i += 2) {
+        const btn = document.createElement('button');
+        btn.className = 'boton-ciclo';
+        btn.textContent = i + '%';
+        btn.onclick = function() {
+            enviarCicloTrabajo(i, 'js');
+        };
+        contJS.appendChild(btn);
+    }
+
+    // Crear botones con p5.js
+    function crearBotonesP5() {
+        for (let i = 10; i <= 100; i += 2) {
+            let btn = createButton(i + '%');
+            btn.class('boton-ciclo');
+            btn.parent('botonesP5');
+            btn.mousePressed(() => enviarCicloTrabajo(i, 'p5'));
+        }
+    }
+    window.setup = function() {
+        noCanvas();
+        crearBotonesP5();
+    };
+
+    // Crear botones con jQuery
+    $(function() {
+        for (let i = 10; i <= 100; i += 2) {
+            let $btn = $('<button></button>')
+                .addClass('boton-ciclo')
+                .text(i + '%')
+                .on('click', function() {
+                    enviarCicloTrabajo(i, 'jq');
+                });
+            $('#botonesJQ').append($btn);
+        }
+    });
+    </script>
+</body>
+</html>
