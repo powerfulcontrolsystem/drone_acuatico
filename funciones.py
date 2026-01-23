@@ -1,3 +1,29 @@
+# ==================== INDICADOR BRÚJULA ====================
+def obtener_datos_brujula():
+    """
+    Devuelve un diccionario con el azimuth de la brújula QMC5883L.
+    Returns:
+        dict: {'valido': True/False, 'azimuth': float|None}
+    """
+    azimuth = get_azimuth_brujula()
+    if azimuth is not None:
+        return {'valido': True, 'azimuth': azimuth}
+    else:
+        return {'valido': False, 'azimuth': None}
+# ==================== BRÚJULA QMC5883L ====================
+def get_azimuth_brujula():
+    """
+    Devuelve el azimuth de la brújula QMC5883L.
+    Returns:
+        float: Azimuth en grados (0-360)
+    """
+    try:
+        from qmc5883l import QMC5883L
+        brujula = QMC5883L()
+        return brujula.get_azimuth()
+    except Exception as e:
+        logger.error(f"Error leyendo brújula: {e}")
+        return None
 #!/usr/bin/env python3
 """
 FUNCIONES DEL DRONE ACUÁTICO

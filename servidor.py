@@ -15,6 +15,7 @@ from aiohttp import WSMsgType, web
 
 # Importar todas las funciones del módulo funciones
 from funciones import (
+    obtener_datos_brujula,
     matar_procesos_servidor_previos,
     inicializar_gpio,
     controlar_rele,

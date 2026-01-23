@@ -8,12 +8,9 @@
 	<style>
 		/* Brújula flotante */
 		#brujula-flotante {
-			position: fixed;
-			top: 18px;
-			right: 18px;
+			position: static;
 			width: 90px;
 			height: 90px;
-			z-index: 2000;
 			background: rgba(34, 40, 49, 0.92);
 			border-radius: 50%;
 			box-shadow: 0 2px 12px #0008;
@@ -22,6 +19,7 @@
 			justify-content: center;
 			border: 2.5px solid #2196f3;
 			pointer-events: none;
+			margin-right: 10px;
 		}
 		   .fila-superior {
 			display: grid;
@@ -485,10 +483,6 @@
 	<script src="/static/leaflet_loader.js"></script>
 </head>
 <body>
-	<!-- Brújula flotante -->
-	<div id="brujula-flotante">
-		<canvas id="canvas-brujula" width="70" height="70" style="display:block;"></canvas>
-	</div>
 
 	<script>
 	// Dibuja la brújula en el canvas según el ángulo recibido
@@ -532,19 +526,25 @@
 		ctx.restore();
 	}
 
-	async function actualizarBrujula() {
-		try {
-			const resp = await fetch('/api/brujula');
-			const data = await resp.json();
-			if (data.ok && typeof data.azimuth === 'number') {
-				dibujarBrujula(data.azimuth);
-			}
-		} catch (e) {
-			// Si hay error, no dibujar
-		}
-		setTimeout(actualizarBrujula, 1200);
+	// WebSocket para recibir datos de la brújula
+	let ws_brujula = null;
+	function conectarWebSocketBrujula() {
+		let wsProto = (location.protocol === 'https:') ? 'wss://' : 'ws://';
+		let wsUrl = wsProto + location.host.replace(/:[0-9]+$/, ':8080') + '/ws';
+		ws_brujula = new WebSocket(wsUrl);
+		ws_brujula.onmessage = function(event) {
+			try {
+				const msg = JSON.parse(event.data);
+				if (msg.tipo === 'brujula' && msg.datos && msg.datos.valido && typeof msg.datos.azimuth === 'number') {
+					dibujarBrujula(msg.datos.azimuth);
+				}
+			} catch (e) {}
+		};
+		ws_brujula.onclose = function() {
+			setTimeout(conectarWebSocketBrujula, 2000);
+		};
 	}
-	actualizarBrujula();
+	conectarWebSocketBrujula();
 	</script>
 		<!-- Indicador de grabación en vivo -->
 		<div id="grabando-indicador" class="grabando-indicador">
@@ -570,6 +570,9 @@
 				<button class="btn-menu" onclick="abrirRouter()">📡 Router 4G/5G</button>
 				<button class="btn-menu" onclick="if(confirm('¿Reiniciar el sistema?')) fetch('/api/reiniciar', {method:'POST'}).then(()=>window.location.reload())">🔄 Reiniciar</button>
 				<button class="btn-menu" onclick="if(confirm('¿Apagar el sistema?')) fetch('/api/apagar', {method:'POST'})">⏻ Apagar</button>
+			</div>
+			<div id="brujula-flotante">
+				<canvas id="canvas-brujula" width="70" height="70" style="display:block;"></canvas>
 			</div>
 			<button id="btn-tuerca-izq" class="btn-menu" type="button" aria-label="Menú de opciones izquierdo" style="width: 44px; height: 44px; padding: 0; display: flex; align-items: center; justify-content: center;">
 				<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2196f3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.09a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.09a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.09a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>

@@ -83,8 +83,23 @@ Este sistema combina energía renovable, sensores avanzados y control remoto par
 
 ---
 
+
 ### SENSOR TF-LUNA Y BRÚJULA (I2C)
 Ambos sensores comparten el bus I2C.
+
+#### Brújula electrónica QMC5883L (GY-271)
+- Dirección I2C detectada: **0x2C**
+- Conexión:
+  - SDA: GPIO 2 (Pin 3)
+  - SCL: GPIO 3 (Pin 5)
+- Alimentación: 3.3V o 5V según módulo
+- El sensor fue probado y entrega datos reales de azimut en tiempo real.
+- Ejemplo de lectura en Python:
+```python
+from qmc5883l import QMC5883L
+sensor = QMC5883L()
+print(sensor.get_azimuth())
+```
 
 | GPIO | TF-Luna | Brújula |
 |-----|---------|---------|
