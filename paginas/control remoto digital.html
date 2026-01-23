@@ -6,6 +6,23 @@
 	<title>Control Remoto Digital</title>
 	<link rel="stylesheet" href="/static/tema_universal.css">
 	<style>
+		/* Brújula flotante */
+		#brujula-flotante {
+			position: fixed;
+			top: 18px;
+			right: 18px;
+			width: 90px;
+			height: 90px;
+			z-index: 2000;
+			background: rgba(34, 40, 49, 0.92);
+			border-radius: 50%;
+			box-shadow: 0 2px 12px #0008;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			border: 2.5px solid #2196f3;
+			pointer-events: none;
+		}
 		   .fila-superior {
 			display: grid;
 			grid-template-columns: repeat(3, 1fr);
@@ -468,6 +485,67 @@
 	<script src="/static/leaflet_loader.js"></script>
 </head>
 <body>
+	<!-- Brújula flotante -->
+	<div id="brujula-flotante">
+		<canvas id="canvas-brujula" width="70" height="70" style="display:block;"></canvas>
+	</div>
+
+	<script>
+	// Dibuja la brújula en el canvas según el ángulo recibido
+	function dibujarBrujula(azimuth) {
+		const canvas = document.getElementById('canvas-brujula');
+		if (!canvas) return;
+		const ctx = canvas.getContext('2d');
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		// Círculo exterior
+		ctx.save();
+		ctx.beginPath();
+		ctx.arc(35, 35, 32, 0, 2 * Math.PI);
+		ctx.strokeStyle = '#2196f3';
+		ctx.lineWidth = 3;
+		ctx.stroke();
+		ctx.restore();
+		// Aguja
+		ctx.save();
+		ctx.translate(35, 35);
+		ctx.rotate((azimuth - 90) * Math.PI / 180);
+		ctx.beginPath();
+		ctx.moveTo(0, 0);
+		ctx.lineTo(28, 0);
+		ctx.strokeStyle = '#e53935';
+		ctx.lineWidth = 4;
+		ctx.stroke();
+		ctx.restore();
+		// Norte
+		ctx.save();
+		ctx.font = 'bold 13px Arial';
+		ctx.fillStyle = '#fff';
+		ctx.textAlign = 'center';
+		ctx.fillText('N', 35, 15);
+		ctx.restore();
+		// Valor numérico
+		ctx.save();
+		ctx.font = '11px Arial';
+		ctx.fillStyle = '#6ec1e4';
+		ctx.textAlign = 'center';
+		ctx.fillText(Math.round(azimuth) + '°', 35, 65);
+		ctx.restore();
+	}
+
+	async function actualizarBrujula() {
+		try {
+			const resp = await fetch('/api/brujula');
+			const data = await resp.json();
+			if (data.ok && typeof data.azimuth === 'number') {
+				dibujarBrujula(data.azimuth);
+			}
+		} catch (e) {
+			// Si hay error, no dibujar
+		}
+		setTimeout(actualizarBrujula, 1200);
+	}
+	actualizarBrujula();
+	</script>
 		<!-- Indicador de grabación en vivo -->
 		<div id="grabando-indicador" class="grabando-indicador">
 			<div class="grabando-punto"></div>
@@ -675,8 +753,8 @@
 		</div>
 	<div class="cuadro-inferior">
 		<div style="width:100%; display:flex; justify-content:center; align-items:stretch;">
-			<div class="cuadro-externo-inferior control-botones" style="background:#1a1f28; border:2px solid #2d3748; border-radius:8px; box-shadow:0 2px 12px rgba(0,0,0,0.4); padding:0px; display:flex; justify-content:center; align-items:center;">
-					<div class="fila-inferior" style="display:flex; justify-content:center; gap:8px;">
+			<div class="cuadro-externo-inferior control-botones" style="background:#1a1f28; border:2px solid #2d3748; border-radius:8px; box-shadow:0 2px 12px rgba(0,0,0,0.4); padding:0px; display:flex; justify-content:center; align-items:center; min-width:1100px;">
+				<div class="fila-inferior" style="display:flex; justify-content:center; gap:8px;">
 						<!-- Contenedor de la Cruz en recuadro -->
 						<div style="margin:0; padding:8px 8px 12px 8px; width:auto; box-sizing:border-box; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; border:2px solid #2196f3; border-radius:12px; background:#181e29; box-shadow:0 2px 8px #2196f355;">
 							<div style="font-size:0.95em; font-weight:700; color:#6ec1e4; margin:0; padding:0; text-align:center; line-height:1; margin-bottom:2px;">Mando</div>

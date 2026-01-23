@@ -1,0 +1,13 @@
+[Unit]
+Description=API Brújula QMC5883L
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/admin/drone_acuatico/paginas
+ExecStart=/usr/bin/python3 /home/admin/drone_acuatico/paginas/brujula_api.py
+Restart=always
+User=admin
+
+[Install]
+WantedBy=multi-user.target
