@@ -223,7 +223,13 @@ async def enviar_datos_periodicos():
             mensaje_solar = {'tipo': 'solar', 'datos': solar}
             mensaje_wifi = {'tipo': 'wifi', 'datos': wifi}
             mensaje_voltaje = {'tipo': 'voltaje', 'datos': voltaje}
-            
+            # Brújula: obtener datos reales
+            try:
+                datos_brujula = obtener_datos_brujula()
+            except Exception as e:
+                datos_brujula = {'valido': False, 'azimuth': None}
+            mensaje_brujula = {'tipo': 'brujula', 'datos': datos_brujula}
+
             # Enviar a todos los clientes (mismo dato a todos = eficiente)
             desconectados = []
             for cliente in list(CLIENTES_WS):
@@ -240,10 +246,12 @@ async def enviar_datos_periodicos():
                     await cliente.send_json(mensaje_voltaje)
                     # Enviar GPS siempre (con bandera de válido)
                     await cliente.send_json({'tipo': 'gps', 'datos': gps})
+                    # Enviar brújula real
+                    await cliente.send_json(mensaje_brujula)
                 except Exception as e:
                     logger.debug(f"Error enviando datos a cliente: {e}")
                     desconectados.append(cliente)
-            
+
             # Limpiar clientes desconectados
             for cliente in desconectados:
                 CLIENTES_WS.discard(cliente)
