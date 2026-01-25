@@ -6,6 +6,45 @@
 	<title>Control Remoto Digital</title>
 	<link rel="stylesheet" href="/static/tema_universal.css">
 	<style>
+	/* Overlay de carga */
+	#loading-overlay {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100vw;
+		height: 100vh;
+		background: rgba(15, 18, 24, 0.95);
+		z-index: 99999;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		flex-direction: column;
+		font-family: 'Segoe UI', Arial, sans-serif;
+		transition: opacity 0.4s;
+	}
+	#loading-overlay span {
+		color: #2196f3;
+		font-size: 2.2em;
+		font-weight: bold;
+		letter-spacing: 0.1em;
+		margin-bottom: 18px;
+		text-shadow: 0 2px 8px #000a;
+	}
+	#loading-spinner {
+		border: 6px solid #222c37;
+		border-top: 6px solid #2196f3;
+		border-radius: 50%;
+		width: 48px;
+		height: 48px;
+		animation: spin 1s linear infinite;
+		margin-bottom: 8px;
+	}
+	@keyframes spin {
+		0% { transform: rotate(0deg); }
+		100% { transform: rotate(360deg); }
+	}
+	</style>
+	<style>
 		/* Brújula flotante */
 		#brujula-flotante {
 			position: static;
@@ -484,7 +523,76 @@
 </head>
 <body>
 
+	<!-- Overlay de carga -->
+	<div id="loading-overlay">
+		<div id="loading-spinner"></div>
+		<span>Cargando...</span>
+	</div>
+
 	<script>
+// Mejor control del overlay de carga: esperar videos, mapa y botones
+(function() {
+	let recursosCargados = {
+		video1: false,
+		video2: false,
+		mapa: false,
+		reles: false
+	};
+
+	function ocultarOverlaySiListo() {
+		if (recursosCargados.video1 && recursosCargados.video2 && recursosCargados.mapa && recursosCargados.reles) {
+			const overlay = document.getElementById('loading-overlay');
+			if (overlay) {
+				overlay.style.opacity = '0';
+				setTimeout(() => overlay.style.display = 'none', 400);
+			}
+		}
+	}
+
+	// Esperar a que los videos estén listos (al menos metadata)
+	function esperarVideo(id, key) {
+		const v = document.getElementById(id);
+		if (!v) { recursosCargados[key] = true; ocultarOverlaySiListo(); return; }
+		v.addEventListener('loadedmetadata', function() {
+			recursosCargados[key] = true;
+			ocultarOverlaySiListo();
+		});
+		// Si no se carga en 5s, continuar
+		setTimeout(() => { recursosCargados[key] = true; ocultarOverlaySiListo(); }, 5000);
+	}
+
+	// Esperar a que el mapa esté inicializado
+	window.mostrarMapaGPS = (function(orig) {
+		return function(lat, lon, activo) {
+			if (typeof orig === 'function') orig(lat, lon, activo);
+			recursosCargados.mapa = true;
+			ocultarOverlaySiListo();
+		};
+	})(window.mostrarMapaGPS);
+
+	// Esperar a que los botones de relé estén renderizados
+	window.renderReles = (function(orig) {
+		return function(reles) {
+			if (typeof orig === 'function') orig(reles);
+			recursosCargados.reles = true;
+			ocultarOverlaySiListo();
+		};
+	})(window.renderReles);
+
+	// Iniciar espera cuando DOM esté listo
+	document.addEventListener('DOMContentLoaded', function() {
+		esperarVideo('videoCam1', 'video1');
+		esperarVideo('videoCam2', 'video2');
+		// Si en 30s no se cargó todo, quitar overlay igual
+		setTimeout(() => {
+			recursosCargados.video1 = true;
+			recursosCargados.video2 = true;
+			recursosCargados.mapa = true;
+			recursosCargados.reles = true;
+			ocultarOverlaySiListo();
+		}, 30000);
+	});
+})();
 	// Dibuja la brújula en el canvas según el ángulo recibido
 	function dibujarBrujula(azimuth) {
 		const canvas = document.getElementById('canvas-brujula');
