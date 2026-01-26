@@ -583,14 +583,14 @@
 	document.addEventListener('DOMContentLoaded', function() {
 		esperarVideo('videoCam1', 'video1');
 		esperarVideo('videoCam2', 'video2');
-		// Si en 30s no se cargó todo, quitar overlay igual
+		// Si en 10s no se cargó todo, quitar overlay igual
 		setTimeout(() => {
 			recursosCargados.video1 = true;
 			recursosCargados.video2 = true;
 			recursosCargados.mapa = true;
 			recursosCargados.reles = true;
 			ocultarOverlaySiListo();
-		}, 30000);
+		}, 10000);
 	});
 })();
 	// Dibuja la brújula en el canvas según el ángulo recibido
