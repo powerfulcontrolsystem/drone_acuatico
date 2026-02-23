@@ -226,10 +226,22 @@
 						valorFormato = valor.toString();
 					}
 				}
-				html += `<div style="flex:1; text-align:center;">
-					<span class="${p.claveClase}">${p.etiqueta}</span><br>
-					<span class="${p.clase}">${valorFormato}</span>
-				</div>`;
+			html += `<div style="flex:1; text-align:center; position:relative;">
+				<span class="${p.claveClase}">${p.etiqueta}</span><br>
+				<span class="${p.clase}" style="display:inline-flex; align-items:center; gap:6px;">
+					${valorFormato}
+					${(p.campo === 'porcentaje' && datos.cargando) ? `
+					<span class="rayo-animado" style="display:inline-block; width:28px; height:28px; vertical-align:middle;">
+						<svg viewBox="0 0 32 32" width="28" height="28" fill="none" xmlns="http://www.w3.org/2000/svg">
+							<g>
+								<polyline points="16,3 8,18 15,18 12,29 25,12 17,12 20,3" stroke="#ffe600" stroke-width="3" fill="#ffe600"/>
+							</g>
+							<animateTransform attributeName="transform" type="scale" values="1;1.2;1;1.1;1" keyTimes="0;0.2;0.5;0.7;1" dur="0.8s" repeatCount="indefinite"/>
+						</svg>
+					</span>
+					` : ''}
+				</span>
+			</div>`;
 			});
 			html += '</div>';
 

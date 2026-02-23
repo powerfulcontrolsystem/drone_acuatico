@@ -20,7 +20,7 @@ ssh admin@192.168.1.14 "cd /home/admin/drone_acuatico && ./subir_cambios_a_repos
 
 ## �🔧 Configuración de Acceso Remoto
 ### Información de Conexión
-- **Host:** 192.168.1.14
+- **Host:** 192.168.1.21
 - **Usuario:** admin
 - **Contraseña:** admin
 - **Directorio del proyecto:** /home/admin/drone_acuatico
