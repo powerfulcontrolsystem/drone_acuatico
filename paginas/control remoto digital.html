@@ -5,45 +5,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Control Remoto Digital</title>
 	<link rel="stylesheet" href="/static/tema_universal.css">
-	<style>
-	/* Overlay de carga */
-	#loading-overlay {
-		position: fixed;
-		top: 0;
-		left: 0;
-		width: 100vw;
-		height: 100vh;
-		background: rgba(15, 18, 24, 0.95);
-		z-index: 99999;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		flex-direction: column;
-		font-family: 'Segoe UI', Arial, sans-serif;
-		transition: opacity 0.4s;
-	}
-	#loading-overlay span {
-		color: #2196f3;
-		font-size: 2.2em;
-		font-weight: bold;
-		letter-spacing: 0.1em;
-		margin-bottom: 18px;
-		text-shadow: 0 2px 8px #000a;
-	}
-	#loading-spinner {
-		border: 6px solid #222c37;
-		border-top: 6px solid #2196f3;
-		border-radius: 50%;
-		width: 48px;
-		height: 48px;
-		animation: spin 1s linear infinite;
-		margin-bottom: 8px;
-	}
-	@keyframes spin {
-		0% { transform: rotate(0deg); }
-		100% { transform: rotate(360deg); }
-	}
-	</style>
+    <!-- Overlay de carga eliminado -->
 	<style>
 		/* Brújula flotante */
 		#brujula-flotante {
@@ -456,15 +418,18 @@
 			margin: 0;
 			padding: 0;
 			height: 100vh;
-			overflow: hidden;
+			overflow-x: hidden;
+			overflow-y: auto;
 			display: flex;
 			flex-direction: column;
 			background: #0f1218 !important;
 			color: #e5e7eb !important;
 		}
 		.cuadro-superior-wrapper {
-		flex: 1 1 auto;
+		flex: 1 1 0px;
 		min-height: 0;
+		max-height: 65vh;
+		overflow: hidden;
 			display: flex;
 			align-items: stretch;
 			justify-content: center;
@@ -494,7 +459,7 @@
 			border-radius: 8px;
 		}
 		.cuadro-inferior {
-		flex: 0 0 auto;
+		flex: 0 1 auto;
 			display: flex;
 			align-items: stretch;
 			justify-content: center;
@@ -523,76 +488,10 @@
 </head>
 <body>
 
-	<!-- Overlay de carga -->
-	<div id="loading-overlay">
-		<div id="loading-spinner"></div>
-		<span>Cargando...</span>
-	</div>
+    <!-- Overlay de carga eliminado -->
 
 	<script>
-// Mejor control del overlay de carga: esperar videos, mapa y botones
-(function() {
-	let recursosCargados = {
-		video1: false,
-		video2: false,
-		mapa: false,
-		reles: false
-	};
-
-	function ocultarOverlaySiListo() {
-		if (recursosCargados.video1 && recursosCargados.video2 && recursosCargados.mapa && recursosCargados.reles) {
-			const overlay = document.getElementById('loading-overlay');
-			if (overlay) {
-				overlay.style.opacity = '0';
-				setTimeout(() => overlay.style.display = 'none', 400);
-			}
-		}
-	}
-
-	// Esperar a que los videos estén listos (al menos metadata)
-	function esperarVideo(id, key) {
-		const v = document.getElementById(id);
-		if (!v) { recursosCargados[key] = true; ocultarOverlaySiListo(); return; }
-		v.addEventListener('loadedmetadata', function() {
-			recursosCargados[key] = true;
-			ocultarOverlaySiListo();
-		});
-		// Si no se carga en 5s, continuar
-		setTimeout(() => { recursosCargados[key] = true; ocultarOverlaySiListo(); }, 5000);
-	}
-
-	// Esperar a que el mapa esté inicializado
-	window.mostrarMapaGPS = (function(orig) {
-		return function(lat, lon, activo) {
-			if (typeof orig === 'function') orig(lat, lon, activo);
-			recursosCargados.mapa = true;
-			ocultarOverlaySiListo();
-		};
-	})(window.mostrarMapaGPS);
-
-	// Esperar a que los botones de relé estén renderizados
-	window.renderReles = (function(orig) {
-		return function(reles) {
-			if (typeof orig === 'function') orig(reles);
-			recursosCargados.reles = true;
-			ocultarOverlaySiListo();
-		};
-	})(window.renderReles);
-
-	// Iniciar espera cuando DOM esté listo
-	document.addEventListener('DOMContentLoaded', function() {
-		esperarVideo('videoCam1', 'video1');
-		esperarVideo('videoCam2', 'video2');
-		// Si en 10s no se cargó todo, quitar overlay igual
-		setTimeout(() => {
-			recursosCargados.video1 = true;
-			recursosCargados.video2 = true;
-			recursosCargados.mapa = true;
-			recursosCargados.reles = true;
-			ocultarOverlaySiListo();
-		}, 10000);
-	});
-})();
+// Overlay de carga eliminado
 	// Dibuja la brújula en el canvas según el ángulo recibido
 	function dibujarBrujula(azimuth) {
 		const canvas = document.getElementById('canvas-brujula');
@@ -634,25 +533,11 @@
 		ctx.restore();
 	}
 
-	// WebSocket para recibir datos de la brújula
-	let ws_brujula = null;
-	function conectarWebSocketBrujula() {
-		let wsProto = (location.protocol === 'https:') ? 'wss://' : 'ws://';
-		let wsUrl = wsProto + location.host.replace(/:[0-9]+$/, ':8080') + '/ws';
-		ws_brujula = new WebSocket(wsUrl);
-		ws_brujula.onmessage = function(event) {
-			try {
-				const msg = JSON.parse(event.data);
-				if (msg.tipo === 'brujula' && msg.datos && msg.datos.valido && typeof msg.datos.azimuth === 'number') {
-					dibujarBrujula(msg.datos.azimuth);
-				}
-			} catch (e) {}
-		};
-		ws_brujula.onclose = function() {
-			setTimeout(conectarWebSocketBrujula, 2000);
-		};
-	}
-	conectarWebSocketBrujula();
+	// La brújula se actualiza desde el WebSocket principal (ver handler 'brujula' en conectarWS)
+	// Dibujar brújula inicial (posición por defecto)
+	window.addEventListener('DOMContentLoaded', function() {
+		setTimeout(function() { dibujarBrujula(0); }, 200);
+	});
 	</script>
 		<!-- Indicador de grabación en vivo -->
 		<div id="grabando-indicador" class="grabando-indicador">
@@ -675,6 +560,7 @@
 				<button class="btn-menu" onclick="window.location.href='configuracion.html'">⚙️ Configuración</button>
 				<button class="btn-menu" onclick="window.location.href='prueba_algoritmo_motores_brushless.html'">🛠️ Prueba motores brushless</button>
 				<button class="btn-menu" onclick="window.location.href='ayuda.html'">❓ Ayuda</button>
+				<button class="btn-menu" onclick="pruebaRapida()">🧪 Prueba rápida</button>
 				<button class="btn-menu" onclick="abrirRouter()">📡 Router 4G/5G</button>
 				<button class="btn-menu" onclick="if(confirm('¿Reiniciar el sistema?')) fetch('/api/reiniciar', {method:'POST'}).then(()=>window.location.reload())">🔄 Reiniciar</button>
 				<button class="btn-menu" onclick="if(confirm('¿Apagar el sistema?')) fetch('/api/apagar', {method:'POST'})">⏻ Apagar</button>
@@ -696,8 +582,7 @@
 				menuOpcionesIzq.style.display = menuOpcionesIzq.style.display === 'none' ? 'block' : 'none';
 			};
 			document.addEventListener('click', function(e) {
-				if (menuOpciones.style.display === 'block') menuOpciones.style.display = 'none';
-				if (menuOpcionesIzq.style.display === 'block') menuOpcionesIzq.style.display = 'none';
+				if (menuOpcionesIzq && menuOpcionesIzq.style.display === 'block') menuOpcionesIzq.style.display = 'none';
 			});
 
 			// Botón pantalla completa
@@ -753,9 +638,40 @@
 			}
 		</script>
 		<script>
-			// El mapa se inicializará automáticamente cuando lleguen datos GPS del WebSocket
-			// No inicializar con coordenadas (0,0) para evitar conflictos
-			console.log('Esperando datos GPS para inicializar el mapa...');
+			// Inicializar mapa con la posición GPS actual o la última posición guardada
+			async function inicializarMapaInicial() {
+				try {
+					const res = await fetch('/api/gps/actual');
+					if (res.ok) {
+						const data = await res.json();
+						if (data.exito && data.datos && data.datos.latitud && data.datos.longitud) {
+							mostrarMapaGPS(Number(data.datos.latitud), Number(data.datos.longitud), true);
+							return;
+						}
+					}
+				} catch(e) {
+					console.log('No se pudo obtener GPS actual:', e);
+				}
+				// Si no hay GPS en vivo, intentar cargar última ubicación guardada
+				try {
+					const res = await fetch('/api/ubicaciones');
+					if (res.ok) {
+						const data = await res.json();
+						if (data.exito && data.ubicaciones && data.ubicaciones.length > 0) {
+							const ultima = data.ubicaciones[data.ubicaciones.length - 1];
+							mostrarMapaGPS(Number(ultima.latitud), Number(ultima.longitud), false);
+							return;
+						}
+					}
+				} catch(e) {}
+				// Posición por defecto
+				mostrarMapaGPS(0, 0, false);
+			}
+			if (document.readyState === 'loading') {
+				document.addEventListener('DOMContentLoaded', function() { setTimeout(inicializarMapaInicial, 500); });
+			} else {
+				setTimeout(inicializarMapaInicial, 500);
+			}
 		</script>
 		<div class="cuadro-superior-wrapper">
 			<div class="cuadro-externo-superior" style="background:#1a1f28; border:2px solid #2d3748; border-radius:8px; box-shadow:0 2px 12px rgba(0,0,0,0.4); padding:0px; display:flex; justify-content:stretch; align-items:stretch; width:100%; margin:0 auto; box-sizing:border-box;">
@@ -937,6 +853,8 @@
 							</script>
 							<!-- Botón Guardar ubicación debajo de la cruz -->
 							<button id="gps-guardar" class="btn" style="margin-top:10px; width:120px; background:#2196f3; color:#fff; font-weight:600; border-radius:6px; border:none; box-shadow:0 2px 6px #2196f355; font-size:1em; padding:6px 0; cursor:pointer;">Guardar ubicación</button>
+							<button id="gps-destino" style="display:none;"></button>
+							<input type="hidden" id="gps-nombre" value="">
 						</div>
 					<!-- Panel de Velocidad -->
 					<div class="panel-bajo" style="margin:0; display:flex; flex-direction:column; justify-content:flex-start; align-items:center; min-width:70px; max-width:90px; width:75px; padding:0; box-sizing:border-box;">
@@ -956,7 +874,7 @@
 						</div>
 						<div class="panel-bajo" style="margin-left:0;margin-right:0; margin-top:0; padding-left:4px; padding-right:4px; width:100%; box-sizing:border-box;">
 							<div style="font-size:0.85em; font-weight:600; color:#6ec1e4; margin-bottom:2px; text-align:center; width:100%;">Indicadores</div>
-							<table class="tabla-indicadores" style="width:100%; max-width:1000px; margin:0 auto; border-collapse:collapse; background:#23272b; border-radius:6px; box-shadow:0 1px 6px #0001; color:#f2f2f2; table-layout:fixed; font-family:'Bernard MT Condensed','Bernard MT','Segoe UI',sans-serif; font-size:13px;">
+							<table class="tabla-indicadores indicadores-tabla" style="width:100%; max-width:1000px; margin:0 auto; border-collapse:collapse; background:#23272b; border-radius:6px; box-shadow:0 1px 6px #0001; color:#f2f2f2; table-layout:fixed; font-family:'Bernard MT Condensed','Bernard MT','Segoe UI',sans-serif; font-size:13px;">
 								<colgroup>
 									<col style="width:33.33%">
 									<col style="width:33.33%">
@@ -1007,8 +925,6 @@
 												<span style="font-size:13px; font-weight:600; font-family:'Bernard MT Condensed','Bernard MT','Segoe UI',sans-serif;">WiFi: <span id="wifi-strength">--</span>%</span>
 											</div>
 										</td>
-										<td style="border:1px solid #e0e0e0; padding:2px 3px; text-align:center; background:#23272b; color:#f2f2f2; font-size:13px; font-family:'Bernard MT Condensed','Bernard MT','Segoe UI',sans-serif;">
-										</td>
 									</tr>
 									<tr>
 										<td style="border:1px solid #cfd8dc; padding:2px 3px; text-align:center; font-size:13px; font-family:'Bernard MT Condensed','Bernard MT','Segoe UI',sans-serif;">
@@ -1020,6 +936,8 @@
 											Peso: <span id="peso-valor">--</span>
 										</td>
 										<td style="border:1px solid #cfd8dc; padding:2px 3px; text-align:center; font-size:13px; font-family:'Bernard MT Condensed','Bernard MT','Segoe UI',sans-serif;">
+											<svg width="12" height="12" viewBox="0 0 16 16" style="vertical-align:middle;"><polygon points="8,2 14,14 2,14" fill="#26c6da"/></svg>
+											Vel: <span id="vel-valor">--</span>
 										</td>
 									</tr>
 									<tr>
@@ -1051,12 +969,20 @@
 								</tbody>
 							</table>
 						</div>
-					</div>
 				</div>
 			</div>
 			</div>
 		</div>
-	    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+	    <script>
+	    // Cargar HLS.js de forma asíncrona para no bloquear la página
+	    (function() {
+	        var s = document.createElement('script');
+	        s.src = 'https://cdn.jsdelivr.net/npm/hls.js@latest';
+	        s.async = true;
+	        s.onerror = function() { console.warn('No se pudo cargar HLS.js desde CDN'); };
+	        document.head.appendChild(s);
+	    })();
+	    </script>
 	    <script>
 		    // Cámara 1 y 2
 
@@ -1073,6 +999,9 @@
 		let ultimoBatPct = null;
 		let ultimoBatVolt = null;
 		let ultimoBatCargando = null;
+		let velocidadActual = 50;
+		let recorridoGrabando = false;
+		let pollingIndicadores = null;
 				
 
 		// Función para calcular distancia entre dos puntos GPS (Haversine formula)
@@ -1139,15 +1068,28 @@
 			const iconSpan = document.getElementById('icon' + btnId.charAt(0).toUpperCase() + btnId.slice(1));
 			const floatIconId = 'iconPlay' + camKey.charAt(0).toUpperCase() + camKey.slice(1) + 'Float';
 			const floatIcon = document.getElementById(floatIconId);
+			const indice = camKey === 'cam1' ? 1 : 2;
 			
 			if (!playing[camKey]) {
-				iniciarCamara(videoId, playlist, camKey);
+				// Enviar comando al servidor para iniciar HLS si no está corriendo
+				if (window.ws && window.ws.readyState === 1) {
+					window.ws.send(JSON.stringify({ tipo: 'camara', indice: indice, accion: 'iniciar' }));
+				}
+				// Dar tiempo al servidor para iniciar el stream, luego cargar playlist
+				setTimeout(() => {
+					iniciarCamara(videoId, playlist, camKey);
+				}, 800);
 				// Cambia a icono de Stop
 				const stopSvg = '<svg width="100%" height="100%" viewBox="0 0 22 22" fill="#e53935" style="display:block;"><rect x="6" y="6" width="10" height="10" rx="2"/></svg>';
 				iconSpan.innerHTML = stopSvg;
 				if (floatIcon) floatIcon.outerHTML = '<svg id="' + floatIconId + '" width="22" height="22" viewBox="0 0 22 22" fill="#e53935" style="display:block;"><rect x="6" y="6" width="10" height="10" rx="2"/></svg>';
+				playing[camKey] = true;
 			} else {
 				detenerCamara(videoId, camKey);
+				// Enviar comando al servidor para detener HLS
+				if (window.ws && window.ws.readyState === 1) {
+					window.ws.send(JSON.stringify({ tipo: 'camara', indice: indice, accion: 'detener' }));
+				}
 				// Cambia a icono de Play
 				const playSvg = '<svg width="100%" height="100%" viewBox="0 0 22 22" fill="#2196f3" style="display:block;"><polygon points="6,4 18,11 6,18"/></svg>';
 				iconSpan.innerHTML = playSvg;
@@ -1293,6 +1235,40 @@
 			// WebSocket para indicadores y relés
 			let ws;
 			let conectado = false;
+			let reconexionProgramada = null;
+			let intentosReconexion = 0;
+			let colaMensajesWS = [];
+			let ultimoEstadoConexion = null;
+
+			function construirWSUrl() {
+				if (window.WS_URL && typeof window.WS_URL === 'string') {
+					return window.WS_URL;
+				}
+				const wsProto = (location.protocol === 'https:') ? 'wss://' : 'ws://';
+				return wsProto + location.host + '/ws';
+			}
+
+			function enviarMensajeWS(payload) {
+				const mensaje = (typeof payload === 'string') ? payload : JSON.stringify(payload);
+				if (window.ws && window.ws.readyState === 1) {
+					window.ws.send(mensaje);
+					return true;
+				}
+				colaMensajesWS.push(mensaje);
+				if (!window.ws || (window.ws.readyState !== 0 && window.ws.readyState !== 1)) {
+					conectarWS();
+				}
+				return false;
+			}
+
+			function vaciarColaWS() {
+				if (!(window.ws && window.ws.readyState === 1)) return;
+				while (colaMensajesWS.length > 0) {
+					const msg = colaMensajesWS.shift();
+					window.ws.send(msg);
+				}
+			}
+
 			function beep(frec, dur, vol=0.2) {
 				try {
 					const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -1306,173 +1282,220 @@
 					setTimeout(()=>{o.stop();ctx.close();}, dur);
 				} catch(e) {}
 			}
-			function setConexion(estado) {
-				const icon = document.querySelector('#indicador-conexion svg circle');
+			function setConexion(estado, textoPersonalizado, reconectando) {
+				const svg = document.getElementById('svg-osciloscopio');
 				const texto = document.getElementById('texto-conexion');
-				   if (estado) {
-					   icon.setAttribute('fill', '#43a047');
-					   texto.textContent = 'Conectado';
-					   texto.style.color = '#43a047';
-					   beep(880, 120, 0.18); // Sonido de conexión
-				   } else {
-					   icon.setAttribute('fill', '#e53935');
-					   texto.textContent = 'Desconectado';
-					   texto.style.color = '#e53935';
-					   beep(220, 220, 0.18); // Sonido de desconexión
-				   }
+				const enReconexion = !!reconectando;
+				const color = estado ? '#43a047' : (enReconexion ? '#f9a825' : '#e53935');
+				if (svg) {
+					svg.querySelectorAll('rect, line, polyline').forEach(function(el) {
+						el.setAttribute('stroke', color);
+					});
+				}
+				if (texto) {
+					if (estado) {
+						texto.textContent = 'Conectado';
+					} else if (textoPersonalizado) {
+						texto.textContent = textoPersonalizado;
+					} else {
+						texto.textContent = 'Desconectado';
+					}
+					texto.style.color = color;
+				}
+				if (ultimoEstadoConexion !== estado && estado) {
+					beep(880, 120, 0.18);
+				} else if (ultimoEstadoConexion !== estado && !estado && !enReconexion) {
+					beep(220, 220, 0.18);
+				}
+				ultimoEstadoConexion = estado;
 			}
+	function setIndicadorTexto(id, valor) {
+		const el = document.getElementById(id);
+		if (!el) return;
+		el.textContent = valor;
+	}
+
+	function actualizarRAM(ram) {
+		if (ram && typeof ram.percent !== 'undefined') {
+			setIndicadorTexto('ram-valor', ram.percent + ' % (' + ram.used + 'MB/' + ram.total + 'MB)');
+			return;
+		}
+		setIndicadorTexto('ram-valor', '--');
+	}
+
+	function actualizarTemperatura(temperatura) {
+		if (temperatura && typeof temperatura.temperatura !== 'undefined') {
+			setIndicadorTexto('temp-valor', temperatura.temperatura + ' °C');
+			return;
+		}
+		setIndicadorTexto('temp-valor', '--');
+	}
+
+	function actualizarCPU(cpu) {
+		if (cpu && typeof cpu.porcentaje !== 'undefined') {
+			setIndicadorTexto('cpu-valor', cpu.porcentaje + ' %');
+			return;
+		}
+		setIndicadorTexto('cpu-valor', '--');
+	}
+
+	function actualizarDisco(disco, discoUso) {
+		if (disco && typeof disco.porcentaje !== 'undefined') {
+			setIndicadorTexto('disk-uso', disco.porcentaje + ' %');
+			return;
+		}
+		if (discoUso && typeof discoUso.uso_porcentaje !== 'undefined') {
+			setIndicadorTexto('disk-uso', discoUso.uso_porcentaje + '%');
+			return;
+		}
+		setIndicadorTexto('disk-uso', '--');
+	}
+
+	function actualizarRed(red) {
+		if (red !== undefined && red !== null && Number.isFinite(Number(red))) {
+			setIndicadorTexto('red-valor', Number(red).toFixed(1) + ' Mbps');
+			return;
+		}
+		setIndicadorTexto('red-valor', '--');
+	}
+
+	function actualizarWifi(wifi) {
+		const wifiSignal = document.getElementById('wifi-signal');
+		if (wifi && typeof wifi.calidad !== 'undefined') {
+			const wifiCalidad = Number(wifi.calidad);
+			if (wifiCalidad > 0) {
+				setIndicadorTexto('wifi-strength', Math.max(0, Math.min(100, wifiCalidad)));
+			} else {
+				setIndicadorTexto('wifi-strength', '--');
+			}
+			if (wifiSignal) {
+				if (wifiCalidad >= 75) wifiSignal.style.stroke = '#4caf50';
+				else if (wifiCalidad >= 50) wifiSignal.style.stroke = '#fdd835';
+				else if (wifiCalidad >= 25) wifiSignal.style.stroke = '#fb8c00';
+				else if (wifiCalidad > 0) wifiSignal.style.stroke = '#e53935';
+				else wifiSignal.style.stroke = '#6ec1e4';
+			}
+			return;
+		}
+		setIndicadorTexto('wifi-strength', '--');
+		if (wifiSignal) wifiSignal.style.stroke = '#6ec1e4';
+	}
+
+	function actualizarGPS(gps) {
+		if (gps && gps.latitud && gps.longitud) {
+			const lat = Number(gps.latitud);
+			const lon = Number(gps.longitud);
+			const gpsActivo = gps.valido === true;
+			setIndicadorTexto('gps-lat', isNaN(lat) ? '--' : lat.toFixed(1));
+			setIndicadorTexto('gps-lon', isNaN(lon) ? '--' : lon.toFixed(1));
+			if (!isNaN(lat) && !isNaN(lon) && typeof mostrarMapaGPS === 'function') {
+				mostrarMapaGPS(lat, lon, gpsActivo);
+			}
+			return { lat, lon };
+		}
+		setIndicadorTexto('gps-lat', '--');
+		setIndicadorTexto('gps-lon', '--');
+		return null;
+	}
+
+	function actualizarVelocidad(velocidad, gpsPosicion) {
+		if (gpsPosicion && Number.isFinite(gpsPosicion.lat) && Number.isFinite(gpsPosicion.lon)) {
+			const velocidadGPS = calcularVelocidadGPS(gpsPosicion.lat, gpsPosicion.lon);
+			setIndicadorTexto('vel-valor', velocidadGPS.toFixed(2) + ' km/h');
+			return;
+		}
+		if (velocidad !== undefined && velocidad !== null && Number.isFinite(Number(velocidad))) {
+			setIndicadorTexto('vel-valor', Number(velocidad).toFixed(2) + ' km/h');
+			return;
+		}
+		setIndicadorTexto('vel-valor', '--');
+	}
+
+	function actualizarPeso(peso) {
+		if (peso && typeof peso.peso_kg !== 'undefined') {
+			setIndicadorTexto('peso-valor', peso.peso_kg + ' kg');
+			return;
+		}
+		setIndicadorTexto('peso-valor', '--');
+	}
+
+	function actualizarSolar(solar) {
+		if (solar && typeof solar.potencia !== 'undefined') {
+			setIndicadorTexto('solar-valor', solar.potencia + ' W');
+			return;
+		}
+		setIndicadorTexto('solar-valor', '--');
+	}
+
+	function actualizarVoltaje(voltaje) {
+		if (!voltaje || typeof voltaje.voltaje === 'undefined') return;
+		const v = Number(voltaje.voltaje);
+		if (Number.isFinite(v)) {
+			ultimoBatVolt = v;
+			setIndicadorTexto('bat-voltaje', v.toFixed(2));
+		}
+	}
+
+	function actualizarIndicadorCargaBateria() {
+		const textoConexion = document.getElementById('texto-conexion');
+		const rayoId = 'rayo-cargando-indicador';
+		const rayoPrevio = document.getElementById(rayoId);
+		if (rayoPrevio) rayoPrevio.remove();
+		if (!ultimoBatCargando || !textoConexion) return;
+		const rayoHtml = `<span id="${rayoId}" class="rayo-animado" style="display:inline-block; width:18px; height:18px; vertical-align:middle; margin-left:6px;">
+			<svg viewBox=\"0 0 32 32\" width=\"18\" height=\"18\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">
+				<g>
+					<polyline points=\"16,3 8,18 15,18 12,29 25,12 17,12 20,3\" stroke=\"#ffe600\" stroke-width=\"2.2\" fill=\"#ffe600\"/>
+				</g>
+				<animateTransform attributeName=\"transform\" type=\"scale\" values=\"1;1.2;1;1.1;1\" keyTimes=\"0;0.2;0.5;0.7;1\" dur=\"0.8s\" repeatCount=\"indefinite\"/>
+			</svg>
+		</span>`;
+		textoConexion.insertAdjacentHTML('afterend', rayoHtml);
+	}
+
+	function actualizarBateria(bateria, solar) {
+		let pct = undefined;
+		let volt = undefined;
+		if (bateria) {
+			pct = bateria.porcentaje;
+			volt = bateria.voltaje;
+		}
+		if ((pct === undefined || pct === null) && solar) pct = solar.porcentaje;
+		if ((volt === undefined || volt === null) && solar) volt = solar.bateria_voltaje;
+
+		const pctNum = Number(pct);
+		const voltNum = Number(volt);
+		if (Number.isFinite(pctNum)) ultimoBatPct = pctNum;
+		if (Number.isFinite(voltNum)) ultimoBatVolt = voltNum;
+
+		let cargando = ultimoBatCargando;
+		if (bateria && typeof bateria.cargando !== 'undefined') cargando = !!bateria.cargando;
+		else if (solar && typeof solar.cargando !== 'undefined') cargando = !!solar.cargando;
+		if (typeof cargando !== 'undefined' && cargando !== null) ultimoBatCargando = cargando;
+
+		setIndicadorTexto('bat-valor', (ultimoBatPct !== null) ? (ultimoBatPct.toFixed(0) + ' %') : '--');
+		setIndicadorTexto('bat-voltaje', (ultimoBatVolt !== null) ? ultimoBatVolt.toFixed(2) : '--');
+		actualizarIndicadorCargaBateria();
+	}
+
 	function actualizarIndicadores(data) {
-				// RAM
-				if (data.ram && typeof data.ram.percent !== 'undefined') {
-					document.getElementById('ram-valor').textContent = data.ram.percent + ' % (' + data.ram.used + 'MB/' + data.ram.total + 'MB)';
-				} else {
-					document.getElementById('ram-valor').textContent = '--';
-				}
-				// Temperatura
-				if (data.temperatura && typeof data.temperatura.temperatura !== 'undefined') {
-					document.getElementById('temp-valor').textContent = data.temperatura.temperatura + ' °C';
-				} else {
-					document.getElementById('temp-valor').textContent = '--';
-				}
-				// CPU
-				if (data.cpu && typeof data.cpu.porcentaje !== 'undefined') {
-					document.getElementById('cpu-valor').textContent = data.cpu.porcentaje + ' %';
-				} else {
-					document.getElementById('cpu-valor').textContent = '--';
-				}
-				// Disco (uso de SD)
-				if (data.disco && typeof data.disco.porcentaje !== 'undefined') {
-					document.getElementById('disk-uso').textContent = data.disco.porcentaje + ' %';
-				} else {
-					document.getElementById('disk-uso').textContent = '--';
-				}
-				// Almacenamiento (SD) - placeholder IO
-				const readEl = document.getElementById('disk-read');
-				const writeEl = document.getElementById('disk-write');
-				if (readEl && writeEl) {
-					readEl.textContent = '--';
-					writeEl.textContent = '--';
-				}
-				// Batería (con fallback a datos solares y memoria del último valor válido)
-				const batValorEl = document.getElementById('bat-valor');
-				const batVoltEl = document.getElementById('bat-voltaje');
-				let pct = undefined;
-				let volt = undefined;
-				if (data.bateria) {
-					pct = data.bateria.porcentaje;
-					volt = data.bateria.voltaje;
-				}
-				if ((pct === undefined || pct === null) && data.solar) {
-					pct = data.solar.porcentaje;
-				}
-				if ((volt === undefined || volt === null) && data.solar) {
-					volt = data.solar.bateria_voltaje;
-				}
-				const pctNum = Number(pct);
-				const voltNum = Number(volt);
-				if (Number.isFinite(pctNum)) {
-					ultimoBatPct = pctNum;
-				}
-				if (Number.isFinite(voltNum)) {
-					ultimoBatVolt = voltNum;
-				}
-				// Persistir estado de cargando
-				let cargando = ultimoBatCargando;
-				if (data.bateria && typeof data.bateria.cargando !== 'undefined') {
-					cargando = !!data.bateria.cargando;
-				} else if (data.solar && typeof data.solar.cargando !== 'undefined') {
-					cargando = !!data.solar.cargando;
-				}
-				if (typeof cargando !== 'undefined' && cargando !== null) {
-					ultimoBatCargando = cargando;
-				}
-				let batHtml = (ultimoBatPct !== null) ? (ultimoBatPct.toFixed(0) + ' %') : '--';
-				batValorEl.innerHTML = batHtml;
-
-				// Animación de rayo en el indicador de conexión
-				const indicadorConexion = document.getElementById('indicador-conexion');
-				let textoConexion = document.getElementById('texto-conexion');
-				let rayoId = 'rayo-cargando-indicador';
-				let rayoHtml = `<span id="${rayoId}" class="rayo-animado" style="display:inline-block; width:18px; height:18px; vertical-align:middle; margin-left:6px;">
-						<svg viewBox=\"0 0 32 32\" width=\"18\" height=\"18\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">
-							<g>
-								<polyline points=\"16,3 8,18 15,18 12,29 25,12 17,12 20,3\" stroke=\"#ffe600\" stroke-width=\"2.2\" fill=\"#ffe600\"/>
-							</g>
-							<animateTransform attributeName=\"transform\" type=\"scale\" values=\"1;1.2;1;1.1;1\" keyTimes=\"0;0.2;0.5;0.7;1\" dur=\"0.8s\" repeatCount=\"indefinite\"/>
-						</svg>
-					</span>`;
-				// Eliminar rayo anterior si existe
-				let rayoPrevio = document.getElementById(rayoId);
-				if (rayoPrevio) rayoPrevio.remove();
-				if (ultimoBatCargando && textoConexion) {
-					textoConexion.insertAdjacentHTML('afterend', rayoHtml);
-				}
-				batVoltEl.textContent = (ultimoBatVolt !== null) ? ultimoBatVolt.toFixed(2) : '--';
-				// Red
-				if (data.red !== undefined && data.red !== null) {
-					document.getElementById('red-valor').textContent = Number(data.red).toFixed(1) + ' Mbps';
-				} else {
-					document.getElementById('red-valor').textContent = '--';
-				}
-				// WiFi
-				if (data.wifi && typeof data.wifi.calidad !== 'undefined') {
-					const wifiCalidad = Number(data.wifi.calidad);
-					if (wifiCalidad > 0) {
-						document.getElementById('wifi-strength').textContent = Math.max(0, Math.min(100, wifiCalidad));
-						
-						// Cambiar color del SVG según la intensidad
-						const wifiSignal = document.getElementById('wifi-signal');
-						if (wifiSignal) {
-							if (wifiCalidad >= 75) {
-								wifiSignal.style.stroke = '#4caf50'; // Verde - Excelente
-							} else if (wifiCalidad >= 50) {
-								wifiSignal.style.stroke = '#fdd835'; // Amarillo - Bueno
-							} else if (wifiCalidad >= 25) {
-								wifiSignal.style.stroke = '#fb8c00'; // Naranja - Aceptable
-							} else {
-								wifiSignal.style.stroke = '#e53935'; // Rojo - Débil
-							}
-						}
-					} else {
-						document.getElementById('wifi-strength').textContent = '--';
-						const wifiSignal = document.getElementById('wifi-signal');
-						if (wifiSignal) wifiSignal.style.stroke = '#6ec1e4'; // Color por defecto
-					}
-				} else {
-					document.getElementById('wifi-strength').textContent = '--';
-					const wifiSignal = document.getElementById('wifi-signal');
-					if (wifiSignal) wifiSignal.style.stroke = '#6ec1e4'; // Color por defecto
-				}
-				// GPS Lat/Lon y mapa
-				let velocidadGPS = null;
-				if (data.gps && data.gps.latitud && data.gps.longitud) {
-					let lat = Number(data.gps.latitud);
-					let lon = Number(data.gps.longitud);
-					let gpsActivo = data.gps.valido === true;
-					document.getElementById('gps-lat').textContent = isNaN(lat) ? '--' : lat.toFixed(1);
-					document.getElementById('gps-lon').textContent = isNaN(lon) ? '--' : lon.toFixed(1);
-					if (!isNaN(lat) && !isNaN(lon)) {
-						mostrarMapaGPS(lat, lon, gpsActivo);
-						// Calcular velocidad en tiempo real basada en GPS
-						velocidadGPS = calcularVelocidadGPS(lat, lon);
-					}
-				} else {
-					document.getElementById('gps-lat').textContent = '--';
-					document.getElementById('gps-lon').textContent = '--';
-				}
-
-				// Velocidad (usar calculada de GPS o la del servidor como fallback)
-				// Elemento vel-valor fue eliminado de la interfaz
-				if (document.getElementById('vel-valor')) {
-					if (velocidadGPS !== null) {
-						document.getElementById('vel-valor').textContent = velocidadGPS.toFixed(2) + ' km/h';
-					} else if (data.velocidad !== undefined && data.velocidad !== null) {
-						document.getElementById('vel-valor').textContent = Number(data.velocidad).toFixed(2) + ' km/h';
-					} else {
-						document.getElementById('vel-valor').textContent = '--';
-					}
-				}
-			}
+		try {
+			actualizarRAM(data.ram);
+			actualizarTemperatura(data.temperatura);
+			actualizarCPU(data.cpu);
+			actualizarDisco(data.disco, data.disco_uso);
+			actualizarBateria(data.bateria, data.solar);
+			actualizarRed(data.red);
+			actualizarWifi(data.wifi);
+			actualizarSolar(data.solar);
+			actualizarPeso(data.peso);
+			actualizarVoltaje(data.voltaje);
+			const gpsPosicion = actualizarGPS(data.gps);
+			actualizarVelocidad(data.velocidad, gpsPosicion);
+		} catch (eIndic) {
+			console.error('Error en actualizarIndicadores:', eIndic);
+		}
+	}
 			// Relés
 			function renderReles(reles) {
 				console.log('=== renderReles llamado con:', reles);
@@ -1500,30 +1523,18 @@
 					btn.addEventListener('click', function(e) {
 						const numero = parseInt(this.getAttribute('data-numero'));
 						console.log('🔴 CLICK DETECTADO EN RELÉ:', numero);
-						if (typeof window.ws === 'undefined' || window.ws === null) {
-							console.error('❌ window.ws NO EXISTE');
-							alert('Error: WebSocket no inicializado');
-							return;
-						}
-						console.log('window.ws.readyState:', window.ws.readyState, '(1=OPEN)');
-						if (window.ws.readyState !== 1) {
-							console.error('❌ WebSocket NO conectado. readyState:', window.ws.readyState);
-							alert('Error: WebSocket no conectado. readyState=' + window.ws.readyState);
-							return;
-						}
 						const nuevoEstado = !(estadoReles[numero] === true);
 						console.log('📤 Enviando comando relé', numero, '-> estado:', nuevoEstado);
-						// Actualización optimista de UI
-						estadoReles[numero] = nuevoEstado;
-						this.classList.toggle('activo', nuevoEstado);
-						this.classList.toggle('inactivo', !nuevoEstado);
 						const mensaje = JSON.stringify({
 							tipo: 'rele',
 							numero: numero,
 							estado: nuevoEstado
 						});
-						console.log('Mensaje a enviar:', mensaje);
-						window.ws.send(mensaje);
+						const enviado = enviarMensajeWS(mensaje);
+						if (!enviado) {
+							console.warn('⚠️ WS no conectado, comando en cola. Se enviará al reconectar.');
+							return;
+						}
 						console.log('✅ Comando enviado');
 					});
 					contenedor.appendChild(btn);
@@ -1551,18 +1562,42 @@
 			}
 	// toggleRele eliminado, todo se hace por WebSocket
 			function conectarWS() {
+				if (window.ws && (window.ws.readyState === 0 || window.ws.readyState === 1)) {
+					return;
+				}
 				console.log('📡 Intentando conectar WebSocket...');
-				let wsProto = (location.protocol === 'https:') ? 'wss://' : 'ws://';
-				let wsUrl = wsProto + location.hostname + ':8080/ws';
+				if (intentosReconexion > 0) {
+					setConexion(false, 'Reconectando WS... intento ' + intentosReconexion, true);
+				} else {
+					setConexion(false, 'Conectando WS...', true);
+				}
+				let wsUrl = construirWSUrl();
 				console.log('URL WebSocket:', wsUrl);
 				window.ws = new WebSocket(wsUrl);
 				window.ws.onopen = function() {
 					console.log('✅ WebSocket ABIERTO - readyState:', window.ws.readyState);
+					intentosReconexion = 0;
+					if (reconexionProgramada) {
+						clearTimeout(reconexionProgramada);
+						reconexionProgramada = null;
+					}
+					detenerPollingIndicadores();
 					setConexion(true);
 					conectado = true;
+					vaciarColaWS();
 					// Solicitar datos completos al conectar para asegurar estados iniciales de relés
-					window.ws.send(JSON.stringify({ tipo: 'obtener_datos' }));
+					enviarMensajeWS({ tipo: 'obtener_datos' });
 					console.log('📤 Enviado: obtener_datos');
+					// Fallback: si datos no llegan en 5s, re-solicitar
+					setTimeout(function() {
+						if (window.ws && window.ws.readyState === 1) {
+							var ramEl = document.getElementById('ram-valor');
+							if (ramEl && ramEl.textContent === '--') {
+								console.log('⚠️ Fallback: re-solicitando datos del servidor...');
+								enviarMensajeWS({ tipo: 'obtener_datos' });
+							}
+						}
+					}, 5000);
 					// Asegurar que el mapa se inicialice si no lo está
 					setTimeout(function() {
 						if (window._leafletMap && window._leafletMap.invalidateSize) {
@@ -1573,13 +1608,21 @@
 				};
 				window.ws.onclose = function() {
 					console.log('❌ WebSocket CERRADO');
-					setConexion(false);
+					intentosReconexion++;
+					setConexion(false, 'Reconectando WS... intento ' + intentosReconexion, true);
 					conectado = false;
-					setTimeout(conectarWS, 2000); // reconectar
+					iniciarPollingIndicadores();
+					if (!reconexionProgramada) {
+						reconexionProgramada = setTimeout(function() {
+							reconexionProgramada = null;
+							conectarWS();
+						}, 2000);
+					}
 				};
 				window.ws.onerror = function(error) {
 					console.error('⚠️ Error WebSocket:', error);
-					setConexion(false);
+					setConexion(false, 'Error WS / reconectando...', true);
+					iniciarPollingIndicadores();
 				};
 				window.ws.onmessage = function(event) {
 					console.log('📥 Mensaje WebSocket recibido:', event.data);
@@ -1592,10 +1635,10 @@
 								window.nombres_reles = { ...window.nombres_reles, ...data.nombres_reles };
 								console.log('✓ Nombres_reles actualizado:', window.nombres_reles);
 							}
-							actualizarIndicadores(data);
+							try { actualizarIndicadores(data); } catch(ei) { console.error('Error en actualizarIndicadores:', ei); }
 							if (data.reles) {
 								console.log('📋 Estados de relés recibidos:', data.reles);
-								renderReles(data.reles);
+								try { renderReles(data.reles); } catch(er) { console.error('Error en renderReles:', er); }
 							}
 							// Cargar velocidad guardada de BD
 							if (typeof data.velocidad !== 'undefined') {
@@ -1609,7 +1652,18 @@
 						}
 						if (data.tipo === 'reles' && data.reles) {
 							console.log('Tipo reles recibido:', data.reles);
+							if (data.nombres_reles) {
+								window.nombres_reles = { ...window.nombres_reles, ...data.nombres_reles };
+							}
 							renderReles(data.reles);
+						}
+						if (data.tipo === 'config_actualizada') {
+							if (typeof window.cargarNombresRelesDesdeConfig === 'function') {
+								window.cargarNombresRelesDesdeConfig();
+							}
+							if (typeof renderReles === 'function') {
+								renderReles(estadoReles);
+							}
 						}
 						if (data.tipo === 'respuesta_rele' && typeof data.numero !== 'undefined') {
 							console.log('Respuesta de relé:', data.numero, 'estado:', data.estado, 'exito:', data.exito);
@@ -1642,110 +1696,155 @@
 								alert('✖ ' + data.mensaje);
 							}
 						}
-						// Indicadores del sistema (RAM, Temperatura, CPU, Almacenamiento, etc)
-						if (data.tipo === 'ram' && data.datos) {
-							const ram = data.datos;
-							if (typeof ram.percent !== 'undefined') {
-								document.getElementById('ram-valor').textContent = ram.percent + ' % (' + ram.used + 'MB/' + ram.total + 'MB)';
+						// Respuesta de cámara (iniciar/detener HLS)
+						if (data.tipo === 'camara') {
+							console.log('Respuesta cámara:', data);
+							if (data.accion === 'iniciar' && !data.exito) {
+								console.warn('Error al iniciar cámara ' + data.indice + ':', data.mensaje);
 							}
 						}
-						if (data.tipo === 'temperatura' && data.datos) {
-							const temp = data.datos;
-							if (typeof temp.temperatura !== 'undefined') {
-								document.getElementById('temp-valor').textContent = temp.temperatura + ' °C';
-							}
+						// Respuesta de motor
+						if (data.tipo === 'respuesta_motor') {
+							console.log('Respuesta motor:', data.direccion, 'exito:', data.exito);
 						}
-						if (data.tipo === 'cpu' && data.datos) {
-							const cpu = data.datos;
-							if (typeof cpu.porcentaje !== 'undefined') {
-								document.getElementById('cpu-valor').textContent = cpu.porcentaje + ' %';
-							}
+						// Recorrido GPS
+						if (data.tipo === 'recorrido_iniciado') {
+							console.log('Recorrido GPS iniciado:', data.recorrido_id, data.nombre);
+							recorridoGrabando = true;
+							const btnRec = document.getElementById('mapa-grabar-recorrido');
+							if (btnRec) btnRec.textContent = '⏹️ Finalizar recorrido';
 						}
-						if (data.tipo === 'almacenamiento' && data.datos) {
-							// Almacenamiento básico ya se muestra en otros lugares (si aplica)
+						if (data.tipo === 'recorrido_finalizado') {
+							console.log('Recorrido GPS finalizado:', data.exito);
+							recorridoGrabando = false;
+							const btnRec = document.getElementById('mapa-grabar-recorrido');
+							if (btnRec) btnRec.textContent = '🛤️ Grabar recorrido';
 						}
-						if (data.tipo === 'disco_uso' && data.datos) {
-							const el = document.getElementById('disk-uso');
-							if (el) {
-								el.textContent = data.datos.uso_porcentaje + '%';
-							}
-						}
-						if (data.tipo === 'bateria' && data.datos) {
-							const bat = data.datos;
-							const batPct = Number(bat.porcentaje);
-							const batVolt = Number(bat.voltaje);
-							if (Number.isFinite(batPct)) {
-								ultimoBatPct = batPct;
-							}
-							if (Number.isFinite(batVolt)) {
-								ultimoBatVolt = batVolt;
-							}
-							document.getElementById('bat-valor').textContent = (ultimoBatPct !== null) ? ultimoBatPct.toFixed(0) + ' %' : '--';
-							document.getElementById('bat-voltaje').textContent = (ultimoBatVolt !== null) ? ultimoBatVolt.toFixed(2) : '--';
-						}
-						if (data.tipo === 'peso' && data.datos) {
-							const peso = data.datos;
-							if (typeof peso.peso_kg !== 'undefined') {
-								document.getElementById('peso-valor').textContent = peso.peso_kg + ' kg';
-							}
-						}
+						// Indicadores del sistema (nueva capa modular)
+						if (data.tipo === 'ram' && data.datos) actualizarRAM(data.datos);
+						if (data.tipo === 'temperatura' && data.datos) actualizarTemperatura(data.datos);
+						if (data.tipo === 'cpu' && data.datos) actualizarCPU(data.datos);
+						if (data.tipo === 'almacenamiento' && data.datos) actualizarDisco(data.datos, null);
+						if (data.tipo === 'disco_uso' && data.datos) actualizarDisco(null, data.datos);
+						if (data.tipo === 'bateria' && data.datos) actualizarBateria(data.datos, null);
+						if (data.tipo === 'peso' && data.datos) actualizarPeso(data.datos);
 						if (data.tipo === 'solar' && data.datos) {
-							const solar = data.datos;
-							if (typeof solar.potencia !== 'undefined') {
-								document.getElementById('solar-valor').textContent = solar.potencia + ' W';
-							}
-							const solarPct = Number(solar.porcentaje);
-							const solarVolt = Number(solar.bateria_voltaje);
-							if (Number.isFinite(solarPct)) {
-								ultimoBatPct = solarPct;
-							}
-							if (Number.isFinite(solarVolt)) {
-								ultimoBatVolt = solarVolt;
-							}
-							document.getElementById('bat-valor').textContent = (ultimoBatPct !== null) ? ultimoBatPct.toFixed(0) + ' %' : '--';
-							document.getElementById('bat-voltaje').textContent = (ultimoBatVolt !== null) ? ultimoBatVolt.toFixed(2) : '--';
+							actualizarSolar(data.datos);
+							actualizarBateria(null, data.datos);
 						}
 						if (data.tipo === 'gps' && data.datos) {
-							const gps = data.datos;
-							if (gps.latitud && gps.longitud) {
-								let lat = Number(gps.latitud);
-								let lon = Number(gps.longitud);
-								document.getElementById('gps-lat').textContent = isNaN(lat) ? '--' : lat.toFixed(1);
-								document.getElementById('gps-lon').textContent = isNaN(lon) ? '--' : lon.toFixed(1);
-								if (gps.altitud) {
-									document.getElementById('gps-alt').textContent = gps.altitud + ' m';
-								}
-								if (gps.satelites) {
-									document.getElementById('gps-sats').textContent = gps.satelites;
-								}
+							const gpsPosicion = actualizarGPS(data.datos);
+							actualizarVelocidad(null, gpsPosicion);
+						}
+						if (data.tipo === 'wifi' && data.datos) actualizarWifi(data.datos);
+						// Brújula - actualizar desde el WebSocket principal
+						if (data.tipo === 'brujula' && data.datos) {
+							if (data.datos.valido && typeof data.datos.azimuth === 'number') {
+								dibujarBrujula(data.datos.azimuth);
 							}
 						}
-						if (data.tipo === 'wifi' && data.datos) {
-							const wifi = data.datos;
-							const wifiCalidad = Number(wifi.calidad) || 0;
-							document.getElementById('wifi-strength').textContent = Math.max(0, Math.min(100, wifiCalidad));
-							
-							const wifiSignal = document.getElementById('wifi-signal');
-							if (wifiSignal) {
-								if (wifiCalidad >= 75) {
-									wifiSignal.style.stroke = '#4caf50'; // Verde
-								} else if (wifiCalidad >= 50) {
-									wifiSignal.style.stroke = '#fdd835'; // Amarillo
-								} else if (wifiCalidad >= 25) {
-									wifiSignal.style.stroke = '#fb8c00'; // Naranja
-								} else {
-									wifiSignal.style.stroke = '#e53935'; // Rojo
-								}
-							}
+						// Velocidad broadcast (cuando otro cliente cambia la velocidad)
+						if (data.tipo === 'velocidad' && typeof data.velocidad !== 'undefined') {
+							aplicarVelocidadUI(Number(data.velocidad));
+						}
+						if (data.tipo === 'respuesta_velocidad' && typeof data.velocidad !== 'undefined') {
+							aplicarVelocidadUI(Number(data.velocidad));
+						}
+						// Voltaje de la Raspberry Pi
+						if (data.tipo === 'voltaje' && data.datos) actualizarVoltaje(data.datos);
+						// Velocidad de red
+						if (data.tipo === 'velocidad_red' && data.datos) {
+							actualizarRed(data.datos.velocidad);
 						}
 					} catch(e) {
 						console.error('Error al parsear mensaje WebSocket:', e, event.data);
 					}
 				};
 			}
+
+			function iniciarPollingIndicadores() {
+				if (pollingIndicadores) return;
+				const ejecutar = async () => {
+					try {
+						const res = await fetch('/api/indicadores');
+						if (!res.ok) return;
+						const data = await res.json();
+						if (data && data.datos) {
+							actualizarIndicadores(data.datos);
+						}
+					} catch (e) {
+						console.warn('Error polling indicadores:', e);
+					}
+				};
+				ejecutar();
+				pollingIndicadores = setInterval(ejecutar, 5000);
+			}
+
+			function detenerPollingIndicadores() {
+				if (!pollingIndicadores) return;
+				clearInterval(pollingIndicadores);
+				pollingIndicadores = null;
+			}
+
+			function toggleRecorridoGPS(btn) {
+				if (!(window.ws && window.ws.readyState === 1)) {
+					alert('Error: WebSocket no conectado');
+					conectarWS();
+					return;
+				}
+				if (!recorridoGrabando) {
+					const nombreBase = new Date().toLocaleString('es-ES', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+					const nombre = prompt('Nombre del recorrido (opcional):', 'Recorrido ' + nombreBase);
+					window.ws.send(JSON.stringify({ tipo: 'iniciar_recorrido', nombre: (nombre || '').trim() }));
+					recorridoGrabando = true;
+					if (btn) btn.textContent = '⏹️ Finalizar recorrido';
+					return;
+				}
+				window.ws.send(JSON.stringify({ tipo: 'finalizar_recorrido' }));
+				recorridoGrabando = false;
+				if (btn) btn.textContent = '🛤️ Grabar recorrido';
+			}
+
+			function pruebaRapida() {
+				const resultados = [];
+				const faltantes = [];
+				const ids = [
+					'ram-valor', 'temp-valor', 'cpu-valor', 'disk-uso', 'bat-valor',
+					'bat-voltaje', 'wifi-strength', 'gps-lat', 'gps-lon', 'vel-valor'
+				];
+				ids.forEach(id => {
+					if (!document.getElementById(id)) faltantes.push(id);
+				});
+				if (faltantes.length > 0) {
+					resultados.push('Faltan elementos UI: ' + faltantes.join(', '));
+				} else {
+					resultados.push('UI de indicadores OK');
+				}
+				const wsOk = !!(window.ws && window.ws.readyState === 1);
+				if (!wsOk) {
+					conectarWS();
+					resultados.push('WS reconectando');
+				} else {
+					window.ws.send(JSON.stringify({ tipo: 'obtener_datos' }));
+					resultados.push('WS conectado');
+				}
+				const latTxt = document.getElementById('gps-lat')?.textContent || '';
+				const lonTxt = document.getElementById('gps-lon')?.textContent || '';
+				const lat = parseFloat(latTxt);
+				const lon = parseFloat(lonTxt);
+				if (isFinite(lat) && isFinite(lon)) {
+					mostrarMapaGPS(lat, lon, true);
+				} else {
+					mostrarMapaGPS(0, 0, false);
+				}
+				setTimeout(() => {
+					resultados.push(window._leafletMap ? 'Mapa OK' : 'Mapa sin inicializar');
+					alert('Prueba rapida:\n- ' + resultados.join('\n- '));
+				}, 800);
+			}
 			window.addEventListener('DOMContentLoaded', () => {
 				// Cargar nombres de relés desde la configuración inicial
-				async function cargarNombresRelesDesdeConfig() {
+				window.cargarNombresRelesDesdeConfig = async function cargarNombresRelesDesdeConfig() {
 					try {
 						const res = await fetch('/api/config');
 						if (!res.ok) return;
@@ -1753,17 +1852,52 @@
 						if (cfg && cfg.reles && Object.keys(cfg.reles).length > 0) {
 							window.nombres_reles = cfg.reles;
 							console.log('✓ Nombres de relés cargados desde config:', window.nombres_reles);
-							// Re-renderizar los relés si ya están cargados
-							if (Object.keys(estadoReles).length > 0) {
-								renderReles(estadoReles);
-								console.log('✓ Relés re-renderizados con los nombres actualizados');
-							}
 						}
 					} catch (e) {
 						console.warn('⚠️ No se pudieron cargar nombres de relés:', e);
 					}
+					// Renderizar botones de relé inmediatamente con estado por defecto
+					// Se actualizarán con los estados reales cuando lleguen datos del WebSocket
+					const contenedor = document.getElementById('reles-botones');
+					if (contenedor && contenedor.children.length === 0) {
+						if (Object.keys(estadoReles).length === 0) {
+							for (let i = 1; i <= 9; i++) estadoReles[String(i)] = false;
+						}
+						try { renderReles(estadoReles); } catch(e) { console.warn('Error renderizando relés iniciales:', e); }
+						console.log('✓ Relés renderizados al cargar página');
+					}
+				};
+				if (typeof window.cargarNombresRelesDesdeConfig === 'function') {
+					window.cargarNombresRelesDesdeConfig();
 				}
-				cargarNombresRelesDesdeConfig();
+				iniciarPollingIndicadores();
+
+				const btnMenuMapa = document.getElementById('btn-menu-mapa');
+				const menuMapa = document.getElementById('menu-mapa-opciones');
+				if (btnMenuMapa && menuMapa) {
+					btnMenuMapa.addEventListener('click', (e) => {
+						e.stopPropagation();
+						menuMapa.style.display = menuMapa.style.display === 'none' ? 'block' : 'none';
+					});
+					document.addEventListener('click', () => {
+						if (menuMapa.style.display === 'block') menuMapa.style.display = 'none';
+					});
+				}
+
+				const btnMapaGuardar = document.getElementById('mapa-guardar-ubicacion');
+				if (btnMapaGuardar) {
+					btnMapaGuardar.addEventListener('click', () => {
+						const btn = document.getElementById('gps-guardar');
+						if (btn) btn.click();
+					});
+				}
+
+				const btnMapaRecorrido = document.getElementById('mapa-grabar-recorrido');
+				if (btnMapaRecorrido) {
+					btnMapaRecorrido.addEventListener('click', () => {
+						toggleRecorridoGPS(btnMapaRecorrido);
+					});
+				}
 
 				// Conectar eventos de botones de velocidad
 				const mapeoVelocidad = [
@@ -1960,19 +2094,56 @@
 			if (btnGrabarRecorrido) {
 				let grabandoRecorrido = false;
 				btnGrabarRecorrido.onclick = function() {
+					if (!(window.ws && window.ws.readyState === 1)) {
+						alert('Error: WebSocket no conectado');
+						return;
+					}
 					grabandoRecorrido = !grabandoRecorrido;
 					if (grabandoRecorrido) {
+						const nombre = prompt('Nombre del recorrido (opcional):');
+						if (nombre === null) { grabandoRecorrido = false; return; }
+						const nombreFinal = nombre.trim() || 'Recorrido ' + new Date().toLocaleString('es-ES', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'});
 						this.textContent = '⏹️ Detener recorrido';
 						this.style.background = '#d32f2f';
-						console.log('Iniciando grabación de recorrido...');
-						// Aquí se implementaría la lógica para grabar el recorrido
+						this.style.color = '#fff';
+						window.ws.send(JSON.stringify({ tipo: 'iniciar_recorrido', nombre: nombreFinal }));
+						console.log('Recorrido GPS iniciado:', nombreFinal);
 					} else {
 						this.textContent = '🛤️ Grabar recorrido';
 						this.style.background = '';
-						console.log('Deteniendo grabación de recorrido...');
+						this.style.color = '';
+						window.ws.send(JSON.stringify({ tipo: 'finalizar_recorrido' }));
+						console.log('Recorrido GPS finalizado');
 					}
 					menuMapaOpciones.style.display = 'none';
 				};
 			}
 		});
+	</script>	<script>
+	// === SAFETY FALLBACK: Ensure relay buttons render even if other mechanisms failed ===
+	(function() {
+		var intentos = 0;
+		var intervalo = setInterval(function() {
+			intentos++;
+			var contenedor = document.getElementById('reles-botones');
+			if (contenedor && contenedor.children.length === 0 && typeof renderReles === 'function') {
+				console.log('⚙️ Fallback: Renderizando relés (intento ' + intentos + ')');
+				try {
+					// Initialize default relay states if empty
+					if (typeof estadoReles !== 'undefined' && Object.keys(estadoReles).length === 0) {
+						for (var i = 1; i <= 9; i++) estadoReles[String(i)] = false;
+					}
+					renderReles(typeof estadoReles !== 'undefined' ? estadoReles : {});
+				} catch(e) {
+					console.error('Error en fallback renderReles:', e);
+				}
+			}
+			// Stop trying after 15 seconds or if buttons exist
+			if (intentos >= 15 || (contenedor && contenedor.children.length > 0)) {
+				clearInterval(intervalo);
+			}
+		}, 1000);
+	})();
 	</script>
+</body>
+</html>

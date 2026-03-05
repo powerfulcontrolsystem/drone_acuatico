@@ -4,13 +4,13 @@
 ## conexion a raspberry
 usuario: admin
 clave: admin
-ip: 192.168.1.14
+ip: 192.168.1.x
 
 ## Clave SSH pública:
 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHQ/bZ2YJM5Lbt9F7tf79nZPLrCzUYiCRpuN9paNlIj6 admin@drone-acuatico
 
 ## ubicación del proyecto en pc Windows
-
+El proyecto esta ubicado en una raspberry pi que funciona de servidor
 
 ## ubicación del proyecto en la raspberry
 home/admin/drone_acuatico
@@ -117,7 +117,7 @@ print(sensor.get_azimuth())
 ---
 
 ## SOFTWARE
-Todo el software se desarrolla principalmente en **Python**.  
+Todo el software se desarrolla principalmente en **lenguaje goland o go*.  
 La Raspberry Pi funciona como **servidor central** del sistema.
 
 El control se realiza desde:
@@ -159,6 +159,7 @@ La pagina esta hecha principalmente para verla en un celular o movil en formato 
 17. grabar video en camara 1
 18. Tomar foto en camara 2
 19. grabar video en camara 2
+30. Guardar posicion inicial
 
 La página muestra **dos vistas de cámara en vivo** mediante las URLs de las cámaras IP.
 
@@ -177,10 +178,11 @@ El valor del **sensor de peso** se visualiza en la web.
 Al superar un umbral configurado:
 - Alerta visual
 - Alerta sonora
+- Alerta vibratoria
 
 
 ## protocolo de comunicacion 
-se usara web socket para comunicar la web con el servidor.py
+se usara web socket para comunicar la web con el servidor
 
 ## Ubicacion de pa pagina "control remoto digital" dentro del proyecto.
 Todo lo relacionado con la pagina, es decir el archivo html, java etc, debe estar en una carpeta llamada "control remoto digital", es decir en: drone acuatico/control remoto digital/

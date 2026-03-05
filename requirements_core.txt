@@ -1,7 +1,0 @@
-# Dependencias CRÍTICAS del Drone Acuático
-# Estas son OBLIGATORIAS para que el servidor funcione
-
-aiohttp>=3.8.0
-pyserial>=3.5
-pynmea2>=1.18.0
-RPi.GPIO>=0.7.1
