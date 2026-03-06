@@ -48,7 +48,7 @@
   },
   "estado_reles": {
     "1": true,
-    "2": true,
+    "2": false,
     "3": true,
     "4": true,
     "5": true,
@@ -11460,13 +11460,679 @@
           "timestamp": "2026-03-05 20:02:39"
         }
       ]
+    },
+    {
+      "id": 56,
+      "nombre": "",
+      "fecha_inicio": "2026-03-05 20:11:16",
+      "fecha_fin": null,
+      "activo": true,
+      "posiciones": [
+        {
+          "id": 1092,
+          "recorrido_id": 56,
+          "latitud": 11.234798000000001,
+          "longitud": -74.208674,
+          "altitud": 19.6,
+          "velocidad": 1.424188,
+          "satelites": 8,
+          "timestamp": "2026-03-05 20:11:16"
+        },
+        {
+          "id": 1093,
+          "recorrido_id": 56,
+          "latitud": 11.234765999999999,
+          "longitud": -74.2086625,
+          "altitud": 11.7,
+          "velocidad": 1.689024,
+          "satelites": 8,
+          "timestamp": "2026-03-05 20:11:46"
+        },
+        {
+          "id": 1094,
+          "recorrido_id": 56,
+          "latitud": 11.2348,
+          "longitud": -74.20866083333334,
+          "altitud": 8.9,
+          "velocidad": 1.144536,
+          "satelites": 9,
+          "timestamp": "2026-03-05 20:12:16"
+        },
+        {
+          "id": 1095,
+          "recorrido_id": 56,
+          "latitud": 11.234762333333332,
+          "longitud": -74.2086635,
+          "altitud": 17.5,
+          "velocidad": 1.0463799999999999,
+          "satelites": 9,
+          "timestamp": "2026-03-05 20:12:46"
+        }
+      ]
+    },
+    {
+      "id": 57,
+      "nombre": "",
+      "fecha_inicio": "2026-03-05 20:27:32",
+      "fecha_fin": null,
+      "activo": true,
+      "posiciones": [
+        {
+          "id": 1096,
+          "recorrido_id": 57,
+          "latitud": 11.234791,
+          "longitud": -74.208656,
+          "altitud": 10.8,
+          "velocidad": 1.1834280000000001,
+          "satelites": 9,
+          "timestamp": "2026-03-05 20:27:32"
+        },
+        {
+          "id": 1097,
+          "recorrido_id": 57,
+          "latitud": 11.234774833333331,
+          "longitud": -74.20866866666667,
+          "altitud": 11.9,
+          "velocidad": 0.061116000000000004,
+          "satelites": 10,
+          "timestamp": "2026-03-05 20:28:02"
+        },
+        {
+          "id": 1098,
+          "recorrido_id": 57,
+          "latitud": 11.234771,
+          "longitud": -74.208668,
+          "altitud": 5.9,
+          "velocidad": 0.12038000000000001,
+          "satelites": 8,
+          "timestamp": "2026-03-05 20:28:32"
+        },
+        {
+          "id": 1099,
+          "recorrido_id": 57,
+          "latitud": 11.234774833333331,
+          "longitud": -74.2086675,
+          "altitud": 4.5,
+          "velocidad": 0.401884,
+          "satelites": 8,
+          "timestamp": "2026-03-05 20:29:02"
+        },
+        {
+          "id": 1100,
+          "recorrido_id": 57,
+          "latitud": 11.234776,
+          "longitud": -74.20866016666668,
+          "altitud": 4.1,
+          "velocidad": 0.10186,
+          "satelites": 8,
+          "timestamp": "2026-03-05 20:29:32"
+        },
+        {
+          "id": 1101,
+          "recorrido_id": 57,
+          "latitud": 11.234774499999999,
+          "longitud": -74.20866766666667,
+          "altitud": 5.8,
+          "velocidad": 0.15186400000000003,
+          "satelites": 10,
+          "timestamp": "2026-03-05 20:30:02"
+        },
+        {
+          "id": 1102,
+          "recorrido_id": 57,
+          "latitud": 11.234768333333333,
+          "longitud": -74.20867150000001,
+          "altitud": 6.3,
+          "velocidad": 0.30558,
+          "satelites": 9,
+          "timestamp": "2026-03-05 20:30:32"
+        },
+        {
+          "id": 1103,
+          "recorrido_id": 57,
+          "latitud": 11.234780166666667,
+          "longitud": -74.20866516666666,
+          "altitud": 5.5,
+          "velocidad": 0.024076,
+          "satelites": 9,
+          "timestamp": "2026-03-05 20:31:02"
+        },
+        {
+          "id": 1104,
+          "recorrido_id": 57,
+          "latitud": 11.234782,
+          "longitud": -74.20866116666666,
+          "altitud": 5.9,
+          "velocidad": 0.18149600000000002,
+          "satelites": 10,
+          "timestamp": "2026-03-05 20:31:32"
+        },
+        {
+          "id": 1105,
+          "recorrido_id": 57,
+          "latitud": 11.234783666666665,
+          "longitud": -74.20865183333333,
+          "altitud": 4.7,
+          "velocidad": 0.535228,
+          "satelites": 9,
+          "timestamp": "2026-03-05 20:32:02"
+        },
+        {
+          "id": 1106,
+          "recorrido_id": 57,
+          "latitud": 11.234780333333333,
+          "longitud": -74.20865366666666,
+          "altitud": 2.5,
+          "velocidad": 0.411144,
+          "satelites": 9,
+          "timestamp": "2026-03-05 20:32:32"
+        },
+        {
+          "id": 1107,
+          "recorrido_id": 57,
+          "latitud": 11.234780666666666,
+          "longitud": -74.20863983333334,
+          "altitud": 2.7,
+          "velocidad": 0.290764,
+          "satelites": 9,
+          "timestamp": "2026-03-05 20:33:02"
+        },
+        {
+          "id": 1108,
+          "recorrido_id": 57,
+          "latitud": 11.234779,
+          "longitud": -74.2086465,
+          "altitud": 3.5,
+          "velocidad": 0.14630800000000002,
+          "satelites": 8,
+          "timestamp": "2026-03-05 20:33:32"
+        },
+        {
+          "id": 1109,
+          "recorrido_id": 57,
+          "latitud": 11.234778333333335,
+          "longitud": -74.20864083333332,
+          "altitud": 4.6,
+          "velocidad": 0.096304,
+          "satelites": 9,
+          "timestamp": "2026-03-05 20:34:02"
+        },
+        {
+          "id": 1110,
+          "recorrido_id": 57,
+          "latitud": 11.234775666666668,
+          "longitud": -74.20863733333334,
+          "altitud": 4.8,
+          "velocidad": 0.427812,
+          "satelites": 10,
+          "timestamp": "2026-03-05 20:34:32"
+        },
+        {
+          "id": 1111,
+          "recorrido_id": 57,
+          "latitud": 11.2347895,
+          "longitud": -74.20863766666666,
+          "altitud": 8,
+          "velocidad": 0.18149600000000002,
+          "satelites": 8,
+          "timestamp": "2026-03-05 20:35:02"
+        },
+        {
+          "id": 1112,
+          "recorrido_id": 57,
+          "latitud": 11.234806666666667,
+          "longitud": -74.20865933333333,
+          "altitud": 11.3,
+          "velocidad": 0.355584,
+          "satelites": 9,
+          "timestamp": "2026-03-05 20:35:32"
+        },
+        {
+          "id": 1113,
+          "recorrido_id": 57,
+          "latitud": 11.234809166666667,
+          "longitud": -74.20866649999999,
+          "altitud": 12.1,
+          "velocidad": 0.09260000000000002,
+          "satelites": 9,
+          "timestamp": "2026-03-05 20:36:02"
+        },
+        {
+          "id": 1114,
+          "recorrido_id": 57,
+          "latitud": 11.234813166666667,
+          "longitud": -74.20864916666666,
+          "altitud": 14.5,
+          "velocidad": 0.272244,
+          "satelites": 9,
+          "timestamp": "2026-03-05 20:36:32"
+        }
+      ]
+    },
+    {
+      "id": 58,
+      "nombre": "",
+      "fecha_inicio": "2026-03-05 20:37:19",
+      "fecha_fin": null,
+      "activo": true,
+      "posiciones": [
+        {
+          "id": 1115,
+          "recorrido_id": 58,
+          "latitud": 11.234851333333332,
+          "longitud": -74.20861983333333,
+          "altitud": 22,
+          "velocidad": 0.15742000000000003,
+          "satelites": 7,
+          "timestamp": "2026-03-05 20:37:19"
+        },
+        {
+          "id": 1116,
+          "recorrido_id": 58,
+          "latitud": 11.234849833333332,
+          "longitud": -74.208623,
+          "altitud": 19.8,
+          "velocidad": 0.094452,
+          "satelites": 9,
+          "timestamp": "2026-03-05 20:37:49"
+        },
+        {
+          "id": 1117,
+          "recorrido_id": 58,
+          "latitud": 11.234856500000001,
+          "longitud": -74.20860933333333,
+          "altitud": 20.1,
+          "velocidad": 0.200016,
+          "satelites": 6,
+          "timestamp": "2026-03-05 20:38:19"
+        },
+        {
+          "id": 1118,
+          "recorrido_id": 58,
+          "latitud": 11.234849666666666,
+          "longitud": -74.20861333333333,
+          "altitud": 21.1,
+          "velocidad": 0.09260000000000002,
+          "satelites": 8,
+          "timestamp": "2026-03-05 20:38:49"
+        },
+        {
+          "id": 1119,
+          "recorrido_id": 58,
+          "latitud": 11.234820500000001,
+          "longitud": -74.20864366666666,
+          "altitud": 15.5,
+          "velocidad": 0.164828,
+          "satelites": 7,
+          "timestamp": "2026-03-05 20:39:19"
+        },
+        {
+          "id": 1120,
+          "recorrido_id": 58,
+          "latitud": 11.234806666666667,
+          "longitud": -74.20864633333333,
+          "altitud": 13.8,
+          "velocidad": 0.753764,
+          "satelites": 7,
+          "timestamp": "2026-03-05 20:39:49"
+        },
+        {
+          "id": 1121,
+          "recorrido_id": 58,
+          "latitud": 11.234821166666666,
+          "longitud": -74.2086125,
+          "altitud": 16.1,
+          "velocidad": 0.17594,
+          "satelites": 8,
+          "timestamp": "2026-03-05 20:40:19"
+        },
+        {
+          "id": 1122,
+          "recorrido_id": 58,
+          "latitud": 11.234807833333331,
+          "longitud": -74.20864499999999,
+          "altitud": 14.7,
+          "velocidad": 0.050004,
+          "satelites": 10,
+          "timestamp": "2026-03-05 20:40:49"
+        },
+        {
+          "id": 1123,
+          "recorrido_id": 58,
+          "latitud": 11.2347935,
+          "longitud": -74.208676,
+          "altitud": 9.4,
+          "velocidad": 0.16668,
+          "satelites": 9,
+          "timestamp": "2026-03-05 20:41:19"
+        },
+        {
+          "id": 1124,
+          "recorrido_id": 58,
+          "latitud": 11.234789833333332,
+          "longitud": -74.20870466666666,
+          "altitud": 7.1,
+          "velocidad": 0.581528,
+          "satelites": 8,
+          "timestamp": "2026-03-05 20:41:49"
+        },
+        {
+          "id": 1125,
+          "recorrido_id": 58,
+          "latitud": 11.234808666666668,
+          "longitud": -74.20868850000001,
+          "altitud": 7.7,
+          "velocidad": 1.1852800000000001,
+          "satelites": 7,
+          "timestamp": "2026-03-05 20:42:19"
+        },
+        {
+          "id": 1126,
+          "recorrido_id": 58,
+          "latitud": 11.234797166666665,
+          "longitud": -74.20868166666668,
+          "altitud": 10.8,
+          "velocidad": 0.40373600000000004,
+          "satelites": 7,
+          "timestamp": "2026-03-05 20:42:49"
+        },
+        {
+          "id": 1127,
+          "recorrido_id": 58,
+          "latitud": 11.234784999999999,
+          "longitud": -74.20866166666666,
+          "altitud": 13.5,
+          "velocidad": 0.081488,
+          "satelites": 7,
+          "timestamp": "2026-03-05 20:43:19"
+        },
+        {
+          "id": 1128,
+          "recorrido_id": 58,
+          "latitud": 11.234770333333332,
+          "longitud": -74.20865,
+          "altitud": 14.8,
+          "velocidad": 0.20742400000000003,
+          "satelites": 7,
+          "timestamp": "2026-03-05 20:43:49"
+        },
+        {
+          "id": 1129,
+          "recorrido_id": 58,
+          "latitud": 11.234756,
+          "longitud": -74.20866083333334,
+          "altitud": 10.5,
+          "velocidad": 0.24816800000000003,
+          "satelites": 9,
+          "timestamp": "2026-03-05 20:44:19"
+        },
+        {
+          "id": 1130,
+          "recorrido_id": 58,
+          "latitud": 11.234735833333332,
+          "longitud": -74.20865616666667,
+          "altitud": 12.3,
+          "velocidad": 0.401884,
+          "satelites": 9,
+          "timestamp": "2026-03-05 20:44:49"
+        },
+        {
+          "id": 1131,
+          "recorrido_id": 58,
+          "latitud": 11.234734833333334,
+          "longitud": -74.20865033333332,
+          "altitud": 12.9,
+          "velocidad": 0.161124,
+          "satelites": 8,
+          "timestamp": "2026-03-05 20:45:19"
+        },
+        {
+          "id": 1132,
+          "recorrido_id": 58,
+          "latitud": 11.234744000000001,
+          "longitud": -74.20864183333333,
+          "altitud": 8.4,
+          "velocidad": 0.048152,
+          "satelites": 9,
+          "timestamp": "2026-03-05 20:45:49"
+        },
+        {
+          "id": 1133,
+          "recorrido_id": 58,
+          "latitud": 11.2347415,
+          "longitud": -74.20863183333333,
+          "altitud": 15.4,
+          "velocidad": 0.053708000000000006,
+          "satelites": 9,
+          "timestamp": "2026-03-05 20:46:19"
+        },
+        {
+          "id": 1134,
+          "recorrido_id": 58,
+          "latitud": 11.234748166666668,
+          "longitud": -74.20863716666666,
+          "altitud": 19,
+          "velocidad": 0.566712,
+          "satelites": 8,
+          "timestamp": "2026-03-05 20:46:49"
+        },
+        {
+          "id": 1135,
+          "recorrido_id": 58,
+          "latitud": 11.234765333333334,
+          "longitud": -74.20864483333334,
+          "altitud": 21.3,
+          "velocidad": 0.142604,
+          "satelites": 9,
+          "timestamp": "2026-03-05 20:47:19"
+        },
+        {
+          "id": 1136,
+          "recorrido_id": 58,
+          "latitud": 11.234774999999997,
+          "longitud": -74.20866566666668,
+          "altitud": 16,
+          "velocidad": 0.396328,
+          "satelites": 9,
+          "timestamp": "2026-03-05 20:47:49"
+        },
+        {
+          "id": 1137,
+          "recorrido_id": 58,
+          "latitud": 11.234766333333335,
+          "longitud": -74.20867383333332,
+          "altitud": 28.1,
+          "velocidad": 0.033336,
+          "satelites": 9,
+          "timestamp": "2026-03-05 20:48:19"
+        },
+        {
+          "id": 1138,
+          "recorrido_id": 58,
+          "latitud": 11.234748000000002,
+          "longitud": -74.208679,
+          "altitud": 29,
+          "velocidad": 0.09815600000000001,
+          "satelites": 8,
+          "timestamp": "2026-03-05 20:48:49"
+        },
+        {
+          "id": 1139,
+          "recorrido_id": 58,
+          "latitud": 11.234745833333333,
+          "longitud": -74.2086645,
+          "altitud": 24.5,
+          "velocidad": 0.253724,
+          "satelites": 8,
+          "timestamp": "2026-03-05 20:49:19"
+        },
+        {
+          "id": 1140,
+          "recorrido_id": 58,
+          "latitud": 11.234742000000002,
+          "longitud": -74.20866133333334,
+          "altitud": 20.1,
+          "velocidad": 0.16853200000000002,
+          "satelites": 10,
+          "timestamp": "2026-03-05 20:49:49"
+        },
+        {
+          "id": 1141,
+          "recorrido_id": 58,
+          "latitud": 11.234744666666666,
+          "longitud": -74.2086505,
+          "altitud": 19.3,
+          "velocidad": 0.085192,
+          "satelites": 8,
+          "timestamp": "2026-03-05 20:50:19"
+        },
+        {
+          "id": 1142,
+          "recorrido_id": 58,
+          "latitud": 11.234742000000002,
+          "longitud": -74.20864166666667,
+          "altitud": 15.4,
+          "velocidad": 0.048152,
+          "satelites": 8,
+          "timestamp": "2026-03-05 20:50:49"
+        },
+        {
+          "id": 1143,
+          "recorrido_id": 58,
+          "latitud": 11.234748166666668,
+          "longitud": -74.20864233333333,
+          "altitud": 17.7,
+          "velocidad": 0.127788,
+          "satelites": 8,
+          "timestamp": "2026-03-05 20:51:19"
+        }
+      ]
+    },
+    {
+      "id": 59,
+      "nombre": "",
+      "fecha_inicio": "2026-03-05 20:52:30",
+      "fecha_fin": "2026-03-05 20:57:48",
+      "activo": false,
+      "posiciones": [
+        {
+          "id": 1144,
+          "recorrido_id": 59,
+          "latitud": 11.234751333333334,
+          "longitud": -74.208669,
+          "altitud": 23.1,
+          "velocidad": 0.31484000000000006,
+          "satelites": 7,
+          "timestamp": "2026-03-05 20:52:30"
+        },
+        {
+          "id": 1145,
+          "recorrido_id": 59,
+          "latitud": 11.234746,
+          "longitud": -74.20869333333333,
+          "altitud": 24.2,
+          "velocidad": 0.427812,
+          "satelites": 7,
+          "timestamp": "2026-03-05 20:53:00"
+        },
+        {
+          "id": 1146,
+          "recorrido_id": 59,
+          "latitud": 11.234781166666668,
+          "longitud": -74.20868566666667,
+          "altitud": 30.3,
+          "velocidad": 0.34262000000000004,
+          "satelites": 8,
+          "timestamp": "2026-03-05 20:53:30"
+        },
+        {
+          "id": 1147,
+          "recorrido_id": 59,
+          "latitud": 11.234789000000001,
+          "longitud": -74.20867933333334,
+          "altitud": 31.3,
+          "velocidad": 0.25742800000000005,
+          "satelites": 8,
+          "timestamp": "2026-03-05 20:54:00"
+        },
+        {
+          "id": 1148,
+          "recorrido_id": 59,
+          "latitud": 11.234780666666666,
+          "longitud": -74.20868216666666,
+          "altitud": 28.6,
+          "velocidad": 0.14075200000000002,
+          "satelites": 8,
+          "timestamp": "2026-03-05 20:54:30"
+        },
+        {
+          "id": 1149,
+          "recorrido_id": 59,
+          "latitud": 11.234780833333332,
+          "longitud": -74.20867783333333,
+          "altitud": 24.3,
+          "velocidad": 0.266688,
+          "satelites": 9,
+          "timestamp": "2026-03-05 20:55:00"
+        },
+        {
+          "id": 1150,
+          "recorrido_id": 59,
+          "latitud": 11.234776166666666,
+          "longitud": -74.20868716666668,
+          "altitud": 18.7,
+          "velocidad": 0.24631600000000003,
+          "satelites": 9,
+          "timestamp": "2026-03-05 20:55:30"
+        },
+        {
+          "id": 1151,
+          "recorrido_id": 59,
+          "latitud": 11.234782666666668,
+          "longitud": -74.208688,
+          "altitud": 16,
+          "velocidad": 0.105564,
+          "satelites": 8,
+          "timestamp": "2026-03-05 20:56:00"
+        },
+        {
+          "id": 1152,
+          "recorrido_id": 59,
+          "latitud": 11.234788666666669,
+          "longitud": -74.208681,
+          "altitud": 13.2,
+          "velocidad": 0.255576,
+          "satelites": 9,
+          "timestamp": "2026-03-05 20:56:30"
+        },
+        {
+          "id": 1153,
+          "recorrido_id": 59,
+          "latitud": 11.234779499999998,
+          "longitud": -74.20868716666668,
+          "altitud": 12.5,
+          "velocidad": 0.09074800000000001,
+          "satelites": 8,
+          "timestamp": "2026-03-05 20:57:00"
+        },
+        {
+          "id": 1154,
+          "recorrido_id": 59,
+          "latitud": 11.234783166666666,
+          "longitud": -74.20867983333332,
+          "altitud": 13,
+          "velocidad": 0.401884,
+          "satelites": 9,
+          "timestamp": "2026-03-05 20:57:30"
+        }
+      ]
     }
   ],
   "ubicaciones_guardadas": [],
   "historial_gps": [],
   "destino": null,
-  "siguiente_id_recorrido": 56,
-  "siguiente_id_posicion": 1092,
+  "siguiente_id_recorrido": 60,
+  "siguiente_id_posicion": 1155,
   "siguiente_id_ubicacion": 1,
   "siguiente_id_historial": 1
 }
