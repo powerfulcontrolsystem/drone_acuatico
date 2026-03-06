@@ -217,6 +217,88 @@ func apiIndicadoresHandler(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+func apiRelesHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+	if r.Method == "OPTIONS" {
+		w.WriteHeader(200)
+		return
+	}
+
+	if r.Method == "GET" {
+		config := obtenerConfiguracion()
+		var nombresReles interface{} = nil
+		if config != nil {
+			nombresReles = config["reles"]
+		}
+		enviarJSON(w, 200, map[string]interface{}{
+			"exito":        true,
+			"reles":        relesAJSON(obtenerEstadoReles()),
+			"nombres_reles": nombresReles,
+		})
+		return
+	}
+
+	if r.Method == "POST" {
+		datos, err := leerJSON(r)
+		if err != nil {
+			enviarJSON(w, 400, map[string]interface{}{"exito": false, "error": err.Error()})
+			return
+		}
+
+		numero := toInt(datos["numero"])
+		if numero < 1 || numero > 9 {
+			enviarJSON(w, 400, map[string]interface{}{"exito": false, "error": "Número de relé inválido (1-9)"})
+			return
+		}
+
+		estados := obtenerEstadoReles()
+		estadoActual := estados[numero]
+
+		nuevoEstado := !estadoActual
+		if v, ok := datos["estado"].(bool); ok {
+			nuevoEstado = v
+		}
+
+		exito, errMsg := controlarRele(numero, nuevoEstado)
+		if !exito {
+			enviarJSON(w, 500, map[string]interface{}{
+				"exito":  false,
+				"numero": numero,
+				"estado": nuevoEstado,
+				"error":  errMsg,
+			})
+			return
+		}
+
+		relesJSON := relesAJSON(obtenerEstadoReles())
+		config := obtenerConfiguracion()
+		var nombresReles interface{} = nil
+		if config != nil {
+			nombresReles = config["reles"]
+		}
+
+		gestorWS.BroadcastJSON(map[string]interface{}{
+			"tipo":          "reles",
+			"reles":         relesJSON,
+			"nombres_reles": nombresReles,
+		})
+
+		enviarJSON(w, 200, map[string]interface{}{
+			"exito":         true,
+			"numero":        numero,
+			"estado":        nuevoEstado,
+			"reles":         relesJSON,
+			"nombres_reles": nombresReles,
+		})
+		return
+	}
+
+	enviarJSON(w, 405, map[string]interface{}{"error": "Método no permitido"})
+}
+
 func apiONVIFDiscoverHandler(w http.ResponseWriter, r *http.Request) {
 	dispositivos := descubrirONVIF(3)
 	enviarJSON(w, 200, map[string]interface{}{
@@ -929,6 +1011,7 @@ func configurarRutas(mux *http.ServeMux) {
 
 	// APIs REST
 	mux.HandleFunc("/api/config", apiConfigHandler)
+	mux.HandleFunc("/api/reles", apiRelesHandler)
 	mux.HandleFunc("/api/gps/actual", apiGPSActualHandler)
 	mux.HandleFunc("/api/test/wifi", apiTestWifiHandler)
 	mux.HandleFunc("/api/indicadores", apiIndicadoresHandler)

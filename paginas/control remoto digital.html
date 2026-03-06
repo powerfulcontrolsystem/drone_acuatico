@@ -1497,6 +1497,22 @@
 		}
 	}
 			// Relés
+			async function alternarRelePorAPI(numero, estado) {
+				const res = await fetch('/api/reles', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ numero: numero, estado: estado })
+				});
+				const data = await res.json();
+				if (!res.ok || !data.exito) {
+					throw new Error((data && (data.error || data.mensaje)) || 'No se pudo cambiar el relé');
+				}
+				if (data.reles) {
+					estadoReles = { ...data.reles };
+					renderReles(estadoReles);
+				}
+			}
+
 			function renderReles(reles) {
 				console.log('=== renderReles llamado con:', reles);
 				const nuevosEstados = reles || estadoReles || {};
@@ -1511,34 +1527,45 @@
 				// Los nombres de los relés se reciben por WebSocket o desde la config inicial
 				const nombresReles = window.nombres_reles || {};
 				console.log('Nombres de relés:', nombresReles);
-				for (let i = 1; i <= 9; i++) {
-					const nombre = nombresReles[i] || `Relé ${i}`;
-					const estaActivo = estadoReles[i] === true;
-					const btn = document.createElement('button');
-					btn.className = `btn btn-rele ${estaActivo ? 'activo' : 'inactivo'}`;
-					btn.id = `rele${i}`;
-					btn.setAttribute('data-numero', String(i));
-					btn.innerHTML = `<span style='font-weight:600;'>${nombre}</span>`;
-					console.log(`Creando botón relé ${i}:`, btn.id, 'activo:', estaActivo);
-					btn.addEventListener('click', function(e) {
-						const numero = parseInt(this.getAttribute('data-numero'));
-						console.log('🔴 CLICK DETECTADO EN RELÉ:', numero);
-						const nuevoEstado = !(estadoReles[numero] === true);
-						console.log('📤 Enviando comando relé', numero, '-> estado:', nuevoEstado);
-						const mensaje = JSON.stringify({
-							tipo: 'rele',
-							numero: numero,
-							estado: nuevoEstado
-						});
-						const enviado = enviarMensajeWS(mensaje);
-						if (!enviado) {
-							console.warn('⚠️ WS no conectado, comando en cola. Se enviará al reconectar.');
-							return;
-						}
-						console.log('✅ Comando enviado');
-					});
-					contenedor.appendChild(btn);
-				}
+				   for (let i = 1; i <= 9; i++) {
+					   const nombre = nombresReles[i] || `Relé ${i}`;
+					   const estaActivo = estadoReles[i] === true;
+					   const btn = document.createElement('button');
+					   btn.className = `btn btn-rele ${estaActivo ? 'activo' : 'inactivo'}`;
+					   btn.id = `rele${i}`;
+					   btn.setAttribute('data-numero', String(i));
+					   btn.innerHTML = `<span style='font-weight:600;'>${nombre}</span>`;
+					   console.log(`Creando botón relé ${i}:`, btn.id, 'activo:', estaActivo);
+					   btn.addEventListener('click', async function(e) {
+						   const numero = parseInt(this.getAttribute('data-numero'));
+						   const estadoPrevio = (estadoReles[numero] === true);
+						   const nuevoEstado = !estadoPrevio;
+
+						   // Feedback visual inmediato
+						   estadoReles[numero] = nuevoEstado;
+						   this.classList.toggle('activo', nuevoEstado);
+						   this.classList.toggle('inactivo', !nuevoEstado);
+
+						   try {
+							   if (window.ws && window.ws.readyState === 1) {
+								   const enviado = enviarMensajeWS({ tipo: 'rele', numero: numero, estado: nuevoEstado });
+								   if (!enviado) {
+									   await alternarRelePorAPI(numero, nuevoEstado);
+								   }
+							   } else {
+								   await alternarRelePorAPI(numero, nuevoEstado);
+							   }
+						   } catch (err) {
+							   // Revertir UI si falló el comando real
+							   estadoReles[numero] = estadoPrevio;
+							   this.classList.toggle('activo', estadoPrevio);
+							   this.classList.toggle('inactivo', !estadoPrevio);
+							   console.error('Error cambiando relé:', err);
+							   alert('No se pudo cambiar el relé. Revisa conexión/servidor.');
+						   }
+					   });
+					   contenedor.appendChild(btn);
+				   }
 				console.log('=== renderReles finalizado. Botones creados: 9');
 			}
 	// Función para aplicar velocidad en UI
@@ -1856,8 +1883,22 @@
 					} catch (e) {
 						console.warn('⚠️ No se pudieron cargar nombres de relés:', e);
 					}
-					// Renderizar botones de relé inmediatamente con estado por defecto
-					// Se actualizarán con los estados reales cuando lleguen datos del WebSocket
+					// Cargar estado real de relés desde API (funciona incluso si WS está caído)
+					try {
+						const resReles = await fetch('/api/reles');
+						if (resReles.ok) {
+							const dataReles = await resReles.json();
+							if (dataReles && dataReles.reles) {
+								estadoReles = { ...dataReles.reles };
+							}
+							if (dataReles && dataReles.nombres_reles) {
+								window.nombres_reles = { ...window.nombres_reles, ...dataReles.nombres_reles };
+							}
+						}
+					} catch (e) {
+						console.warn('⚠️ No se pudo cargar estado real de relés por API:', e);
+					}
+
 					const contenedor = document.getElementById('reles-botones');
 					if (contenedor && contenedor.children.length === 0) {
 						if (Object.keys(estadoReles).length === 0) {

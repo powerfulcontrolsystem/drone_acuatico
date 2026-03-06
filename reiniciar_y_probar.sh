@@ -7,6 +7,7 @@ echo "════════════════════════�
 # Detener servidor anterior
 echo ""
 echo "[1/4] Deteniendo servidor anterior..."
+pkill -9 -f 'drone_acuatico' 2>/dev/null || true
 pkill -9 -f 'servidor.py' 2>/dev/null || true
 sleep 2
 
@@ -33,20 +34,19 @@ else:
     print("\n❌ Victron DESCONECTADO")
 PYTHON_SCRIPT
 
-# Reiniciar servidor
+# Reiniciar servidor Go
 echo ""
 echo "[3/4] Iniciando servidor..."
-source venv_pi/bin/activate
-nohup python3 servidor.py > /tmp/servidor.log 2>&1 &
-SERVIDOR_PID=$!
+nohup ./iniciar_servidor.sh > /tmp/servidor.log 2>&1 &
 
 sleep 3
 
 # Verificar que está corriendo
 echo ""
 echo "[4/4] Verificando servidor..."
-if ps -p $SERVIDOR_PID > /dev/null; then
-    echo "✅ Servidor iniciado (PID: $SERVIDOR_PID)"
+if pgrep -f 'drone_acuatico' > /dev/null; then
+    SERVIDOR_PID=$(pgrep -f 'drone_acuatico' | head -1)
+    echo "✅ Servidor Go iniciado (PID: $SERVIDOR_PID)"
     echo ""
     echo "═══════════════════════════════════════════════════════════════"
     echo "✅ SERVIDOR LISTO"

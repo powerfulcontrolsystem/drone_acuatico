@@ -280,6 +280,14 @@ if [ ! -f "go.mod" ]; then
 fi
 echo -e "${GREEN}   ✓ go.mod presente${NC}"
 
+echo -e "${YELLOW}   Sincronizando dependencias Go (incluye GPIO)...${NC}"
+go mod tidy
+if [ $? -ne 0 ]; then
+    echo -e "${RED}   ✗ Error sincronizando dependencias Go${NC}"
+    exit 1
+fi
+echo -e "${GREEN}   ✓ Dependencias Go sincronizadas${NC}"
+
 # Verificar páginas HTML
 PAGINAS_ENCONTRADAS=$(find paginas -name "*.html" 2>/dev/null | wc -l)
 echo -e "${GREEN}   ✓ $PAGINAS_ENCONTRADAS páginas HTML en paginas/${NC}"

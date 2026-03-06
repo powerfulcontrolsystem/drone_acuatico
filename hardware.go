@@ -6,6 +6,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/stianeikeland/go-rpio/v4"
 	"log"
 	"os"
 	"os/exec"
@@ -40,6 +41,7 @@ var (
 var (
 	gpioDisponible   bool
 	pigpioDisponible bool
+	rpioDisponible   bool
 	umbralPesoKg     = 5.0
 )
 
@@ -106,20 +108,40 @@ func inicializarGPIO() bool {
 		log.Println("pigpio disponible (daemon corriendo)")
 	}
 
+	// Intentar control GPIO nativo por /dev/gpiomem (recomendado en Raspberry actual)
+	if err := rpio.Open(); err == nil {
+		rpioDisponible = true
+		log.Println("go-rpio disponible (/dev/gpiomem)")
+	} else {
+		log.Printf("go-rpio no disponible: %v", err)
+	}
+
 	exito := true
 	for numero, pin := range relesPines {
-		exportarGPIO(pin)
-		time.Sleep(50 * time.Millisecond)
+		inicializado := false
 
-		if err := configurarDireccionGPIO(pin, "out"); err != nil {
-			log.Printf("Error configurando relé %d (GPIO %d): %v", numero, pin, err)
-			exito = false
-			continue
+		if rpioDisponible {
+			p := rpio.Pin(pin)
+			p.Output()
+			p.High() // Estado inicial: HIGH = apagado (relé activo-bajo)
+			inicializado = true
+			log.Printf("Relé %d → GPIO %d (go-rpio)", numero, pin)
 		}
 
-		// Estado inicial: HIGH = apagado (relé activo-bajo)
-		escribirGPIO(pin, 1)
-		log.Printf("Relé %d → GPIO %d", numero, pin)
+		if !inicializado {
+			exportarGPIO(pin)
+			time.Sleep(50 * time.Millisecond)
+
+			if err := configurarDireccionGPIO(pin, "out"); err != nil {
+				log.Printf("Error configurando relé %d (GPIO %d): %v", numero, pin, err)
+				exito = false
+				continue
+			}
+
+			// Estado inicial: HIGH = apagado (relé activo-bajo)
+			escribirGPIO(pin, 1)
+			log.Printf("Relé %d → GPIO %d (sysfs)", numero, pin)
+		}
 	}
 
 	if !pigpioDisponible {
@@ -131,7 +153,7 @@ func inicializarGPIO() bool {
 		}
 	}
 
-	if exito || pigpioDisponible {
+	if exito || pigpioDisponible || rpioDisponible {
 		gpioDisponible = true
 		log.Println("GPIO inicializado correctamente")
 		return true
@@ -163,6 +185,28 @@ func controlarRele(numero int, encender bool) (bool, string) {
 	}
 
 	pin := relesPines[numero]
+
+	if rpioDisponible {
+		p := rpio.Pin(pin)
+		p.Output()
+		if encender {
+			p.Low() // LOW = encendido en relé activo-bajo
+		} else {
+			p.High() // HIGH = apagado
+		}
+
+		estadoRelesMu.Lock()
+		estadoReles[numero] = encender
+		estadoRelesMu.Unlock()
+
+		estado := "APAGADO"
+		if encender {
+			estado = "ENCENDIDO"
+		}
+		log.Printf("Relé %d: %s (go-rpio)", numero, estado)
+		return true, ""
+	}
+
 	valor := 1 // HIGH = apagado
 	if encender {
 		valor = 0 // LOW = encendido
@@ -261,6 +305,16 @@ func controlarMotorPigpio(direccion string, velocidad, pinIzq, pinDer int) (bool
 
 // liberarGPIO libera los recursos GPIO
 func liberarGPIO() {
+	if rpioDisponible {
+		for _, pin := range relesPines {
+			p := rpio.Pin(pin)
+			p.Output()
+			p.High() // Dejar relés apagados al salir
+		}
+		rpio.Close()
+		log.Println("GPIO liberado (go-rpio)")
+	}
+
 	if pigpioDisponible {
 		for _, pin := range motoresPWM {
 			exec.Command("pigs", "SERVO", strconv.Itoa(pin), "0").Run()

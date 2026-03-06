@@ -29,6 +29,9 @@ echo "  Compilando Drone Acuático (Go)"
 echo "  $(go version)"
 echo "============================================"
 
+echo "Sincronizando dependencias Go (go.mod/go.sum)..."
+go mod tidy
+
 if [ "$1" = "cross" ]; then
     echo "Cross-compilando para ARM (Raspberry Pi)..."
     GOOS=linux GOARCH=arm GOARM=7 go build -o "$NOMBRE" .
