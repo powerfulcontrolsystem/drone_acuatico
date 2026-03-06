@@ -10,39 +10,6 @@
 		/* Brújula flotante */
 		#brujula-flotante {
 			position: static;
-			width: 90px;
-			height: 90px;
-			background: rgba(34, 40, 49, 0.92);
-			border-radius: 50%;
-			box-shadow: 0 2px 12px #0008;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			border: 2.5px solid #2196f3;
-			pointer-events: none;
-			margin-right: 10px;
-		}
-		   .fila-superior {
-			display: grid;
-			grid-template-columns: repeat(3, 1fr);
-			gap: 0px;
-			width: 100%;
-			height: 100%;
-			min-height: auto;
-			align-items: stretch;
-			justify-items: stretch;
-			margin: 0;
-			overflow: visible;
-		}
-		.panel-cam {
-			margin: 0;
-			flex: 1 1 auto;
-			height: 100%;
-			width: 100%;
-			min-width: 0;
-			aspect-ratio: 16 / 9;
-			min-height: auto;
-			display: flex;
 			flex-direction: column;
 			align-items: center;
 			justify-content: center;
@@ -183,6 +150,42 @@
 	position: relative;
 	z-index: 1;
 	}
+
+		/* Corrección de proporciones para fila de cámaras y mapa */
+		.fila-superior {
+			display: flex !important;
+			flex-wrap: nowrap !important;
+			width: 100% !important;
+			max-width: 100% !important;
+			gap: 8px !important;
+			padding: 8px !important;
+			box-sizing: border-box !important;
+			overflow: hidden !important;
+		}
+		.fila-superior > .panel-cam {
+			flex: 1 1 0 !important;
+			min-width: 0 !important;
+			margin: 0 !important;
+			box-sizing: border-box !important;
+			display: flex !important;
+			flex-direction: column !important;
+			position: relative !important;
+		}
+		.panel-cam video {
+			flex: 1 1 auto !important;
+			width: 100% !important;
+			height: 100% !important;
+			object-fit: contain !important;
+			min-height: 240px !important;
+		}
+		.panel-cam.mapa #mapa-gps {
+			flex: 1 1 auto !important;
+			width: 100% !important;
+			height: 100% !important;
+			min-height: 240px !important;
+			z-index: 1 !important;
+		}
+
 			   .indicador-item {
 				   font-size: 13px !important;
 				   font-family: 'Bernard MT Condensed', 'Bernard MT', 'Segoe UI', 'Roboto', Arial, sans-serif !important;
@@ -413,12 +416,17 @@
 			filter: drop-shadow(0 0 4px #ff5252);
 		}
 		
-		/* Modo oscuro profesional */
-		body {
+		html, body {
+			width: 100% !important;
+			max-width: 100% !important;
+			overflow-x: hidden !important;
 			margin: 0;
 			padding: 0;
-			height: 100vh;
-			overflow-x: hidden;
+		}
+		
+		/* Modo oscuro profesional */
+		body {
+			min-height: 100vh;
 			overflow-y: auto;
 			display: flex;
 			flex-direction: column;
@@ -433,10 +441,10 @@
 			display: flex;
 			align-items: stretch;
 			justify-content: center;
-			overflow: visible;
-			padding: 0px;
+			padding: 0px 10px;
 			box-sizing: border-box;
 			background: #0f1218;
+			width: 100%;
 		}
 		.cuadro-superior-wrapper > div {
 			display: flex;
@@ -449,14 +457,15 @@
 			height: 100% !important;
 			margin: 0 !important;
 			width: 100%;
-			max-width: none;
+			max-width: 100%;
 			display: flex;
 			justify-content: stretch;
 			align-items: stretch;
-			overflow: visible;
+			overflow: hidden;
 			background: #1a1f28 !important;
 			border: 2px solid #2d3748 !important;
 			border-radius: 8px;
+			box-sizing: border-box;
 		}
 		.cuadro-inferior {
 		flex: 0 1 auto;
@@ -674,23 +683,17 @@
 			}
 		</script>
 		<!-- Indicadores superiores -->
-		<div id="indicadores-superiores" style="width:100%; display:flex; justify-content:center; align-items:center; margin: 4px 0 2px 0;">
-			<div style="background:#23272b; border-radius:7px; box-shadow:0 1px 4px #0002; padding:2px 16px; display:flex; gap:18px; align-items:center; min-height:32px; border:1.5px solid #2d3748;">
-				<table class="indicadores-tabla" style="border-collapse:separate; border-spacing:0; background:none;">
-					<tbody>
-						<tr>
-							<td id="indicador-temp" style="display:flex; align-items:center; gap:6px; font-size:15px; font-family:'Segoe UI',Arial,sans-serif; font-weight:600; color:#f2f2f2; border:none; background:none;">
-								<svg width="18" height="18" viewBox="0 0 16 16" style="vertical-align:middle;"><rect x="7" y="2" width="2" height="8" fill="#e6a23c"/><circle cx="8" cy="12" r="3" fill="#e6a23c"/></svg>
-								Temp: <span id="temp-valor">--</span>
-							</td>
-							<td style="border:1px solid #e0e0e0; padding:2px 3px; text-align:center;">Batería: <span id="bateria-valor">--</span></td>
-							<td style="border:1px solid #e0e0e0; padding:2px 3px; text-align:center;">RAM: <span id="ram-valor">--</span></td>
-							<td style="border:1px solid #e0e0e0; padding:2px 3px; text-align:center;">Disco: <span id="disco-valor">--</span></td>
-							<td style="border:1px solid #e0e0e0; padding:2px 3px; text-align:center;">Red: <span id="red-valor">--</span></td>
-							<td style="border:1px solid #e0e0e0; padding:2px 3px; text-align:center;">CPU: <span id="cpu-valor">--</span></td>
-						</tr>
-					</tbody>
-				</table>
+		<div id="indicadores-superiores" style="width:100%; display:flex; justify-content:center; align-items:center; margin: 4px 0 12px 0;">
+			<div style="background:#1a1f28; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.5); padding:8px 30px; display:flex; flex-direction:row; gap:40px; align-items:center; min-height:45px; border:2px solid #2d3748; width:fit-content; justify-content:center;">
+				<div id="indicador-temp" style="display:flex; flex-direction:row; align-items:center; gap:10px; font-size:18px; font-family:'Segoe UI',Arial,sans-serif; font-weight:700; color:#f2f2f2; background:none; text-shadow: 0 2px 4px rgba(0,0,0,0.5); white-space:nowrap;">
+					<svg width="22" height="22" viewBox="0 0 16 16" style="vertical-align:middle; filter:drop-shadow(0 2px 3px rgba(0,0,0,0.6));"><rect x="7" y="2" width="2" height="8" fill="#e6a23c"/><circle cx="8" cy="12" r="3" fill="#e6a23c"/></svg>
+					<span>Temp:</span> <span id="temp-valor">--</span>
+				</div>
+				<div style="width:2px; height:28px; background:#2d3748; border-radius:1px;"></div>
+				<div id="indicador-ram" style="display:flex; flex-direction:row; align-items:center; gap:10px; font-size:18px; font-family:'Segoe UI',Arial,sans-serif; font-weight:700; color:#f2f2f2; background:none; text-shadow: 0 2px 4px rgba(0,0,0,0.5); white-space:nowrap;">
+					<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2196f3" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle; filter:drop-shadow(0 2px 3px rgba(0,0,0,0.6));"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect><rect x="9" y="9" width="6" height="6"></rect></svg>
+					<span>RAM:</span> <span id="ram-valor">--</span>
+				</div>
 			</div>
 		</div>
 		<div class="cuadro-superior-wrapper">
@@ -922,8 +925,6 @@
 		let recorridoGrabando = false;
 		let pollingIndicadores = null;
 				
-
-		// ...existing code...
 
 		// --- Play/Stop y Captura ---
 		function iniciarCamara(videoId, playlist, camKey) {
@@ -1231,8 +1232,38 @@
 
 	function actualizarIndicadores(data) {
 		try {
-			actualizarTemperatura(data.temperatura);
-			actualizarMapaDesdeGPS(data.gps);
+			// Soporte para ambos formatos de datos (anidados o directos)
+			const d = data.datos || data;
+
+			// Actualizar Temperatura
+			if (typeof actualizarTemperatura === 'function') {
+				actualizarTemperatura(d.temperatura);
+			}
+
+			// Actualizar RAM
+			let ramVal = d.ram;
+			if (ramVal && typeof ramVal === 'object') {
+				ramVal = ramVal.percent;
+			}
+			const ramCelda = document.getElementById('indicador-ram');
+			const ramTexto = document.getElementById('ram-valor');
+			if (ramTexto) {
+				if (ramVal !== undefined && ramVal !== null && !isNaN(ramVal)) {
+					ramTexto.textContent = ramVal + '%';
+					if (ramCelda) {
+						if (ramVal < 50) { ramCelda.style.color = '#43a047'; }
+						else if (ramVal < 80) { ramCelda.style.color = '#fbc02d'; }
+						else { ramCelda.style.color = '#e53935'; }
+					}
+				} else {
+					ramTexto.textContent = '--';
+				}
+			}
+
+			// Actualizar Mapa GPS
+			if (typeof actualizarMapaDesdeGPS === 'function') {
+				actualizarMapaDesdeGPS(d.gps);
+			}
 		} catch (eIndic) {
 			console.error('Error en actualizarIndicadores:', eIndic);
 		}
@@ -1633,14 +1664,14 @@
 				iniciarPollingIndicadores();
 
 				const btnMenuMapa = document.getElementById('btn-menu-mapa');
-				const menuMapa = document.getElementById('menu-mapa-opciones');
-				if (btnMenuMapa && menuMapa) {
+				const menuMapaOpciones = document.getElementById('menu-mapa-opciones');
+				if (btnMenuMapa && menuMapaOpciones) {
 					btnMenuMapa.addEventListener('click', (e) => {
 						e.stopPropagation();
-						menuMapa.style.display = menuMapa.style.display === 'none' ? 'block' : 'none';
+						menuMapaOpciones.style.display = menuMapaOpciones.style.display === 'none' ? 'block' : 'none';
 					});
 					document.addEventListener('click', () => {
-						if (menuMapa.style.display === 'block') menuMapa.style.display = 'none';
+						if (menuMapaOpciones.style.display === 'block') menuMapaOpciones.style.display = 'none';
 					});
 				}
 
@@ -1654,9 +1685,31 @@
 
 				const btnMapaRecorrido = document.getElementById('mapa-grabar-recorrido');
 				if (btnMapaRecorrido) {
-					btnMapaRecorrido.addEventListener('click', () => {
-						toggleRecorridoGPS(btnMapaRecorrido);
-					});
+					let grabandoRecorrido = false;
+					btnMapaRecorrido.onclick = function() {
+						if (!(window.ws && window.ws.readyState === 1)) {
+							alert('Error: WebSocket no conectado');
+							return;
+						}
+						grabandoRecorrido = !grabandoRecorrido;
+						if (grabandoRecorrido) {
+							const nombre = prompt('Nombre del recorrido (opcional):');
+							if (nombre === null) { grabandoRecorrido = false; return; }
+							const nombreFinal = nombre.trim() || 'Recorrido ' + new Date().toLocaleString('es-ES', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'});
+							this.textContent = '⏹️ Detener recorrido';
+							this.style.background = '#d32f2f';
+							this.style.color = '#fff';
+							window.ws.send(JSON.stringify({ tipo: 'iniciar_recorrido', nombre: nombreFinal }));
+							console.log('Recorrido GPS iniciado:', nombreFinal);
+						} else {
+							this.textContent = '🛤️ Grabar recorrido';
+							this.style.background = '';
+							this.style.color = '';
+							window.ws.send(JSON.stringify({ tipo: 'finalizar_recorrido' }));
+							console.log('Recorrido GPS finalizado');
+						}
+						menuMapaOpciones.style.display = 'none';
+					};
 				}
 
 				// Conectar eventos de botones de velocidad
@@ -1904,62 +1957,3 @@
 			}
 		}, 1000);
 	})();
-	</script>
-<script>
-(function () {
-  function setTxt(id, v) {
-    var el = document.getElementById(id);
-    if (el) el.textContent = v;
-  }
-
-  function asegurarFilaIndicadores() {
-    var tabla = document.querySelector('.indicadores-tabla');
-    if (!tabla) return;
-    var tbody = tabla.querySelector('tbody') || tabla.appendChild(document.createElement('tbody'));
-    var tr = tbody.querySelector('tr') || tbody.appendChild(document.createElement('tr'));
-
-    tr.innerHTML =
-      '<td style="border:1px solid #e0e0e0; padding:2px 3px; text-align:center;">Bateria: <span id="bateria-valor">--</span></td>' +
-      '<td style="border:1px solid #e0e0e0; padding:2px 3px; text-align:center;">RAM: <span id="ram-valor">--</span></td>' +
-      '<td style="border:1px solid #e0e0e0; padding:2px 3px; text-align:center;">Disco: <span id="disco-valor">--</span></td>' +
-      '<td style="border:1px solid #e0e0e0; padding:2px 3px; text-align:center;">Red: <span id="red-valor">--</span></td>' +
-      '<td style="border:1px solid #e0e0e0; padding:2px 3px; text-align:center;">CPU: <span id="cpu-valor">--</span></td>' +
-      '<td style="border:1px solid #e0e0e0; padding:2px 3px; text-align:center;">Temp: <span id="temp-valor">--</span></td>';
-  }
-
-  async function cargarIndicadoresReales() {
-    try {
-      var r = await fetch('/api/indicadores?t=' + Date.now(), { cache: 'no-store' });
-      if (!r.ok) throw new Error('HTTP ' + r.status);
-      var j = await r.json();
-      var d = (j && j.datos) ? j.datos : {};
-
-      if (d.bateria && typeof d.bateria.porcentaje !== 'undefined') setTxt('bateria-valor', Math.round(d.bateria.porcentaje) + ' %');
-      else if (d.bateria && typeof d.bateria.voltaje !== 'undefined') setTxt('bateria-valor', Number(d.bateria.voltaje).toFixed(1) + ' V');
-      else setTxt('bateria-valor', '--');
-
-      if (d.ram && typeof d.ram.percent !== 'undefined') setTxt('ram-valor', Math.round(d.ram.percent) + ' %'); else setTxt('ram-valor', '--');
-      if (d.disco && typeof d.disco.porcentaje !== 'undefined') setTxt('disco-valor', Math.round(d.disco.porcentaje) + ' %'); else setTxt('disco-valor', '--');
-      if (d.wifi && typeof d.wifi.calidad !== 'undefined') setTxt('red-valor', Math.round(d.wifi.calidad) + ' %'); else setTxt('red-valor', '--');
-      if (d.cpu && typeof d.cpu.porcentaje !== 'undefined') setTxt('cpu-valor', Math.round(d.cpu.porcentaje) + ' %'); else setTxt('cpu-valor', '--');
-
-      if (d.temperatura && typeof d.temperatura.temperatura !== 'undefined') {
-        var t = Number(d.temperatura.temperatura);
-        setTxt('temp-valor', Number.isFinite(t) ? t.toFixed(1) + ' C' : '--');
-      } else {
-        setTxt('temp-valor', '--');
-      }
-    } catch (e) {
-      console.warn('Error indicadores:', e);
-    }
-  }
-
-  window.addEventListener('DOMContentLoaded', function () {
-    asegurarFilaIndicadores();
-    cargarIndicadoresReales();
-    setInterval(cargarIndicadoresReales, 5000);
-  });
-})();
-</script>
-</body>
-</html>
