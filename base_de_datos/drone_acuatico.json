@@ -12126,13 +12126,32 @@
           "timestamp": "2026-03-05 20:57:30"
         }
       ]
+    },
+    {
+      "id": 60,
+      "nombre": "",
+      "fecha_inicio": "2026-03-05 21:06:37",
+      "fecha_fin": null,
+      "activo": true,
+      "posiciones": [
+        {
+          "id": 1155,
+          "recorrido_id": 60,
+          "latitud": 11.234852333333333,
+          "longitud": -74.20862233333334,
+          "altitud": 14.3,
+          "velocidad": 0.205572,
+          "satelites": 8,
+          "timestamp": "2026-03-05 21:06:37"
+        }
+      ]
     }
   ],
   "ubicaciones_guardadas": [],
   "historial_gps": [],
   "destino": null,
-  "siguiente_id_recorrido": 60,
-  "siguiente_id_posicion": 1155,
+  "siguiente_id_recorrido": 61,
+  "siguiente_id_posicion": 1156,
   "siguiente_id_ubicacion": 1,
   "siguiente_id_historial": 1
 }

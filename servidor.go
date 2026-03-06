@@ -217,6 +217,19 @@ func apiIndicadoresHandler(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+func apiTemperaturaHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "GET" {
+		enviarJSON(w, 405, map[string]interface{}{"error": "Método no permitido"})
+		return
+	}
+
+	temp := obtenerTemperatura()
+	enviarJSON(w, 200, map[string]interface{}{
+		"exito": true,
+		"datos":  temp,
+	})
+}
+
 func apiRelesHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
@@ -1015,6 +1028,7 @@ func configurarRutas(mux *http.ServeMux) {
 	mux.HandleFunc("/api/gps/actual", apiGPSActualHandler)
 	mux.HandleFunc("/api/test/wifi", apiTestWifiHandler)
 	mux.HandleFunc("/api/indicadores", apiIndicadoresHandler)
+	mux.HandleFunc("/api/temperatura", apiTemperaturaHandler)
 	mux.HandleFunc("/api/onvif/discover", apiONVIFDiscoverHandler)
 	mux.HandleFunc("/api/ubicaciones", apiUbicacionesHandler)
 	mux.HandleFunc("/api/recorridos/", func(w http.ResponseWriter, r *http.Request) {

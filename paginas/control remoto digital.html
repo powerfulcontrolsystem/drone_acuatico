@@ -907,42 +907,13 @@
 			// Inicializar nombres de relés vacío (se carga desde config y WebSocket)
 			window.nombres_reles = {};
 
-		// Variables para calcular velocidad en tiempo real basada en GPS
-		let ultimaPosicionGPS = { lat: null, lon: null, tiempo: null };
-		// Persistir último valor válido de batería y estado de carga para no mostrar 0/-- al quedar en espera
-		let ultimoBatPct = null;
-		let ultimoBatVolt = null;
-		let ultimoBatCargando = null;
+		// Variables de estado UI
 		let velocidadActual = 50;
 		let recorridoGrabando = false;
 		let pollingIndicadores = null;
 				
 
-		// Función para calcular distancia entre dos puntos GPS (Haversine formula)
-		function calcularDistanciaGPS(lat1, lon1, lat2, lon2) {
-			const R = 6371; // Radio de la Tierra en km
-			const dLat = (lat2 - lat1) * Math.PI / 180;
-			const dLon = (lon2 - lon1) * Math.PI / 180;
-			const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-				  Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-				  Math.sin(dLon/2) * Math.sin(dLon/2);
-			const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-			return R * c; // Distancia en km
-		}
-
-		// Función para calcular velocidad en km/h basada en cambios de GPS
-		function calcularVelocidadGPS(latActual, lonActual) {
-			const ahora = Date.now();
-			if (ultimaPosicionGPS.lat === null || ultimaPosicionGPS.lon === null || ultimaPosicionGPS.tiempo === null) {
-				ultimaPosicionGPS = { lat: latActual, lon: lonActual, tiempo: ahora };
-				return 0; // Primera lectura
-			}
-			const distancia = calcularDistanciaGPS(ultimaPosicionGPS.lat, ultimaPosicionGPS.lon, latActual, lonActual);
-			const tiempoTranscurrido = (ahora - ultimaPosicionGPS.tiempo) / 3600000; // Convertir ms a horas
-			const velocidad = tiempoTranscurrido > 0 ? distancia / tiempoTranscurrido : 0;
-			ultimaPosicionGPS = { lat: latActual, lon: lonActual, tiempo: ahora };
-			return velocidad;
-		}
+		// ...existing code...
 
 		// --- Play/Stop y Captura ---
 		function iniciarCamara(videoId, playlist, camKey) {
@@ -1197,25 +1168,8 @@
 				} catch(e) {}
 			}
 			function setConexion(estado, textoPersonalizado, reconectando) {
-				const svg = document.getElementById('svg-osciloscopio');
-				const texto = document.getElementById('texto-conexion');
 				const enReconexion = !!reconectando;
-				const color = estado ? '#43a047' : (enReconexion ? '#f9a825' : '#e53935');
-				if (svg) {
-					svg.querySelectorAll('rect, line, polyline').forEach(function(el) {
-						el.setAttribute('stroke', color);
-					});
-				}
-				if (texto) {
-					if (estado) {
-						texto.textContent = 'Conectado';
-					} else if (textoPersonalizado) {
-						texto.textContent = textoPersonalizado;
-					} else {
-						texto.textContent = 'Desconectado';
-					}
-					texto.style.color = color;
-				}
+				const _ = textoPersonalizado; // Mantener firma de función sin usar elementos eliminados
 				if (ultimoEstadoConexion !== estado && estado) {
 					beep(880, 120, 0.18);
 				} else if (ultimoEstadoConexion !== estado && !estado && !enReconexion) {
@@ -1227,14 +1181,6 @@
 		const el = document.getElementById(id);
 		if (!el) return;
 		el.textContent = valor;
-	}
-
-	function actualizarRAM(ram) {
-		if (ram && typeof ram.percent !== 'undefined') {
-			setIndicadorTexto('ram-valor', ram.percent + ' % (' + ram.used + 'MB/' + ram.total + 'MB)');
-			return;
-		}
-		setIndicadorTexto('ram-valor', '--');
 	}
 
 	function actualizarTemperatura(temperatura) {
@@ -1263,169 +1209,40 @@
 		}
 	}
 
-	function actualizarCPU(cpu) {
-		if (cpu && typeof cpu.porcentaje !== 'undefined') {
-			setIndicadorTexto('cpu-valor', cpu.porcentaje + ' %');
-			return;
+	function actualizarMapaDesdeGPS(gps) {
+		if (!(gps && gps.latitud && gps.longitud)) return;
+		const lat = Number(gps.latitud);
+		const lon = Number(gps.longitud);
+		const gpsActivo = gps.valido === true;
+		if (!isNaN(lat) && !isNaN(lon) && typeof mostrarMapaGPS === 'function') {
+			mostrarMapaGPS(lat, lon, gpsActivo);
 		}
-		setIndicadorTexto('cpu-valor', '--');
-	}
-
-	function actualizarDisco(disco, discoUso) {
-		if (disco && typeof disco.porcentaje !== 'undefined') {
-			setIndicadorTexto('disk-uso', disco.porcentaje + ' %');
-			return;
-		}
-		if (discoUso && typeof discoUso.uso_porcentaje !== 'undefined') {
-			setIndicadorTexto('disk-uso', discoUso.uso_porcentaje + '%');
-			return;
-		}
-		setIndicadorTexto('disk-uso', '--');
-	}
-
-	function actualizarRed(red) {
-		if (red !== undefined && red !== null && Number.isFinite(Number(red))) {
-			setIndicadorTexto('red-valor', Number(red).toFixed(1) + ' Mbps');
-			return;
-		}
-		setIndicadorTexto('red-valor', '--');
-	}
-
-	function actualizarWifi(wifi) {
-		const wifiSignal = document.getElementById('wifi-signal');
-		if (wifi && typeof wifi.calidad !== 'undefined') {
-			const wifiCalidad = Number(wifi.calidad);
-			if (wifiCalidad > 0) {
-				setIndicadorTexto('wifi-strength', Math.max(0, Math.min(100, wifiCalidad)));
-			} else {
-				setIndicadorTexto('wifi-strength', '--');
-			}
-			if (wifiSignal) {
-				if (wifiCalidad >= 75) wifiSignal.style.stroke = '#4caf50';
-				else if (wifiCalidad >= 50) wifiSignal.style.stroke = '#fdd835';
-				else if (wifiCalidad >= 25) wifiSignal.style.stroke = '#fb8c00';
-				else if (wifiCalidad > 0) wifiSignal.style.stroke = '#e53935';
-				else wifiSignal.style.stroke = '#6ec1e4';
-			}
-			return;
-		}
-		setIndicadorTexto('wifi-strength', '--');
-		if (wifiSignal) wifiSignal.style.stroke = '#6ec1e4';
-	}
-
-	function actualizarGPS(gps) {
-		if (gps && gps.latitud && gps.longitud) {
-			const lat = Number(gps.latitud);
-			const lon = Number(gps.longitud);
-			const gpsActivo = gps.valido === true;
-			setIndicadorTexto('gps-lat', isNaN(lat) ? '--' : lat.toFixed(1));
-			setIndicadorTexto('gps-lon', isNaN(lon) ? '--' : lon.toFixed(1));
-			if (!isNaN(lat) && !isNaN(lon) && typeof mostrarMapaGPS === 'function') {
-				mostrarMapaGPS(lat, lon, gpsActivo);
-			}
-			return { lat, lon };
-		}
-		setIndicadorTexto('gps-lat', '--');
-		setIndicadorTexto('gps-lon', '--');
-		return null;
-	}
-
-	function actualizarVelocidad(velocidad, gpsPosicion) {
-		if (gpsPosicion && Number.isFinite(gpsPosicion.lat) && Number.isFinite(gpsPosicion.lon)) {
-			const velocidadGPS = calcularVelocidadGPS(gpsPosicion.lat, gpsPosicion.lon);
-			setIndicadorTexto('vel-valor', velocidadGPS.toFixed(2) + ' km/h');
-			return;
-		}
-		if (velocidad !== undefined && velocidad !== null && Number.isFinite(Number(velocidad))) {
-			setIndicadorTexto('vel-valor', Number(velocidad).toFixed(2) + ' km/h');
-			return;
-		}
-		setIndicadorTexto('vel-valor', '--');
-	}
-
-	function actualizarPeso(peso) {
-		if (peso && typeof peso.peso_kg !== 'undefined') {
-			setIndicadorTexto('peso-valor', peso.peso_kg + ' kg');
-			return;
-		}
-		setIndicadorTexto('peso-valor', '--');
-	}
-
-	function actualizarSolar(solar) {
-		if (solar && typeof solar.potencia !== 'undefined') {
-			setIndicadorTexto('solar-valor', solar.potencia + ' W');
-			return;
-		}
-		setIndicadorTexto('solar-valor', '--');
-	}
-
-	function actualizarVoltaje(voltaje) {
-		if (!voltaje || typeof voltaje.voltaje === 'undefined') return;
-		const v = Number(voltaje.voltaje);
-		if (Number.isFinite(v)) {
-			ultimoBatVolt = v;
-			setIndicadorTexto('bat-voltaje', v.toFixed(2));
-		}
-	}
-
-	function actualizarIndicadorCargaBateria() {
-		const textoConexion = document.getElementById('texto-conexion');
-		const rayoId = 'rayo-cargando-indicador';
-		const rayoPrevio = document.getElementById(rayoId);
-		if (rayoPrevio) rayoPrevio.remove();
-		if (!ultimoBatCargando || !textoConexion) return;
-		const rayoHtml = `<span id="${rayoId}" class="rayo-animado" style="display:inline-block; width:18px; height:18px; vertical-align:middle; margin-left:6px;">
-			<svg viewBox=\"0 0 32 32\" width=\"18\" height=\"18\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">
-				<g>
-					<polyline points=\"16,3 8,18 15,18 12,29 25,12 17,12 20,3\" stroke=\"#ffe600\" stroke-width=\"2.2\" fill=\"#ffe600\"/>
-				</g>
-				<animateTransform attributeName=\"transform\" type=\"scale\" values=\"1;1.2;1;1.1;1\" keyTimes=\"0;0.2;0.5;0.7;1\" dur=\"0.8s\" repeatCount=\"indefinite\"/>
-			</svg>
-		</span>`;
-		textoConexion.insertAdjacentHTML('afterend', rayoHtml);
-	}
-
-	function actualizarBateria(bateria, solar) {
-		let pct = undefined;
-		let volt = undefined;
-		if (bateria) {
-			pct = bateria.porcentaje;
-			volt = bateria.voltaje;
-		}
-		if ((pct === undefined || pct === null) && solar) pct = solar.porcentaje;
-		if ((volt === undefined || volt === null) && solar) volt = solar.bateria_voltaje;
-
-		const pctNum = Number(pct);
-		const voltNum = Number(volt);
-		if (Number.isFinite(pctNum)) ultimoBatPct = pctNum;
-		if (Number.isFinite(voltNum)) ultimoBatVolt = voltNum;
-
-		let cargando = ultimoBatCargando;
-		if (bateria && typeof bateria.cargando !== 'undefined') cargando = !!bateria.cargando;
-		else if (solar && typeof solar.cargando !== 'undefined') cargando = !!solar.cargando;
-		if (typeof cargando !== 'undefined' && cargando !== null) ultimoBatCargando = cargando;
-
-		setIndicadorTexto('bat-valor', (ultimoBatPct !== null) ? (ultimoBatPct.toFixed(0) + ' %') : '--');
-		setIndicadorTexto('bat-voltaje', (ultimoBatVolt !== null) ? ultimoBatVolt.toFixed(2) : '--');
-		actualizarIndicadorCargaBateria();
 	}
 
 	function actualizarIndicadores(data) {
 		try {
-			actualizarRAM(data.ram);
 			actualizarTemperatura(data.temperatura);
-			actualizarCPU(data.cpu);
-			actualizarDisco(data.disco, data.disco_uso);
-			actualizarBateria(data.bateria, data.solar);
-			actualizarRed(data.red);
-			actualizarWifi(data.wifi);
-			actualizarSolar(data.solar);
-			actualizarPeso(data.peso);
-			actualizarVoltaje(data.voltaje);
-			const gpsPosicion = actualizarGPS(data.gps);
-			actualizarVelocidad(data.velocidad, gpsPosicion);
+			actualizarMapaDesdeGPS(data.gps);
 		} catch (eIndic) {
 			console.error('Error en actualizarIndicadores:', eIndic);
+		}
+	}
+
+	async function cargarTemperaturaRaspberry() {
+		const controller = new AbortController();
+		const timeoutId = setTimeout(() => controller.abort(), 2500);
+		try {
+			const res = await fetch('/api/temperatura', { signal: controller.signal, cache: 'no-store' });
+			if (!res.ok) return;
+			const data = await res.json();
+			if (data && data.datos) {
+				actualizarTemperatura(data.datos);
+			}
+		} catch (e) {
+			// Mantener silencioso en UI; solo log para diagnóstico
+			console.warn('No se pudo actualizar temperatura:', e);
+		} finally {
+			clearTimeout(timeoutId);
 		}
 	}
 			// Relés
@@ -1547,14 +1364,10 @@
 					// Solicitar datos completos al conectar para asegurar estados iniciales de relés
 					enviarMensajeWS({ tipo: 'obtener_datos' });
 					console.log('📤 Enviado: obtener_datos');
-					// Fallback: si datos no llegan en 5s, re-solicitar
+					// Refuerzo de carga inicial de temperatura
 					setTimeout(function() {
 						if (window.ws && window.ws.readyState === 1) {
-							var ramEl = document.getElementById('ram-valor');
-							if (ramEl && ramEl.textContent === '--') {
-								console.log('⚠️ Fallback: re-solicitando datos del servidor...');
-								enviarMensajeWS({ tipo: 'obtener_datos' });
-							}
+							enviarMensajeWS({ tipo: 'obtener_datos' });
 						}
 					}, 5000);
 					// Asegurar que el mapa se inicialice si no lo está
@@ -1680,22 +1493,10 @@
 							if (btnRec) btnRec.textContent = '🛤️ Grabar recorrido';
 						}
 						// Indicadores del sistema (nueva capa modular)
-						if (data.tipo === 'ram' && data.datos) actualizarRAM(data.datos);
 						if (data.tipo === 'temperatura' && data.datos) actualizarTemperatura(data.datos);
-						if (data.tipo === 'cpu' && data.datos) actualizarCPU(data.datos);
-						if (data.tipo === 'almacenamiento' && data.datos) actualizarDisco(data.datos, null);
-						if (data.tipo === 'disco_uso' && data.datos) actualizarDisco(null, data.datos);
-						if (data.tipo === 'bateria' && data.datos) actualizarBateria(data.datos, null);
-						if (data.tipo === 'peso' && data.datos) actualizarPeso(data.datos);
-						if (data.tipo === 'solar' && data.datos) {
-							actualizarSolar(data.datos);
-							actualizarBateria(null, data.datos);
-						}
 						if (data.tipo === 'gps' && data.datos) {
-							const gpsPosicion = actualizarGPS(data.datos);
-							actualizarVelocidad(null, gpsPosicion);
+							actualizarMapaDesdeGPS(data.datos);
 						}
-						if (data.tipo === 'wifi' && data.datos) actualizarWifi(data.datos);
 						// Brújula - actualizar desde el WebSocket principal
 						if (data.tipo === 'brujula' && data.datos) {
 							if (data.datos.valido && typeof data.datos.azimuth === 'number') {
@@ -1709,12 +1510,7 @@
 						if (data.tipo === 'respuesta_velocidad' && typeof data.velocidad !== 'undefined') {
 							aplicarVelocidadUI(Number(data.velocidad));
 						}
-						// Voltaje de la Raspberry Pi
-						if (data.tipo === 'voltaje' && data.datos) actualizarVoltaje(data.datos);
-						// Velocidad de red
-						if (data.tipo === 'velocidad_red' && data.datos) {
-							actualizarRed(data.datos.velocidad);
-						}
+						// ...existing code...
 					} catch(e) {
 						console.error('Error al parsear mensaje WebSocket:', e, event.data);
 					}
@@ -1724,19 +1520,10 @@
 			function iniciarPollingIndicadores() {
 				if (pollingIndicadores) return;
 				const ejecutar = async () => {
-					try {
-						const res = await fetch('/api/indicadores');
-						if (!res.ok) return;
-						const data = await res.json();
-						if (data && data.datos) {
-							actualizarIndicadores(data.datos);
-						}
-					} catch (e) {
-						console.warn('Error polling indicadores:', e);
-					}
+					await cargarTemperaturaRaspberry();
 				};
 				ejecutar();
-				pollingIndicadores = setInterval(ejecutar, 5000);
+				pollingIndicadores = setInterval(ejecutar, 3000);
 			}
 
 			function detenerPollingIndicadores() {
@@ -1767,17 +1554,14 @@
 			function pruebaRapida() {
 				const resultados = [];
 				const faltantes = [];
-				const ids = [
-					'ram-valor', 'temp-valor', 'cpu-valor', 'disk-uso', 'bat-valor',
-					'bat-voltaje', 'wifi-strength', 'gps-lat', 'gps-lon', 'vel-valor'
-				];
+				const ids = ['temp-valor', 'indicador-temp'];
 				ids.forEach(id => {
 					if (!document.getElementById(id)) faltantes.push(id);
 				});
 				if (faltantes.length > 0) {
 					resultados.push('Faltan elementos UI: ' + faltantes.join(', '));
 				} else {
-					resultados.push('UI de indicadores OK');
+					resultados.push('UI de temperatura OK');
 				}
 				const wsOk = !!(window.ws && window.ws.readyState === 1);
 				if (!wsOk) {
@@ -1787,15 +1571,7 @@
 					window.ws.send(JSON.stringify({ tipo: 'obtener_datos' }));
 					resultados.push('WS conectado');
 				}
-				const latTxt = document.getElementById('gps-lat')?.textContent || '';
-				const lonTxt = document.getElementById('gps-lon')?.textContent || '';
-				const lat = parseFloat(latTxt);
-				const lon = parseFloat(lonTxt);
-				if (isFinite(lat) && isFinite(lon)) {
-					mostrarMapaGPS(lat, lon, true);
-				} else {
-					mostrarMapaGPS(0, 0, false);
-				}
+				cargarTemperaturaRaspberry();
 				setTimeout(() => {
 					resultados.push(window._leafletMap ? 'Mapa OK' : 'Mapa sin inicializar');
 					alert('Prueba rapida:\n- ' + resultados.join('\n- '));
@@ -1843,6 +1619,7 @@
 				if (typeof window.cargarNombresRelesDesdeConfig === 'function') {
 					window.cargarNombresRelesDesdeConfig();
 				}
+				cargarTemperaturaRaspberry();
 				iniciarPollingIndicadores();
 
 				const btnMenuMapa = document.getElementById('btn-menu-mapa');
