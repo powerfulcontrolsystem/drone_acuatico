@@ -336,69 +336,77 @@ func liberarGPIO() {
 // ==================== FUNCIONES DE MONITOREO ====================
 
 func obtenerVoltajeRaspberry() map[string]interface{} {
-	cmd := exec.Command("vcgencmd", "get_throttled")
-	salida, err := cmd.Output()
-	if err != nil {
-		return map[string]interface{}{"voltaje": 0.0, "alerta": false, "estado_raw": "error"}
-	}
+	       cmd := exec.Command("vcgencmd", "get_throttled")
+	       salida, err := cmd.Output()
+	       if err != nil {
+		       return map[string]interface{}{
+			       "voltaje": "N/D", "alerta": false, "estado_raw": "error", "error": "No se pudo leer voltaje" }
+	       }
 
-	valor := strings.TrimSpace(string(salida))
-	if strings.Contains(valor, "=") {
-		partes := strings.SplitN(valor, "=", 2)
-		valor = partes[1]
-	}
+	       valor := strings.TrimSpace(string(salida))
+	       if strings.Contains(valor, "=") {
+		       partes := strings.SplitN(valor, "=", 2)
+		       valor = partes[1]
+	       }
 
-	alerta := strings.HasSuffix(valor, "5") || strings.HasSuffix(valor, "05") ||
-		strings.HasSuffix(valor, "50005") || strings.HasSuffix(valor, "80005")
+	       alerta := strings.HasSuffix(valor, "5") || strings.HasSuffix(valor, "05") ||
+		       strings.HasSuffix(valor, "50005") || strings.HasSuffix(valor, "80005")
 
-	voltaje := 5.0
-	if alerta {
-		voltaje = 4.5
-	}
+	       voltaje := 5.0
+	       if alerta {
+		       voltaje = 4.5
+	       }
 
-	return map[string]interface{}{"voltaje": voltaje, "alerta": alerta, "estado_raw": valor}
+	       return map[string]interface{}{
+		       "voltaje": voltaje, "alerta": alerta, "estado_raw": valor }
 }
 
 func obtenerRAM() map[string]interface{} {
-	datos, err := os.ReadFile("/proc/meminfo")
-	if err != nil {
-		return map[string]interface{}{"total": 0, "used": 0, "available": 0, "percent": 0}
-	}
+	       datos, err := os.ReadFile("/proc/meminfo")
+	       if err != nil {
+		       return map[string]interface{}{
+			       "total": "N/D", "used": "N/D", "available": "N/D", "percent": "N/D", "error": "No se pudo leer RAM"}
+	       }
 
-	lineas := strings.Split(string(datos), "\n")
-	var total, available int
+	       lineas := strings.Split(string(datos), "\n")
+	       var total, available int
 
-	for _, linea := range lineas {
-		if strings.HasPrefix(linea, "MemTotal:") {
-			total = parsearMemInfo(linea) / 1024
-		}
-		if strings.HasPrefix(linea, "MemAvailable:") {
-			available = parsearMemInfo(linea) / 1024
-		}
-	}
+	       for _, linea := range lineas {
+		       if strings.HasPrefix(linea, "MemTotal:") {
+			       total = parsearMemInfo(linea) / 1024
+		       }
+		       if strings.HasPrefix(linea, "MemAvailable:") {
+			       available = parsearMemInfo(linea) / 1024
+		       }
+	       }
 
-	used := total - available
-	percent := 0
-	if total > 0 {
-		percent = used * 100 / total
-	}
+	       if total == 0 {
+		       return map[string]interface{}{
+			       "total": "N/D", "used": "N/D", "available": "N/D", "percent": "N/D", "error": "RAM total 0"}
+	       }
 
-	return map[string]interface{}{"total": total, "used": used, "available": available, "percent": percent}
+	       used := total - available
+	       percent := used * 100 / total
+
+	       return map[string]interface{}{
+		       "total": total, "used": used, "available": available, "percent": percent}
 }
 
 func obtenerTemperatura() map[string]interface{} {
-	cmd := exec.Command("vcgencmd", "measure_temp")
-	salida, err := cmd.Output()
-	if err != nil {
-		return map[string]interface{}{"temperatura": 0, "unidad": "C"}
-	}
+	       cmd := exec.Command("vcgencmd", "measure_temp")
+	       salida, err := cmd.Output()
+	       if err != nil {
+		       return map[string]interface{}{ "temperatura": "N/D", "unidad": "C", "error": "No se pudo leer temperatura" }
+	       }
 
-	texto := strings.TrimSpace(string(salida))
-	texto = strings.Replace(texto, "temp=", "", 1)
-	texto = strings.Replace(texto, "'C", "", 1)
-	temp, _ := strconv.ParseFloat(texto, 64)
-
-	return map[string]interface{}{"temperatura": temp, "unidad": "C"}
+	       texto := strings.TrimSpace(string(salida))
+	       texto = strings.Replace(texto, "temp=", "", 1)
+	       texto = strings.Replace(texto, "'C", "", 1)
+	       temp, err := strconv.ParseFloat(texto, 64)
+	       if err != nil {
+		       return map[string]interface{}{ "temperatura": "N/D", "unidad": "C", "error": "Formato temperatura inválido" }
+	       }
+	       return map[string]interface{}{ "temperatura": temp, "unidad": "C" }
 }
 
 func obtenerCPU() map[string]interface{} {
@@ -443,29 +451,30 @@ func obtenerCPU() map[string]interface{} {
 }
 
 func obtenerAlmacenamiento() map[string]interface{} {
-	var stat syscall.Statfs_t
-	if err := syscall.Statfs("/", &stat); err != nil {
-		return map[string]interface{}{
-			"total_gb": 0.0, "usado_gb": 0.0, "disponible_gb": 0.0, "porcentaje": 0,
-		}
-	}
+	       var stat syscall.Statfs_t
+	       if err := syscall.Statfs("/", &stat); err != nil {
+		       return map[string]interface{}{
+			       "total_gb": "N/D", "usado_gb": "N/D", "disponible_gb": "N/D", "porcentaje": "N/D", "error": "No se pudo leer disco" }
+	       }
 
-	totalBytes := stat.Blocks * uint64(stat.Bsize)
-	freeBytes := stat.Bfree * uint64(stat.Bsize)
-	usedBytes := totalBytes - freeBytes
+	       totalBytes := stat.Blocks * uint64(stat.Bsize)
+	       freeBytes := stat.Bfree * uint64(stat.Bsize)
+	       usedBytes := totalBytes - freeBytes
 
-	totalGB := float64(totalBytes) / (1024 * 1024 * 1024)
-	usadoGB := float64(usedBytes) / (1024 * 1024 * 1024)
-	disponibleGB := float64(freeBytes) / (1024 * 1024 * 1024)
-	porcentaje := 0
-	if totalBytes > 0 {
-		porcentaje = int(usedBytes * 100 / totalBytes)
-	}
+	       if totalBytes == 0 {
+		       return map[string]interface{}{
+			       "total_gb": "N/D", "usado_gb": "N/D", "disponible_gb": "N/D", "porcentaje": "N/D", "error": "Disco total 0" }
+	       }
 
-	return map[string]interface{}{
-		"total_gb": redondear(totalGB, 2), "usado_gb": redondear(usadoGB, 2),
-		"disponible_gb": redondear(disponibleGB, 2), "porcentaje": porcentaje,
-	}
+	       totalGB := float64(totalBytes) / (1024 * 1024 * 1024)
+	       usadoGB := float64(usedBytes) / (1024 * 1024 * 1024)
+	       disponibleGB := float64(freeBytes) / (1024 * 1024 * 1024)
+	       porcentaje := int(usedBytes * 100 / totalBytes)
+
+	       return map[string]interface{}{
+		       "total_gb": redondear(totalGB, 2), "usado_gb": redondear(usadoGB, 2),
+		       "disponible_gb": redondear(disponibleGB, 2), "porcentaje": porcentaje,
+	       }
 }
 
 func obtenerUsoDisco() map[string]interface{} {
