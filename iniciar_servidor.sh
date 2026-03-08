@@ -299,44 +299,33 @@ echo ""
 
 echo -e "${YELLOW}[4/5] Compilando servidor...${NC}"
 
-# Solo recompilar si el binario no existe o los fuentes son más nuevos
-NECESITA_COMPILAR=false
-if [ ! -f "$NOMBRE" ]; then
-    NECESITA_COMPILAR=true
-else
-    # Verificar si algún .go es más nuevo que el binario
-    for archivo in *.go; do
-        if [ "$archivo" -nt "$NOMBRE" ]; then
-            NECESITA_COMPILAR=true
-            break
-        fi
-    done
-fi
+# Matar procesos previos del servidor antes de compilar
+pkill -f "./$NOMBRE" 2>/dev/null || true
+pkill -f "servidor.py" 2>/dev/null || true
+sleep 1
 
-if $NECESITA_COMPILAR; then
-    echo -e "${YELLOW}   Compilando...${NC}"
-    go build -o "$NOMBRE" . 2>&1
-    if [ $? -ne 0 ]; then
-        echo -e "${RED}   ✗ Error de compilación${NC}"
-        exit 1
-    fi
-    chmod +x "$NOMBRE"
-    TAMANO=$(du -h "$NOMBRE" | cut -f1)
-    echo -e "${GREEN}   ✓ Compilado exitosamente ($TAMANO)${NC}"
-else
-    TAMANO=$(du -h "$NOMBRE" | cut -f1)
-    echo -e "${GREEN}   ✓ Binario actualizado ($TAMANO), no necesita recompilar${NC}"
+# Forzar recompilacion siempre para evitar binarios desactualizados
+NECESITA_COMPILAR=true
+MOTIVO_COMPILACION="forzada"
+
+echo -e "${YELLOW}   Compilando...${NC}"
+go build -o "$NOMBRE" . 2>&1
+if [ $? -ne 0 ]; then
+    echo -e "${RED}   ✗ Error de compilación${NC}"
+    exit 1
 fi
+chmod +x "$NOMBRE"
+TAMANO=$(du -h "$NOMBRE" | cut -f1)
+echo -e "${GREEN}   ✓ Compilado exitosamente ($TAMANO)${NC}"
+# Registrar binario en historial_binarios.txt
+FECHA_BIN=$(date '+%Y-%m-%d_%H:%M:%S')
+HASH_BIN=$(sha256sum "$NOMBRE" | awk '{print $1}')
+echo "$FECHA_BIN | $TAMANO | $HASH_BIN | $NOMBRE | $MOTIVO_COMPILACION" >> historial_binarios.txt
 echo ""
 
 # ==================== 5. EJECUTAR ====================
 
 echo -e "${YELLOW}[5/5] Iniciando servidor...${NC}"
-
-# Matar procesos previos del servidor
-pkill -f "./$NOMBRE" 2>/dev/null || true
-pkill -f "servidor.py" 2>/dev/null || true
-sleep 1
 
 # Obtener IP local para mostrar URL correcta
 IP_LOCAL=$(hostname -I 2>/dev/null | awk '{print $1}')

@@ -286,8 +286,9 @@
 		}
 		.reles-botones .btn-rele {
 			min-width: auto;
-			font-size: 0.75em;
-			padding: 4px 6px;
+			font-size: 0.85em;
+			font-weight: 800;
+			padding: 6px 8px;
 		}
 		@media (max-width: 700px) {
 			.reles-botones {
@@ -683,16 +684,20 @@
 			}
 		</script>
 		<!-- Indicadores superiores -->
-		<div id="indicadores-superiores" style="width:100%; display:flex; justify-content:center; align-items:center; margin: 4px 0 12px 0;">
+		<div id="indicadores-superiores" style="width:100%; display:flex; justify-content:center; align-items:center; margin: 4px 0 12px 0; gap: 24px;">
 			<div style="background:#1a1f28; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.5); padding:8px 30px; display:flex; flex-direction:row; gap:40px; align-items:center; min-height:45px; border:2px solid #2d3748; width:fit-content; justify-content:center;">
 				<div id="indicador-temp" style="display:flex; flex-direction:row; align-items:center; gap:10px; font-size:18px; font-family:'Segoe UI',Arial,sans-serif; font-weight:700; color:#f2f2f2; background:none; text-shadow: 0 2px 4px rgba(0,0,0,0.5); white-space:nowrap;">
 					<svg width="22" height="22" viewBox="0 0 16 16" style="vertical-align:middle; filter:drop-shadow(0 2px 3px rgba(0,0,0,0.6));"><rect x="7" y="2" width="2" height="8" fill="#e6a23c"/><circle cx="8" cy="12" r="3" fill="#e6a23c"/></svg>
 					<span>Temp:</span> <span id="temp-valor">--</span>
 				</div>
-				<div style="width:2px; height:28px; background:#2d3748; border-radius:1px;"></div>
-				<div id="indicador-ram" style="display:flex; flex-direction:row; align-items:center; gap:10px; font-size:18px; font-family:'Segoe UI',Arial,sans-serif; font-weight:700; color:#f2f2f2; background:none; text-shadow: 0 2px 4px rgba(0,0,0,0.5); white-space:nowrap;">
-					<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2196f3" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle; filter:drop-shadow(0 2px 3px rgba(0,0,0,0.6));"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect><rect x="9" y="9" width="6" height="6"></rect></svg>
-					<span>RAM:</span> <span id="ram-valor">--</span>
+			</div>
+			<div id="cuadro-logs" style="display:flex; flex-direction:column; align-items:flex-end; gap:4px; min-width:260px; max-width:340px;">
+				<label for="logs-textarea" style="color:#6ec1e4; font-size:14px; font-weight:600; margin-bottom:2px;">Logs / Errores</label>
+				<textarea id="logs-textarea" rows="4" style="width:100%; min-width:220px; max-width:340px; min-height:60px; max-height:120px; resize:vertical; background:#181e29; color:#e5e7eb; border:1.5px solid #2196f3; border-radius:6px; font-size:13px; font-family:monospace; padding:6px; box-sizing:border-box; box-shadow:0 2px 8px #2196f355;"></textarea>
+				<div style="display:flex; gap:8px; margin-top:2px;">
+					<button type="button" onclick="navigator.clipboard.writeText(document.getElementById('logs-textarea').value)" style="background:#2196f3; color:#fff; border:none; border-radius:4px; padding:4px 10px; font-size:13px; cursor:pointer;">Copiar</button>
+					<button type="button" onclick="navigator.clipboard.readText().then(txt=>document.getElementById('logs-textarea').value=txt)" style="background:#2d3748; color:#fff; border:none; border-radius:4px; padding:4px 10px; font-size:13px; cursor:pointer;">Pegar</button>
+					<button type="button" onclick="document.getElementById('logs-textarea').value=''" style="background:#d32f2f; color:#fff; border:none; border-radius:4px; padding:4px 10px; font-size:13px; cursor:pointer;">Limpiar</button>
 				</div>
 			</div>
 		</div>
@@ -914,19 +919,16 @@
 		    // Cámara 1 y 2
 
 			   // --- Play/Stop y Captura ---
-			let hlsPlayers = { cam1: null, cam2: null };
-			let playing = { cam1: false, cam2: false };
-			let estadoReles = {};
-			// Inicializar nombres de relés vacío (se carga desde config y WebSocket)
-			window.nombres_reles = {};
+			   let hlsPlayers = { cam1: null, cam2: null };
+			   let playing = { cam1: false, cam2: false };
+			   let estadoReles = {};
+			   // Inicializar nombres de relés vacío (se carga desde config y WebSocket)
+			   window.nombres_reles = {};
 
-		// Variables de estado UI
-		let velocidadActual = 50;
-		let recorridoGrabando = false;
-		let pollingIndicadores = null;
-				
-
-		// --- Play/Stop y Captura ---
+		   // Variables de estado UI
+		   let velocidadActual = 50;
+		   let recorridoGrabando = false;
+		   let pollingIndicadores = null;
 		function iniciarCamara(videoId, playlist, camKey) {
 			var video = document.getElementById(videoId);
 			if (window.Hls && Hls.isSupported()) {
@@ -1198,27 +1200,33 @@
 		const celda = document.getElementById('indicador-temp');
 		let tempNum = null;
 		if (temperatura && typeof temperatura.temperatura !== 'undefined') {
-			setIndicadorTexto('temp-valor', temperatura.temperatura + ' °C');
+			setIndicadorTexto('temp-valor', Number(temperatura.temperatura).toFixed(1) + ' °C');
 			tempNum = Number(temperatura.temperatura);
+		} else if (temperatura !== undefined && temperatura !== null) {
+			const num = Number(temperatura);
+			if (!isNaN(num)) {
+				setIndicadorTexto('temp-valor', num.toFixed(1) + ' °C');
+				tempNum = num;
+			} else {
+				setIndicadorTexto('temp-valor', '--');
+			}
 		} else {
 			setIndicadorTexto('temp-valor', '--');
 		}
+
 		if (celda) {
 			if (tempNum === null || isNaN(tempNum)) {
-				celda.style.background = '#23272b';
 				celda.style.color = '#f2f2f2';
 			} else if (tempNum < 45) {
-				celda.style.background = '#23272b';
-				celda.style.color = '#f2f2f2';
+				celda.style.color = '#4caf50';
 			} else if (tempNum < 60) {
-				celda.style.background = '#ff9800';
-				celda.style.color = '#23272b';
+				celda.style.color = '#ff9800';
 			} else {
-				celda.style.background = '#d32f2f';
-				celda.style.color = '#fff';
+				celda.style.color = '#f44336';
 			}
 		}
 	}
+
 
 	function actualizarMapaDesdeGPS(gps) {
 		if (!(gps && gps.latitud && gps.longitud)) return;
@@ -1235,57 +1243,37 @@
 			// Soporte para ambos formatos de datos (anidados o directos)
 			const d = data.datos || data;
 
-			// Actualizar Temperatura
-			if (typeof actualizarTemperatura === 'function') {
-				actualizarTemperatura(d.temperatura);
-			}
+			   // Actualizar Temperatura
+			   if (typeof actualizarTemperatura === 'function') {
+				   actualizarTemperatura(d.temperatura);
+			   }
 
-			// Actualizar RAM
-			let ramVal = d.ram;
-			if (ramVal && typeof ramVal === 'object') {
-				ramVal = ramVal.percent;
-			}
-			const ramCelda = document.getElementById('indicador-ram');
-			const ramTexto = document.getElementById('ram-valor');
-			if (ramTexto) {
-				if (ramVal !== undefined && ramVal !== null && !isNaN(ramVal)) {
-					ramTexto.textContent = ramVal + '%';
-					if (ramCelda) {
-						if (ramVal < 50) { ramCelda.style.color = '#43a047'; }
-						else if (ramVal < 80) { ramCelda.style.color = '#fbc02d'; }
-						else { ramCelda.style.color = '#e53935'; }
-					}
-				} else {
-					ramTexto.textContent = '--';
-				}
-			}
-
-			// Actualizar Mapa GPS
-			if (typeof actualizarMapaDesdeGPS === 'function') {
-				actualizarMapaDesdeGPS(d.gps);
-			}
+			   // Actualizar Mapa GPS
+			   if (typeof actualizarMapaDesdeGPS === 'function') {
+				   actualizarMapaDesdeGPS(d.gps);
+			   }
 		} catch (eIndic) {
 			console.error('Error en actualizarIndicadores:', eIndic);
 		}
 	}
 
-	async function cargarTemperaturaRaspberry() {
+	async function cargarIndicadoresRaspberryFallback() {
 		const controller = new AbortController();
 		const timeoutId = setTimeout(() => controller.abort(), 2500);
 		try {
-			const res = await fetch('/api/temperatura', { signal: controller.signal, cache: 'no-store' });
+			const res = await fetch('/api/indicadores', { signal: controller.signal, cache: 'no-store' });
 			if (!res.ok) return;
 			const data = await res.json();
 			if (data && data.datos) {
-				actualizarTemperatura(data.datos);
+				actualizarIndicadores(data);
 			}
 		} catch (e) {
-			// Mantener silencioso en UI; solo log para diagnóstico
-			console.warn('No se pudo actualizar temperatura:', e);
+			console.warn('No se pudo actualizar indicadores (fallback):', e);
 		} finally {
 			clearTimeout(timeoutId);
 		}
 	}
+
 			// Relés
 			async function alternarRelePorAPI(numero, estado) {
 				const res = await fetch('/api/reles', {
@@ -1324,7 +1312,7 @@
 					   btn.className = `btn btn-rele ${estaActivo ? 'activo' : 'inactivo'}`;
 					   btn.id = `rele${i}`;
 					   btn.setAttribute('data-numero', String(i));
-					   btn.innerHTML = `<span style='font-weight:600;'>${nombre}</span>`;
+					   btn.innerHTML = `<span style='font-size: 1.15em; font-weight: 800; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);'>${nombre}</span>`;
 					   console.log(`Creando botón relé ${i}:`, btn.id, 'activo:', estaActivo);
 					   btn.addEventListener('click', async function(e) {
 						   const numero = parseInt(this.getAttribute('data-numero'));
@@ -1533,11 +1521,11 @@
 							const btnRec = document.getElementById('mapa-grabar-recorrido');
 							if (btnRec) btnRec.textContent = '🛤️ Grabar recorrido';
 						}
-						// Indicadores del sistema (nueva capa modular)
-						if (data.tipo === 'temperatura' && data.datos) actualizarTemperatura(data.datos);
-						if (data.tipo === 'gps' && data.datos) {
-							actualizarMapaDesdeGPS(data.datos);
-						}
+						   // Indicadores del sistema (nueva capa modular)
+						   if (data.tipo === 'temperatura' && data.datos) actualizarTemperatura(data.datos);
+						   if (data.tipo === 'gps' && data.datos) {
+							   actualizarMapaDesdeGPS(data.datos);
+						   }
 						// Brújula - actualizar desde el WebSocket principal
 						if (data.tipo === 'brujula' && data.datos) {
 							if (data.datos.valido && typeof data.datos.azimuth === 'number') {
@@ -1561,7 +1549,9 @@
 			function iniciarPollingIndicadores() {
 				if (pollingIndicadores) return;
 				const ejecutar = async () => {
-					await cargarTemperaturaRaspberry();
+					if (typeof cargarIndicadoresRaspberryFallback === 'function') {
+						await cargarIndicadoresRaspberryFallback();
+					}
 				};
 				ejecutar();
 				pollingIndicadores = setInterval(ejecutar, 3000);
@@ -1625,8 +1615,10 @@
 						const res = await fetch('/api/config');
 						if (!res.ok) return;
 						const cfg = await res.json();
-						if (cfg && cfg.reles && Object.keys(cfg.reles).length > 0) {
-							window.nombres_reles = cfg.reles;
+						// Adaptado para aceptar la propiedad "nombres_reles", que es donde el JSON guarda los nombres
+						const relesConfig = cfg.nombres_reles || cfg.reles;
+						if (relesConfig && Object.keys(relesConfig).length > 0) {
+							window.nombres_reles = relesConfig;
 							console.log('✓ Nombres de relés cargados desde config:', window.nombres_reles);
 						}
 					} catch (e) {
@@ -1957,3 +1949,5 @@
 			}
 		}, 1000);
 	})();
+</body>
+</html>

@@ -1,0 +1,6 @@
+# Historial de binarios generados
+# Formato: fecha_hora | tamaño | hash_sha256 | nombre_binario
+# Ejemplo:
+# 2026-03-07_18:00 | 8.2M | 1234abcd... | drone_acuatico
+2026-03-07_19:20:47 | 7.5M | 602b47a7a55a71f922bc945fa7e000670e973d865bf04c551a404f710cc5ea38 | drone_acuatico | forzada
+2026-03-07_20:13:13 | 7.5M | 602b47a7a55a71f922bc945fa7e000670e973d865bf04c551a404f710cc5ea38 | drone_acuatico | forzada
