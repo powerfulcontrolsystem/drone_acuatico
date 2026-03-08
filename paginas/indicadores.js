@@ -63,6 +63,42 @@ function actualizarMapaDesdeGPS(gps) {
 	}
 }
 
+// --- Formatear RAM ---
+function formatearRAM(ram) {
+	if (!ram || typeof ram !== 'object') return '--';
+	if (typeof ram.percent !== 'undefined') return ram.percent + '%';
+	return '--';
+}
+
+// --- Formatear Disco ---
+function formatearDisco(disco) {
+	if (!disco || typeof disco !== 'object') return '--';
+	if (typeof disco.porcentaje !== 'undefined') return disco.porcentaje + '%';
+	return '--';
+}
+
+// --- Formatear Batería ---
+function formatearBateria(bat) {
+	if (!bat || typeof bat !== 'object') return '--';
+	if (!bat.conectado) return 'N/C';
+	if (typeof bat.porcentaje !== 'undefined') return bat.porcentaje + '%';
+	return '--';
+}
+
+// --- Formatear Voltaje RPI ---
+function formatearVoltaje(volt) {
+	if (!volt || typeof volt !== 'object') {
+		if (typeof volt === 'number') return volt + ' V';
+		if (typeof volt === 'string') return volt;
+		return '--';
+	}
+	let valor = '--';
+	if (volt.voltaje !== undefined && volt.voltaje !== null) {
+		valor = volt.voltaje + ' V';
+	}
+	return valor;
+}
+
 // --- Actualizar todos los indicadores (datos completos) ---
 function actualizarIndicadores(data) {
 	try {
@@ -74,28 +110,45 @@ function actualizarIndicadores(data) {
 		}
 		// RAM
 		if (typeof d.ram !== 'undefined') {
-			setIndicadorTexto('ram-valor', d.ram ? d.ram : '--');
+			const ramTexto = formatearRAM(d.ram);
+			setIndicadorTexto('ram-valor', ramTexto);
+			const celdaRam = document.getElementById('indicador-ram');
+			if (celdaRam && d.ram && typeof d.ram.percent === 'number') {
+				if (d.ram.percent < 60) celdaRam.style.color = '#a3e635';
+				else if (d.ram.percent < 85) celdaRam.style.color = '#ff9800';
+				else celdaRam.style.color = '#f44336';
+			}
 		}
 		// Disco
 		if (typeof d.disco !== 'undefined') {
-			setIndicadorTexto('disco-valor', d.disco ? d.disco : '--');
+			const discoTexto = formatearDisco(d.disco);
+			setIndicadorTexto('disco-valor', discoTexto);
+			const celdaDisco = document.getElementById('indicador-disco');
+			if (celdaDisco && d.disco && typeof d.disco.porcentaje === 'number') {
+				if (d.disco.porcentaje < 70) celdaDisco.style.color = '#60a5fa';
+				else if (d.disco.porcentaje < 90) celdaDisco.style.color = '#ff9800';
+				else celdaDisco.style.color = '#f44336';
+			}
 		}
 		// Batería
 		if (typeof d.bateria !== 'undefined') {
-			setIndicadorTexto('bateria-valor', d.bateria ? d.bateria : '--');
+			const batTexto = formatearBateria(d.bateria);
+			setIndicadorTexto('bateria-valor', batTexto);
+			const celdaBat = document.getElementById('indicador-bateria');
+			if (celdaBat && d.bateria && typeof d.bateria.porcentaje === 'number') {
+				if (d.bateria.porcentaje > 50) celdaBat.style.color = '#4caf50';
+				else if (d.bateria.porcentaje > 20) celdaBat.style.color = '#ff9800';
+				else celdaBat.style.color = '#f44336';
+			}
 		}
 		// Voltaje Raspberry Pi
 		if (typeof d.voltaje !== 'undefined') {
-			let volt = d.voltaje;
-			let valor = '--';
+			const voltTexto = formatearVoltaje(d.voltaje);
+			setIndicadorTexto('voltaje-valor', voltTexto);
 			let alerta = false;
-			if (volt && typeof volt === 'object') {
-				valor = (volt.voltaje !== undefined && volt.voltaje !== null) ? volt.voltaje : '--';
-				alerta = !!volt.alerta;
-			} else if (typeof volt === 'number' || typeof volt === 'string') {
-				valor = volt;
+			if (d.voltaje && typeof d.voltaje === 'object') {
+				alerta = !!d.voltaje.alerta;
 			}
-			setIndicadorTexto('voltaje-valor', valor);
 			const iconoAlerta = document.getElementById('icono-voltaje-alerta');
 			const iconoOk = document.getElementById('icono-voltaje-ok');
 			const textoAlerta = document.getElementById('voltaje-alerta-texto');
@@ -157,8 +210,11 @@ function detenerPollingIndicadores() {
 }
 
 // --- Inicialización automática ---
-// Polling de temperatura cada 5 segundos
-setInterval(obtenerTemperatura, 5000);
+// Polling de todos los indicadores cada 5 segundos
+setInterval(function() {
+	cargarIndicadoresRaspberryFallback();
+}, 5000);
 window.addEventListener('DOMContentLoaded', function() {
 	setTimeout(obtenerTemperatura, 500);
+	setTimeout(cargarIndicadoresRaspberryFallback, 1000);
 });
