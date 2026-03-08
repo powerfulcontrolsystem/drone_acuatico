@@ -500,29 +500,8 @@
 
     <!-- Overlay de carga eliminado -->
 
+	<script src="/static/indicadores.js"></script>
 	<script>
-	// DIAGNÓSTICO: Mostrar respuesta de /api/indicadores en el textarea de logs
-	async function mostrarIndicadoresEnLogs() {
-		try {
-			const res = await fetch('/api/indicadores');
-			const txt = await res.text();
-			document.getElementById('logs-textarea').value = txt;
-		} catch(e) {
-			document.getElementById('logs-textarea').value = 'Error: ' + e;
-		}
-	}
-	// Botón temporal para diagnóstico
-	window.addEventListener('DOMContentLoaded', function() {
-		const btn = document.createElement('button');
-		btn.textContent = 'Ver /api/indicadores';
-		btn.style = 'background:#4caf50;color:#fff;border:none;border-radius:4px;padding:4px 10px;font-size:13px;cursor:pointer;margin-left:8px;';
-		btn.onclick = mostrarIndicadoresEnLogs;
-		const logsLabel = document.querySelector('label[for="logs-textarea"]');
-		if (logsLabel && logsLabel.parentNode) {
-			logsLabel.parentNode.insertBefore(btn, logsLabel.nextSibling);
-		}
-	});
-// Overlay de carga eliminado
 	// Dibuja la brújula en el canvas según el ángulo recibido
 	function dibujarBrujula(azimuth) {
 		const canvas = document.getElementById('canvas-brujula');
@@ -968,7 +947,6 @@
 		   // Variables de estado UI
 		   let velocidadActual = 50;
 		   let recorridoGrabando = false;
-		   let pollingIndicadores = null;
 		function iniciarCamara(videoId, playlist, camKey) {
 			var video = document.getElementById(videoId);
 			if (window.Hls && Hls.isSupported()) {
@@ -1230,121 +1208,6 @@
 				}
 				ultimoEstadoConexion = estado;
 			}
-	function setIndicadorTexto(id, valor) {
-		const el = document.getElementById(id);
-		if (!el) return;
-		el.textContent = valor;
-	}
-
-	function actualizarTemperatura(temperatura) {
-			const celda = document.getElementById('indicador-temp');
-			let tempNum = null;
-			let valor = '--';
-			if (temperatura && typeof temperatura.temperatura !== 'undefined') {
-				tempNum = Number(temperatura.temperatura);
-				if (!isNaN(tempNum)) valor = tempNum.toFixed(1) + ' °C';
-			} else if (typeof temperatura === 'number' || (typeof temperatura === 'string' && temperatura !== '')) {
-				tempNum = Number(temperatura);
-				if (!isNaN(tempNum)) valor = tempNum.toFixed(1) + ' °C';
-			}
-			setIndicadorTexto('temp-valor', valor);
-			if (celda) {
-				if (tempNum === null || isNaN(tempNum)) {
-					celda.style.color = '#f2f2f2';
-				} else if (tempNum < 45) {
-					celda.style.color = '#4caf50';
-				} else if (tempNum < 60) {
-					celda.style.color = '#ff9800';
-				} else {
-					celda.style.color = '#f44336';
-				}
-			}
-	}
-
-
-	function actualizarMapaDesdeGPS(gps) {
-		if (!(gps && gps.latitud && gps.longitud)) return;
-		const lat = Number(gps.latitud);
-		const lon = Number(gps.longitud);
-		const gpsActivo = gps.valido === true;
-		if (!isNaN(lat) && !isNaN(lon) && typeof mostrarMapaGPS === 'function') {
-			mostrarMapaGPS(lat, lon, gpsActivo);
-		}
-	}
-
-	   function actualizarIndicadores(data) {
-		   try {
-			   // Soporte para ambos formatos de datos (anidados o directos)
-			   const d = data.datos || data;
-
-			   // Actualizar Temperatura
-			   if (typeof actualizarTemperatura === 'function') {
-				   actualizarTemperatura(d.temperatura);
-			   }
-			   // RAM
-			   if (typeof d.ram !== 'undefined') {
-				   setIndicadorTexto('ram-valor', d.ram ? d.ram : '--');
-			   }
-			   // Disco
-			   if (typeof d.disco !== 'undefined') {
-				   setIndicadorTexto('disco-valor', d.disco ? d.disco : '--');
-			   }
-			   // Batería
-			   if (typeof d.bateria !== 'undefined') {
-				   setIndicadorTexto('bateria-valor', d.bateria ? d.bateria : '--');
-			   }
-			   // Voltaje Raspberry Pi
-			   if (typeof d.voltaje !== 'undefined') {
-				   let volt = d.voltaje;
-				   let valor = '--';
-				   let alerta = false;
-				   if (volt && typeof volt === 'object') {
-					   valor = (volt.voltaje !== undefined && volt.voltaje !== null) ? volt.voltaje : '--';
-					   alerta = !!volt.alerta;
-				   } else if (typeof volt === 'number' || typeof volt === 'string') {
-					   valor = volt;
-				   }
-				   setIndicadorTexto('voltaje-valor', valor);
-				   // Iconos y texto de alerta
-				   const iconoAlerta = document.getElementById('icono-voltaje-alerta');
-				   const iconoOk = document.getElementById('icono-voltaje-ok');
-				   const textoAlerta = document.getElementById('voltaje-alerta-texto');
-				   if (alerta) {
-					   if (iconoAlerta) iconoAlerta.style.display = 'inline';
-					   if (iconoOk) iconoOk.style.display = 'none';
-					   if (textoAlerta) { textoAlerta.textContent = '¡Bajo voltaje!'; textoAlerta.style.color = '#f44336'; }
-				   } else {
-					   if (iconoAlerta) iconoAlerta.style.display = 'none';
-					   if (iconoOk) iconoOk.style.display = 'inline';
-					   if (textoAlerta) { textoAlerta.textContent = 'OK'; textoAlerta.style.color = '#4caf50'; }
-				   }
-			   }
-			   // Actualizar Mapa GPS
-			   if (typeof actualizarMapaDesdeGPS === 'function') {
-				   actualizarMapaDesdeGPS(d.gps);
-			   }
-		   } catch (eIndic) {
-			   console.error('Error en actualizarIndicadores:', eIndic);
-		   }
-	   }
-
-	async function cargarIndicadoresRaspberryFallback() {
-		const controller = new AbortController();
-		const timeoutId = setTimeout(() => controller.abort(), 2500);
-		try {
-			const res = await fetch('/api/indicadores', { signal: controller.signal, cache: 'no-store' });
-			if (!res.ok) return;
-			const data = await res.json();
-			if (data && data.datos) {
-				actualizarIndicadores(data);
-			}
-		} catch (e) {
-			console.warn('No se pudo actualizar indicadores (fallback):', e);
-		} finally {
-			clearTimeout(timeoutId);
-		}
-	}
-
 			// Relés
 			async function alternarRelePorAPI(numero, estado) {
 				const res = await fetch('/api/reles', {
@@ -1615,23 +1478,6 @@
 						console.error('Error al parsear mensaje WebSocket:', e, event.data);
 					}
 				};
-			}
-
-			function iniciarPollingIndicadores() {
-				if (pollingIndicadores) return;
-				const ejecutar = async () => {
-					if (typeof cargarIndicadoresRaspberryFallback === 'function') {
-						await cargarIndicadoresRaspberryFallback();
-					}
-				};
-				ejecutar();
-				pollingIndicadores = setInterval(ejecutar, 3000);
-			}
-
-			function detenerPollingIndicadores() {
-				if (!pollingIndicadores) return;
-				clearInterval(pollingIndicadores);
-				pollingIndicadores = null;
 			}
 
 			function toggleRecorridoGPS(btn) {

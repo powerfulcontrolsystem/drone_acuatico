@@ -299,28 +299,57 @@ echo ""
 
 echo -e "${YELLOW}[4/5] Compilando servidor...${NC}"
 
-# Matar procesos previos del servidor antes de compilar
-pkill -f "./$NOMBRE" 2>/dev/null || true
-pkill -f "servidor.py" 2>/dev/null || true
+# === Paso 1: Detener procesos previos ===
+FECHA_EJEC=$(date '+%Y-%m-%d_%H:%M:%S')
+echo "🟥 [EJECUCIÓN iniciar_servidor.sh] $FECHA_EJEC" >> historial_binarios.txt
+echo -e "${YELLOW}Deteniendo procesos previos...${NC}"
+pkill -f "./$NOMBRE" 2>/dev/null && echo -e "${GREEN}✓ Proceso $NOMBRE detenido${NC}" || echo -e "${BLUE}ℹ️  No había proceso $NOMBRE en ejecución${NC}"
+pkill -f "servidor.py" 2>/dev/null && echo -e "${GREEN}✓ Proceso servidor.py detenido${NC}" || echo -e "${BLUE}ℹ️  No había proceso servidor.py en ejecución${NC}"
 sleep 1
 
-# Forzar recompilacion siempre para evitar binarios desactualizados
+# === Paso 2: Eliminar binario físico anterior y verificar ===
+if [ -f "$NOMBRE" ]; then
+    rm -f "$NOMBRE"
+    if [ -f "$NOMBRE" ]; then
+        echo -e "${RED}❌ No se pudo eliminar el binario anterior. Verificar permisos.${NC}"
+        exit 1
+    else
+        echo -e "${GREEN}✅ Binario anterior eliminado correctamente${NC}"
+    fi
+else
+    echo -e "${BLUE}ℹ️  No existía binario previo para eliminar${NC}"
+fi
+
+# === Paso 3: Compilar nuevo binario ===
 NECESITA_COMPILAR=true
 MOTIVO_COMPILACION="forzada"
 
-echo -e "${YELLOW}   Compilando...${NC}"
-go build -o "$NOMBRE" . 2>&1
-if [ $? -ne 0 ]; then
-    echo -e "${RED}   ✗ Error de compilación${NC}"
+echo -e "${YELLOW}⚙️  Compilando nuevo binario...${NC}"
+BUILD_LOG=$(mktemp)
+if go build -o "$NOMBRE" . 2> "$BUILD_LOG"; then
+    if [ -f "$NOMBRE" ]; then
+        chmod +x "$NOMBRE"
+        TAMANO=$(du -h "$NOMBRE" | cut -f1)
+        echo -e "${GREEN}✅ Compilado exitosamente ($TAMANO)${NC}"
+        # Registrar binario en historial_binarios.txt
+        FECHA_BIN=$(date '+%Y-%m-%d_%H:%M:%S')
+        HASH_BIN=$(sha256sum "$NOMBRE" | awk '{print $1}')
+        echo "🟦 [BINARIO] $FECHA_BIN | $TAMANO | $HASH_BIN | $NOMBRE | $MOTIVO_COMPILACION" >> historial_binarios.txt
+    else
+        echo -e "${RED}❌ Compilación finalizó pero NO se generó el binario${NC}"
+        echo -e "${YELLOW}Log de compilación:${NC}"
+        cat "$BUILD_LOG"
+        rm -f "$BUILD_LOG"
+        exit 1
+    fi
+else
+    echo -e "${RED}❌ Error de compilación${NC}"
+    echo -e "${YELLOW}Log de compilación:${NC}"
+    cat "$BUILD_LOG"
+    rm -f "$BUILD_LOG"
     exit 1
 fi
-chmod +x "$NOMBRE"
-TAMANO=$(du -h "$NOMBRE" | cut -f1)
-echo -e "${GREEN}   ✓ Compilado exitosamente ($TAMANO)${NC}"
-# Registrar binario en historial_binarios.txt
-FECHA_BIN=$(date '+%Y-%m-%d_%H:%M:%S')
-HASH_BIN=$(sha256sum "$NOMBRE" | awk '{print $1}')
-echo "$FECHA_BIN | $TAMANO | $HASH_BIN | $NOMBRE | $MOTIVO_COMPILACION" >> historial_binarios.txt
+rm -f "$BUILD_LOG"
 echo ""
 
 # ==================== 5. EJECUTAR ====================

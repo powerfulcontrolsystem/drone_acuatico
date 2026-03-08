@@ -1,19 +1,12 @@
-# Historial de binarios generados
-# === RESUMEN AUTOMÁTICO ===
-# Última ejecución de iniciar_servidor.sh:
-#   Fecha y hora: 2026-03-07_20:50:14
-# Último binario generado:
-#   Fecha y hora: 2026-03-07_20:50:14
-#   Registro: 2026-03-07_20:50:14 | 7.5M | eb81953578f4d9df90365445f53ffc0d125526f09534249c401abcef19d2659b | drone_acuatico | forzada
-# ==========================
-# Formato: fecha_hora | tamaño | hash_sha256 | nombre_binario
-# Ejemplo:
-# 2026-03-07_18:00 | 8.2M | 1234abcd... | drone_acuatico
-2026-03-07_19:20:47 | 7.5M | 602b47a7a55a71f922bc945fa7e000670e973d865bf04c551a404f710cc5ea38 | drone_acuatico | forzada
-2026-03-07_20:13:13 | 7.5M | 602b47a7a55a71f922bc945fa7e000670e973d865bf04c551a404f710cc5ea38 | drone_acuatico | forzada
-2026-03-07_20:19:41 | 7.5M | 7443aa10cc0b07a53221a90fde0bfe02514b8c681f69d0a5a264f8934d5d7030 | drone_acuatico | forzada
-2026-03-07_20:27:38 | 7.5M | 7443aa10cc0b07a53221a90fde0bfe02514b8c681f69d0a5a264f8934d5d7030 | drone_acuatico | forzada
-2026-03-07_20:38:02 | 7.5M | eb81953578f4d9df90365445f53ffc0d125526f09534249c401abcef19d2659b | drone_acuatico | forzada
-2026-03-07_20:45:31 | 7.5M | eb81953578f4d9df90365445f53ffc0d125526f09534249c401abcef19d2659b | drone_acuatico | forzada
-2026-03-07_20:50:14 | 7.5M | eb81953578f4d9df90365445f53ffc0d125526f09534249c401abcef19d2659b | drone_acuatico | forzada
-2026-03-07_20:53:05 | 7.5M | eb81953578f4d9df90365445f53ffc0d125526f09534249c401abcef19d2659b | drone_acuatico | forzada
+2026-03-08_04:25:31 | 7.5M | fc9ec5a454157472f1a0595b72553605b3e2de98a26d296a9d73c43c2ddb782b | drone_acuatico | forzada
+2026-03-08_04:33:50 | 7.5M | fc9ec5a454157472f1a0595b72553605b3e2de98a26d296a9d73c43c2ddb782b | drone_acuatico | forzada
+🟥 [EJECUCIÓN iniciar_servidor.sh] 2026-03-08_04:38:02
+2026-03-08_04:38:05 | 7.5M | fc9ec5a454157472f1a0595b72553605b3e2de98a26d296a9d73c43c2ddb782b | drone_acuatico | forzada
+🟥 [EJECUCIÓN iniciar_servidor.sh] 2026-03-08_04:40:00
+2026-03-08_04:40:04 | 7.5M | fc9ec5a454157472f1a0595b72553605b3e2de98a26d296a9d73c43c2ddb782b | drone_acuatico_20260308_043941 | forzada
+🟥 [EJECUCIÓN iniciar_servidor.sh] 2026-03-08_04:44:13
+2026-03-08_04:44:17 | 7.5M | fc9ec5a454157472f1a0595b72553605b3e2de98a26d296a9d73c43c2ddb782b | drone_acuatico_20260308_044355 | forzada
+🟥 [EJECUCIÓN iniciar_servidor.sh] 2026-03-08_04:56:07
+🟦 [BINARIO] 2026-03-08_04:56:11 | 7.5M | fc9ec5a454157472f1a0595b72553605b3e2de98a26d296a9d73c43c2ddb782b | drone_acuatico | forzada
+🟥 [EJECUCIÓN iniciar_servidor.sh] 2026-03-08_05:17:38
+🟦 [BINARIO] 2026-03-08_05:17:42 | 7.5M | fc9ec5a454157472f1a0595b72553605b3e2de98a26d296a9d73c43c2ddb782b | drone_acuatico | forzada
